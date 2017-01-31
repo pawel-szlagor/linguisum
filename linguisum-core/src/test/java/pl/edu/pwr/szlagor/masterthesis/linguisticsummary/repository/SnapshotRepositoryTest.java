@@ -9,7 +9,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.config.TestMongoConfig;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.*;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.enums.FallType;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.enums.MediaType;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.enums.WeatherCondition;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.enums.WeatherEvent;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -52,8 +52,8 @@ public class SnapshotRepositoryTest {
             for (int i = 0; i < 9; i++) {
                 Snapshot entity = new Snapshot();
                 EnvironmentConditions env = EnvironmentConditions.builder().fall(FALL).fallType(FallType.RAIN)
-                        .humidity(HUMIDITY).pressure(PRESSURE).tempOutside(TEMP_OUTSIDE).weatherCondition
-                                (WeatherCondition.CLOUDS).windSpeed(WIND_SPEED).windChill(WIND_CHILL).sunlight
+                        .humidity(HUMIDITY).pressure(PRESSURE).tempOutside(TEMP_OUTSIDE).weatherEvent(WeatherEvent
+                                .FOG).windSpeed(WIND_SPEED).windChill(WIND_CHILL).sunlight
                                 (SUNLIGHT).build();
 
 

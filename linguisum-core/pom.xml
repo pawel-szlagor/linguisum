@@ -16,6 +16,12 @@
         <maven.compiler.target>1.8</maven.compiler.target>
 
         <org.hibernate.ogm.version>4.1.0.Final</org.hibernate.ogm.version>
+        <spring-data-jpa.version>1.10.5.RELEASE</spring-data-jpa.version>
+        <junit.version>4.12</junit.version>
+        <spring-test.version>4.2.8.RELEASE</spring-test.version>
+        <spring-data-mongodb.version>1.9.5.RELEASE</spring-data-mongodb.version>
+        <hibernate-core.version>4.3.8.Final</hibernate-core.version>
+        <orika-core.version>1.5.0</orika-core.version>
     </properties>
 
     <dependencies>
@@ -25,6 +31,26 @@
             <version>${org.hibernate.ogm.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${hibernate-core.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/net.sf.dozer/dozer -->
+        <dependency>
+            <groupId>net.sf.dozer</groupId>
+            <artifactId>dozer</artifactId>
+            <version>5.5.1</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/ma.glasnost.orika/orika-core -->
+        <dependency>
+            <groupId>ma.glasnost.orika</groupId>
+            <artifactId>orika-core</artifactId>
+            <version>${orika-core.version}</version>
+        </dependency>
+
 
         <!-- Java EE APIs -->
 
@@ -59,7 +85,7 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-mongodb</artifactId>
-            <version>1.9.5.RELEASE</version>
+            <version>${spring-data-mongodb.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/de.flapdoodle.embed/de.flapdoodle.embed.mongo -->
         <dependency>
@@ -71,7 +97,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>4.2.8.RELEASE</version>
+            <version>${spring-test.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -92,7 +118,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -114,6 +140,23 @@
             <version>19.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-jpa</artifactId>
+            <version>${spring-data-jpa.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.40</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>19.0</version>
+        </dependency>
+
 
     </dependencies>
 

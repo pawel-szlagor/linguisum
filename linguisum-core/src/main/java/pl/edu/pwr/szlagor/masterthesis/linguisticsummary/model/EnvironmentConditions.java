@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.enums.FallType;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.enums.WeatherCondition;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.enums.WeatherEvent;
 
 import javax.persistence.Embeddable;
 
@@ -26,7 +26,7 @@ public class EnvironmentConditions {
     private double windSpeed;
     private double fall;
     private FallType fallType;
-    private WeatherCondition weatherCondition;
+    private WeatherEvent weatherEvent;
     private double sunlight;
 
 }
