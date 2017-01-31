@@ -7,4 +7,5 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.mode
  * Created by Pawel on 2017-01-22.
  */
 public interface RoomSourceRepository extends JpaRepository<RoomSource, Long> {
+    RoomSource findByName(String name);
 }

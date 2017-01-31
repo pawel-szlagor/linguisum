@@ -1,11 +1,12 @@
-package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.save.impl;
+package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.weatherconditions.impl;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.WeatherConditionSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.AbstractService;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.save.WeatherConditionsService;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.weatherconditions
+        .WeatherConditionsService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.model.WeatherConditionSource;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.repository.WeatherConditionSourceRepository;
 
@@ -14,7 +15,8 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.repo
  */
 @Getter
 @Service
-public class WeatherConditionsServiceImpl extends AbstractService<WeatherConditionSourceDto, WeatherConditionSource>
+public class WeatherConditionsServiceImpl extends AbstractService<WeatherConditionSourceDto, WeatherConditionSource,
+        Long>
         implements WeatherConditionsService {
 
     private final WeatherConditionSourceRepository repository;

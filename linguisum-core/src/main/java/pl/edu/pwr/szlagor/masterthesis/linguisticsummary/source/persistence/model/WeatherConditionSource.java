@@ -23,7 +23,7 @@ public class WeatherConditionSource {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
     @Mapping
     private LocalDateTime observationTime;
     private double tempOut;

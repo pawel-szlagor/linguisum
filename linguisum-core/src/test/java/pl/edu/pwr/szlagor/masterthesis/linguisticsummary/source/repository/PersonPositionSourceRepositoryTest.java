@@ -59,15 +59,15 @@ public class PersonPositionSourceRepositoryTest {
         PersonSource person = new PersonSource();
         person.setMail(MAIL);
         person.setName(NAME);
-        personSourceRepository.save(person);
+        //personSourceRepository.save(person);
         RoomSource room = new RoomSource();
         room.setName(ROOM_NAME);
         room.setType(BATHROOM);
-        roomSourceRepository.save(room);
+        //roomSourceRepository.save(room);
         PersonPositionSource persPos = new PersonPositionSource();
         persPos.setLocation(room);
-        persPos.getId().setUser(person);
-        persPos.getId().setObservationTime(LocalDateTime.now());
+        persPos.setUser(person);
+        persPos.setObservationTime(LocalDateTime.now());
         // when
         persPos = personPositionSourceRepository.save(persPos);
         WeatherConditionSource weatherConditionSource = WeatherConditionSource.builder().weatherEvent(WeatherEvent
@@ -75,7 +75,7 @@ public class PersonPositionSourceRepositoryTest {
                 .sunlightEmission(SUNLIGHT).tempOut(TEMP_OUTSIDE).windSpeed(WIND_SPEED).windchill(WIND_CHILL).build();
         weatherConditionRepository.save(weatherConditionSource);
         // then
-        assertThat(persPos.getId().getUser(), notNullValue());
+        assertThat(persPos.getUser(), notNullValue());
 
     }
 

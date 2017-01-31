@@ -10,7 +10,8 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.enums.WeatherEven
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.WeatherConditionSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.importItems
         .WeatherConditionsImportService;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.save.WeatherConditionsService;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.weatherconditions
+        .WeatherConditionsService;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
