@@ -1,16 +1,17 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.config;
 
-import com.mongodb.Mongo;
-import com.mongodb.MongoClient;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+
+import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 /**
  * Created by Pawel on 2017-01-16.
  */
 @Configuration
-@EnableMongoRepositories(basePackages = "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.repository")
+@EnableMongoRepositories(basePackages = "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository")
 public class TestMongoConfig extends AbstractMongoConfiguration {
 
     @Override
@@ -25,7 +26,7 @@ public class TestMongoConfig extends AbstractMongoConfiguration {
 
     @Override
     protected String getMappingBasePackage() {
-        return "pl.edu.pwr.szlagor.masterthesis.linguisticsummary";
+        return "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic";
     }
 
 

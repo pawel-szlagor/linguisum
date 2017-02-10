@@ -1,8 +1,11 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.device.impl;
 
-import lombok.Getter;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import lombok.Getter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.DeviceSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.AbstractService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.device.DeviceSourceService;
@@ -18,10 +21,19 @@ public class DeviceSourceServiceImpl extends AbstractService<DeviceSourceDto, De
         DeviceSourceService {
 
     private final DeviceSourceRepository repository;
+    private List<DeviceSourceDto> cachedDevices;
 
     @Autowired
     public DeviceSourceServiceImpl(DeviceSourceRepository repository) {
         this.repository = repository;
+    }
+
+    @Override
+    public List<DeviceSourceDto> findAll() {
+        if (cachedDevices == null) {
+            cachedDevices = findAllInBulk();
+        }
+        return cachedDevices;
     }
 
     @Override

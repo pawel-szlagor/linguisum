@@ -1,21 +1,30 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.repository;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.config.TestMongoConfig;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.*;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.enums.FallType;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.enums.MediaType;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.enums.WeatherEvent;
+import static com.google.common.collect.Sets.newHashSet;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 
-import static com.google.common.collect.Sets.newHashSet;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.config.TestMongoConfig;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.DeviceState;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.EnvironmentConditions;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.MediaUsage;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.PersonState;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.RoomState;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.FallType;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.MediaType;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.WeatherEvent;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.DeviceRepository;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.RoomRepository;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
 
 /**
  * Created by Pawel on 2017-01-16.

@@ -1,12 +1,19 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.repository;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.RoomType.BATHROOM;
+
+import java.time.LocalDateTime;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.enums.WeatherEvent;
+
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.WeatherEvent;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.config.TestMySQLConfig;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.model.PersonPositionSource;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.model.PersonSource;
@@ -16,12 +23,6 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.repo
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.repository.PersonSourceRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.repository.RoomSourceRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.repository.WeatherConditionSourceRepository;
-
-import java.time.LocalDateTime;
-
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.enums.RoomType.BATHROOM;
 
 /**
  * Created by Pawel on 2017-01-16.

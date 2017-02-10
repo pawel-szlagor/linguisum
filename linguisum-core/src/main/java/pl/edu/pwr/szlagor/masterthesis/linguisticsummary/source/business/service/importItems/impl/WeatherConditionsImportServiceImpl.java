@@ -1,17 +1,6 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.importItems.impl;
 
-import com.google.common.collect.Lists;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.enums.WeatherEvent;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.WeatherConditionSourceDto;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.importItems
-        .WeatherConditionsImportService;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.weatherconditions
-        .WeatherConditionsService;
+import static java.lang.Double.parseDouble;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -21,7 +10,17 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Scanner;
 
-import static java.lang.Double.parseDouble;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.WeatherEvent;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.WeatherConditionSourceDto;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.importItems.WeatherConditionsImportService;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.weatherconditions.WeatherConditionsService;
 
 /**
  * Created by Pawel on 2017-01-29.
@@ -60,7 +59,7 @@ public class WeatherConditionsImportServiceImpl implements WeatherConditionsImpo
             }
             importedWeathers.add(builder.build());
         }
-        weatherConditionsService.save(importedWeathers);
+        weatherConditionsService.saveInBulk(importedWeathers);
     }
 
 

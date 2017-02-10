@@ -1,15 +1,22 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model;
 
-import lombok.*;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.enums.WeatherEvent;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Singular;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.WeatherEvent;
+
 /**
  * Created by Pawel on 2017-01-29.
  */
+@EqualsAndHashCode
 @Setter
 @Getter
 @Builder

@@ -1,22 +1,23 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.person.impl;
 
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+
+import lombok.Getter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.PersonSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.AbstractService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.person.PersonSourceService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.model.PersonSource;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.repository.PersonSourceRepository;
 
-import javax.transaction.Transactional;
-
 /**
  * Created by Pawel on 2017-01-29.
  */
 @Getter
-@Transactional
+@Transactional(readOnly = true)
 @Service
 public class PersonSourceServiceImpl extends AbstractService<PersonSourceDto, PersonSource, Long> implements
         PersonSourceService {
@@ -28,6 +29,7 @@ public class PersonSourceServiceImpl extends AbstractService<PersonSourceDto, Pe
         this.repository = repository;
     }
 
+    @Caching
     @Override
     public PersonSourceDto findByName(String name) {
         Assert.notNull(name);

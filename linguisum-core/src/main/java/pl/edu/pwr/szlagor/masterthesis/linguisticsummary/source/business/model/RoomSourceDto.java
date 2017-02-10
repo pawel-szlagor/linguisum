@@ -1,11 +1,19 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model;
 
-import lombok.*;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.enums.RoomType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.RoomType;
 
 /**
  * Created by Pawel on 2017-01-29.
  */
+@ToString(of = "name")
+@EqualsAndHashCode
 @Setter
 @Getter
 @Builder

@@ -1,8 +1,9 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.desiredtemp.impl;
 
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import lombok.Getter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.DesiredTempSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.AbstractService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.desiredtemp.DesiredTempSourceService;
@@ -14,8 +15,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.repo
  */
 @Getter
 @Service
-public class DesiredTempSourceServiceImpl extends AbstractService<DesiredTempSourceDto, DesiredTempSource, Long>
-        implements DesiredTempSourceService {
+public class DesiredTempSourceServiceImpl extends AbstractService<DesiredTempSourceDto, DesiredTempSource, Long> implements DesiredTempSourceService {
 
     private final DesiredTempSourceRepository repository;
 

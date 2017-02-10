@@ -1,12 +1,19 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model;
 
-import lombok.*;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.model.PersonSource;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.model.RoomSource;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.MediaType;
 
 /**
  * Created by Pawel on 2017-01-29.
  */
+@ToString(of = "name")
+@EqualsAndHashCode
 @Setter
 @Getter
 @Builder
@@ -15,7 +22,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.mode
 public class DeviceSourceDto {
 
     private Long id;
-    private PersonSource user;
-    private float desiredTemp;
-    private RoomSource location;
+    private String name;
+    private MediaType mediaType;
+    private double mediaUsage;
 }

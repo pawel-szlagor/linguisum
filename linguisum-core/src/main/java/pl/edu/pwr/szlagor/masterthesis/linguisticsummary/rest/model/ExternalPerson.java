@@ -1,6 +1,6 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.rest.model;
 
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.model.Person;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Person;
 
 public class ExternalPerson {
 
