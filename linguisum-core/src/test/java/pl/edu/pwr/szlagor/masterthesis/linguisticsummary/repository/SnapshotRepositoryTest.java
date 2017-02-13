@@ -1,30 +1,25 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.repository;
 
-import static com.google.common.collect.Sets.newHashSet;
-
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.HashSet;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.config.TestMongoConfig;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.DeviceState;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.EnvironmentConditions;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.MediaUsage;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.PersonState;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.RoomState;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.FallType;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.*;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.DeviceType;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.MediaType;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.RoomType;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.WeatherEvent;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.DeviceRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.RoomRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
+
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.HashSet;
+
+import static com.google.common.collect.Sets.newHashSet;
 
 /**
  * Created by Pawel on 2017-01-16.
@@ -60,21 +55,24 @@ public class SnapshotRepositoryTest {
         for (int j = 0; j < 1; j++) {
             for (int i = 0; i < 9; i++) {
                 Snapshot entity = new Snapshot();
-                EnvironmentConditions env = EnvironmentConditions.builder().fall(FALL).fallType(FallType.RAIN)
-                        .humidity(HUMIDITY).pressure(PRESSURE).tempOutside(TEMP_OUTSIDE).weatherEvent(WeatherEvent
-                                .FOG).windSpeed(WIND_SPEED).windChill(WIND_CHILL).sunlight
+                EnvironmentConditions env = EnvironmentConditions.builder().precipitation(FALL).weatherEvent(WeatherEvent.RAIN)
+                        .humidity(HUMIDITY).pressure(PRESSURE).tempOut(TEMP_OUTSIDE).weatherEvent(WeatherEvent
+                                .FOG).windSpeed(WIND_SPEED).windchill(WIND_CHILL).sunlightEmission
                                 (SUNLIGHT).build();
 
+                Person person = new Person(PERSON_ID, "name", "mail");
+                Room room = new Room(ROOM_ID, "name", RoomType.LIVING_ROOM);
+                Device device = new Device(DEVICE_ID, "deviceName", DeviceType.ELECTRIC_KETTEL);
 
-                entity.setEnvironment(env);
-                DeviceState deviceState = new DeviceState(1L, ROOM_ID, true);
+                entity.setWeatherConditions(env);
+                DeviceState deviceState = new DeviceState(device, room, true);
                 entity.setPersonStates(newHashSet(new PersonState(PERSON_ID, 1L), new PersonState(2L, 2L)));
-                entity.setRoomStates(newHashSet(new RoomState(1L, 21.5d), new RoomState(2L, 18.5d), new RoomState(3L,
-                        19.5d), new RoomState(4L, 21.0d), new RoomState(5L, 22.0d), new RoomState(6L, 18.5d)));
+                entity.setRoomStates(newHashSet(new RoomState(room, person, 21.5d), new RoomState(room, person, 18.5d), new RoomState(room, person,
+                        19.5d), new RoomState(room, person, 21.0d), new RoomState(room, person, 22.0d), new RoomState(room, person, 18.5d)));
                 entity.setDeviceStates(newHashSet(deviceState));
                 entity.setMediaUsages(newHashSet(new MediaUsage(MediaType.ELECTRICITY, 5.5d, 1L), new MediaUsage
-                        (MediaType.ELECTRICITY, 12.5d, 4L), new MediaUsage(MediaType.ELECTRICITY, 2.4d, 6L), new
-                        MediaUsage(MediaType.HOT_WATER, 6.5d, 5L), new MediaUsage(MediaType.COLD_WATER, 9.5d, 5L),
+                                (MediaType.ELECTRICITY, 12.5d, 4L), new MediaUsage(MediaType.ELECTRICITY, 2.4d, 6L), new
+                                MediaUsage(MediaType.HOT_WATER, 6.5d, 5L), new MediaUsage(MediaType.COLD_WATER, 9.5d, 5L),
                         new MediaUsage(MediaType.GAS, 4.25d, 6L)));
                 entity.setTimestamp(LocalDateTime.now());
                 col.add(entity);

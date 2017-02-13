@@ -12,6 +12,10 @@ import java.io.FileNotFoundException;
 public class ImportWeatherData {
 
     public static void main(String[] args) throws FileNotFoundException {
+        importData();
+    }
+
+    public static void importData() throws FileNotFoundException {
         ApplicationContext ctx = new AnnotationConfigApplicationContext(BasicMySQLConfig.class);
         WeatherConditionsImportService importService = ctx.getBean(WeatherConditionsImportService.class);
         importService.importAll();

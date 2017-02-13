@@ -1,20 +1,14 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import java.time.LocalDateTime;
-
-import org.hibernate.annotations.Immutable;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Immutable;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.ObservationTimeAware;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 /**
  * Created by Pawel on 2017-01-22.
@@ -26,7 +20,7 @@ import lombok.Setter;
 @Immutable
 @Table(name = "DESIRED_TEMP")
 @Entity
-public class DesiredTempSource {
+public class DesiredTempSource implements ObservationTimeAware{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

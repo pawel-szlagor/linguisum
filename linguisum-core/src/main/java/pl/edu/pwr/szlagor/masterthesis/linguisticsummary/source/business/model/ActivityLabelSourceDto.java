@@ -1,13 +1,8 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model;
 
-import java.time.LocalDateTime;
+import lombok.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.time.LocalDateTime;
 
 /**
  * Created by Pawel on 2017-02-05.
@@ -18,7 +13,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ActivityLabelSourceDto {
+public class ActivityLabelSourceDto implements ObservationTimeAware{
     private long id;
     private String label;
     private LocalDateTime observationTime;

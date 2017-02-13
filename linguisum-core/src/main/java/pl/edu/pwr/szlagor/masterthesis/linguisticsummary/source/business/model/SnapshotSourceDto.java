@@ -12,9 +12,8 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-public class DaySourceDto {
-    @Singular
-    private List<ActivityLabelSourceDto> labels;
+public class SnapshotSourceDto {
+    private ActivityLabelSourceDto label;
     @Singular
     private List<DesiredTempSourceDto> desiredTemps;
     @Singular
@@ -23,6 +22,5 @@ public class DaySourceDto {
     private List<MediaUsageSourceDto> mediaUsages;
     @Singular
     private List<PersonPositionSourceDto> personPositions;
-    @Singular
-    private List<WeatherConditionSourceDto> weatherConditions;
+    private WeatherConditionSourceDto weatherConditions;
 }

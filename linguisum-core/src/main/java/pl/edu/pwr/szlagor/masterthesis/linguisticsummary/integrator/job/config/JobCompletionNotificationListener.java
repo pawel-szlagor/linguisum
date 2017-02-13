@@ -1,9 +1,5 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job.config;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
@@ -13,8 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Person;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Created by Pawel on 2017-02-08.
@@ -49,4 +48,5 @@ public class JobCompletionNotificationListener extends JobExecutionListenerSuppo
 
         }
     }
+
 }

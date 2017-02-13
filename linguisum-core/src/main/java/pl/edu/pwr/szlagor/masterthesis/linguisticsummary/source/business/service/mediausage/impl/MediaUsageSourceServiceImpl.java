@@ -1,11 +1,10 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.mediausage.impl;
 
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import lombok.Getter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.MediaUsageSourceDto;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.AbstractService;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.AbstractByDateService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.mediausage.MediaUsageSourceService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.model.MediaUsageSource;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.repository.MediaUsageSourceRepository;
@@ -15,7 +14,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.repo
  */
 @Getter
 @Service
-public class MediaUsageSourceServiceImpl extends AbstractService<MediaUsageSourceDto, MediaUsageSource, Long> implements MediaUsageSourceService {
+public class MediaUsageSourceServiceImpl extends AbstractByDateService<MediaUsageSourceDto, MediaUsageSource, Long> implements MediaUsageSourceService {
 
     private final MediaUsageSourceRepository repository;
 

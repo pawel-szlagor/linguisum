@@ -1,15 +1,9 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model;
 
-import java.time.LocalDateTime;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.MediaType;
+
+import java.time.LocalDateTime;
 
 /**
  * Created by Pawel on 2017-01-31.
@@ -21,7 +15,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.Me
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MediaUsageSourceDto implements Cloneable {
+public class MediaUsageSourceDto implements Cloneable, ObservationTimeAware {
     private Long id;
     private LocalDateTime observationTime;
     private MediaType mediaType;

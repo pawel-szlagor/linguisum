@@ -1,6 +1,15 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.importItems.impl;
 
-import static java.lang.Double.parseDouble;
+import com.google.common.collect.Lists;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.WeatherEvent;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.WeatherConditionSourceDto;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.importItems.WeatherConditionsImportService;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.weatherconditions.WeatherConditionsService;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -10,17 +19,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Scanner;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Lists;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.WeatherEvent;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.WeatherConditionSourceDto;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.importItems.WeatherConditionsImportService;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.weatherconditions.WeatherConditionsService;
+import static java.lang.Double.parseDouble;
 
 /**
  * Created by Pawel on 2017-01-29.
@@ -31,7 +30,9 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service
 @Service
 public class WeatherConditionsImportServiceImpl implements WeatherConditionsImportService {
 
-    private static final String INPUT_FILE_PATH = "E:\\Dysk Google\\Studia\\10 semestr\\Praca dyplomowa\\dane " +
+/*    private static final String INPUT_FILE_PATH = "E:\\Dysk Google\\Studia\\10 semestr\\Praca dyplomowa\\dane " +
+            "meteo\\dane meteo.txt"; */
+    private static final String INPUT_FILE_PATH = "C:\\Users\\Paweł\\Dysk Google\\Studia\\10 semestr\\Praca dyplomowa\\dane " +
             "meteo\\dane meteo.txt";
 
     private WeatherConditionsService weatherConditionsService;

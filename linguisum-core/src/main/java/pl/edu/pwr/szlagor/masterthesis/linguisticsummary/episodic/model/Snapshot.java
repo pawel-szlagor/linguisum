@@ -1,22 +1,13 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import java.time.LocalDateTime;
-import java.util.Set;
-
+import lombok.*;
 import org.bson.types.ObjectId;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.Set;
 
 /**
  * Created by Pawel on 2017-01-15.
@@ -24,6 +15,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -40,7 +32,7 @@ public class Snapshot {
     private Set<PersonState> personStates;
 
     @Embedded
-    private EnvironmentConditions environment;
+    private EnvironmentConditions weatherConditions;
 
     @Cascade(CascadeType.ALL)
     @ElementCollection

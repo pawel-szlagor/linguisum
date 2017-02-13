@@ -1,25 +1,23 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job;
 
-import java.sql.Date;
-import java.time.LocalDate;
-
+import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.google.common.collect.ImmutableMap;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job.config.BatchConfiguration;
+
+import java.sql.Date;
+import java.time.LocalDate;
+import java.util.Random;
+import java.util.stream.IntStream;
 
 /**
  * Created by Pawel on 2017-02-09.
@@ -29,24 +27,26 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job.config.B
 public class JobLauncherTest {
 
     private static final LocalDate DATE = LocalDate.of(2016, 1, 5);
-    @Autowired
-    private Job importDataJob;
-    @Autowired
-    private JobRepository jobRepository;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
+    private long id = 326;
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
+    @Autowired
+    private Job importSnapshotsJob;
+
 
     @Test
     public void testJob() throws Exception {
 
-        final JobExecution jobExecution = new JobExecution(new JobInstance(3L, "importDataJob"), 1L, new JobParameters(ImmutableMap.of("currentDate", new JobParameter(Date.valueOf(DATE), true))), "BatchConfiguration");
-        //final JobExecution jobExecution = new JobExecution(1L);
-        final JobExecution execution = jobLauncherTestUtils.launchJob(new JobParameters(ImmutableMap.of("currentDate", new JobParameter(Date.valueOf(DATE), true))));
+        //JobExecution execution = new JobExecution(new JobInstance(1L, "name"),1L,  new JobParameters(ImmutableMap.of("currentDate", new JobParameter(Date.valueOf(DATE), false), "id", new JobParameter(new Random().nextLong(), true))), "config");
 
-        Assert.assertEquals("COMPLETED", execution.getExitStatus());
+        //importSnapshotsJob.execute(execution);
+        IntStream.range(0, 10).parallel().forEach(i -> {
+            try {
+                JobExecution execution = jobLauncherTestUtils.launchJob(new JobParameters(ImmutableMap.of("currentDate", new JobParameter(Date.valueOf(DATE.plusDays(i)), false), "id", new JobParameter(new Random().nextLong(), true))));
+                Assert.assertEquals("COMPLETED", execution.getExitStatus().getExitCode());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }});
+
     }
 }

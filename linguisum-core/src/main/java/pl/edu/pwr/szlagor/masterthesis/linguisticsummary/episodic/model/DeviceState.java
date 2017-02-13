@@ -1,24 +1,22 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model;
 
-import javax.persistence.Embeddable;
+import lombok.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import javax.persistence.Embeddable;
 
 /**
  * Created by Pawel on 2017-01-16.
  */
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Embeddable
 public class DeviceState {
 
-    private Long deviceId;
-    private Long roomId;
+    private Device deviceId;
+    private Room roomId;
     private boolean isOn;
 
 }

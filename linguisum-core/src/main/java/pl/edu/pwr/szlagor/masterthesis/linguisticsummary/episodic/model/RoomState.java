@@ -1,23 +1,22 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model;
 
-import javax.persistence.Embeddable;
+import lombok.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import javax.persistence.Embeddable;
 
 /**
  * Created by Pawel on 2017-01-16.
  */
 @Setter
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Embeddable
 public class RoomState {
 
-    private Long roomId;
+    private Room roomId;
+    private Person personId;
     private double desiredTemp;
 
 }
