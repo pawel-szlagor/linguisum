@@ -2,6 +2,7 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -13,6 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 public class SnapshotSourceDto {
+    private LocalDateTime observationTime;
     private ActivityLabelSourceDto label;
     @Singular
     private List<DesiredTempSourceDto> desiredTemps;

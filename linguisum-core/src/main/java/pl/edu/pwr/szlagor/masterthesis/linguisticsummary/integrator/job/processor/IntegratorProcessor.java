@@ -6,10 +6,8 @@ import ma.glasnost.orika.impl.DefaultMapperFactory;
 import ma.glasnost.orika.metadata.ClassMapBuilder;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.*;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.converter.LocalDateConverter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.DeviceStateSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.RoomSourceDto;
@@ -26,22 +24,18 @@ import java.util.stream.Collectors;
 @Component
 public class IntegratorProcessor implements ItemProcessor<SnapshotSourceDto, Snapshot> {
 
-    @Autowired
-    private SnapshotRepository snapshotRepository;
-
     private MapperFacade mapperFacade = initializeMapperFacade();
 
     @Override
     public Snapshot process(SnapshotSourceDto item) {
         try {
-            Snapshot build = Snapshot.builder().deviceStates(item.getDeviceStates().stream().map(mapDeviceStateFunction()).collect(Collectors.toSet()))
+            return Snapshot.builder().deviceStates(item.getDeviceStates().stream().map(mapDeviceStateFunction()).collect(Collectors.toSet()))
                     .mediaUsages(item.getMediaUsages().stream().map(l -> MediaUsage.builder().locationId(l.getLocation().getId()).mediaType(l.getMediaType()).usagePerMinute(l.getUsagePerMinute()).build()).collect(Collectors.toSet()))
                     .personStates(item.getPersonPositions().stream().map(l -> PersonState.builder().locationId(l.getLocation().getId()).userId(l.getUser().getId()).build()).collect(Collectors.toSet()))
                     .roomStates(item.getDesiredTemps().stream().map(l -> RoomState.builder().desiredTemp(l.getDesiredTemp()).personId(mapperFacade.map(l.getUser(), Person.class)).roomId(mapperFacade.map(l.getLocation(), Room.class)).build()).collect(Collectors.toSet()))
                     .weatherConditions(mapperFacade.map(item.getWeatherConditions(), EnvironmentConditions.class))
-                    .timestamp(item.getWeatherConditions().getObservationTime())
+                    .timestamp(item.getObservationTime())
                     .build();
-            return build;
         }catch (Exception ex){
             return null;
         }

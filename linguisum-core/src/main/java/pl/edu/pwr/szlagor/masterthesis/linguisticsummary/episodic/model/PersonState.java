@@ -1,6 +1,7 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model;
 
 import lombok.*;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import javax.persistence.Embeddable;
 
@@ -15,7 +16,9 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class PersonState {
 
+    @Indexed
     private Long userId;
 
+    @Indexed
     private Long locationId;
 }

@@ -16,7 +16,7 @@ public class TestMongoConfig extends AbstractMongoConfiguration {
 
     @Override
     protected String getDatabaseName() {
-        return "iHouse";
+        return "iHouseTest";
     }
 
     @Override

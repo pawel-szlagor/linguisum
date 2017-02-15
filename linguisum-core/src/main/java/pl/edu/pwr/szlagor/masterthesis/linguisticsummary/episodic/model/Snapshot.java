@@ -4,6 +4,10 @@ import lombok.*;
 import org.bson.types.ObjectId;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.Immutable;
+import org.hibernate.search.annotations.IndexedEmbedded;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -18,6 +22,8 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Immutable
+@Document
 @Entity
 public class Snapshot {
 
@@ -25,8 +31,11 @@ public class Snapshot {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private ObjectId id;
 
+    @Indexed
     private LocalDateTime timestamp;
 
+    @Singular
+    @IndexedEmbedded
     @Cascade(CascadeType.ALL)
     @ElementCollection
     private Set<PersonState> personStates;

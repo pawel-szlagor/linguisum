@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
@@ -12,6 +11,7 @@ import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job.config.BatchConfiguration;
 
 import java.sql.Date;
@@ -31,7 +31,7 @@ public class JobLauncherTest {
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
     @Autowired
-    private Job importSnapshotsJob;
+    private SnapshotRepository snapshotRepository;
 
 
     @Test
@@ -40,7 +40,7 @@ public class JobLauncherTest {
         //JobExecution execution = new JobExecution(new JobInstance(1L, "name"),1L,  new JobParameters(ImmutableMap.of("currentDate", new JobParameter(Date.valueOf(DATE), false), "id", new JobParameter(new Random().nextLong(), true))), "config");
 
         //importSnapshotsJob.execute(execution);
-        IntStream.range(0, 10).parallel().forEach(i -> {
+        IntStream.range(0, 50).parallel().forEach(i -> {
             try {
                 JobExecution execution = jobLauncherTestUtils.launchJob(new JobParameters(ImmutableMap.of("currentDate", new JobParameter(Date.valueOf(DATE.plusDays(i)), false), "id", new JobParameter(new Random().nextLong(), true))));
                 Assert.assertEquals("COMPLETED", execution.getExitStatus().getExitCode());

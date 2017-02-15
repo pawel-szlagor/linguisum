@@ -45,6 +45,7 @@ public class IntegratorReader implements ItemReader<SnapshotSourceDto>, Initiali
         try {
             if (counter < 86400) {
                 SnapshotSourceDto snapshotSourceDto = snapshotSourceService.findByHour(currentDateTime.plusSeconds(counter), day);
+                snapshotSourceDto.setObservationTime(currentDateTime.plusSeconds(counter));
                 counter += 5;
                 return snapshotSourceDto;
             } else {

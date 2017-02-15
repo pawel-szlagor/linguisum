@@ -24,6 +24,6 @@ public class IntegratorWriter implements ItemWriter<Snapshot> {
 
     @Override
     public void write(List<? extends Snapshot> items) throws Exception {
-        template.insert(items, "snapshots");
+        template.insert(items, "snapshot");
     }
 }
