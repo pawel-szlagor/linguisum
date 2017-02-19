@@ -1,21 +1,30 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job.processor;
 
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.stereotype.Component;
+
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import ma.glasnost.orika.metadata.ClassMapBuilder;
-import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.stereotype.Component;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.*;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Device;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.DeviceState;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.EnvironmentConditions;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.MediaUsage;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Person;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.PersonState;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Room;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.RoomState;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.converter.LocalDateConverter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.DeviceStateSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.RoomSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.SnapshotSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.WeatherConditionSourceDto;
-
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Created by Pawel on 2017-02-08.
@@ -41,7 +50,7 @@ public class IntegratorProcessor implements ItemProcessor<SnapshotSourceDto, Sna
         }
     }
 
-    public Function<DeviceStateSourceDto, DeviceState> mapDeviceStateFunction() {
+    private Function<DeviceStateSourceDto, DeviceState> mapDeviceStateFunction() {
         return l -> DeviceState.builder().deviceId(mapperFacade.map(l.getDevice(), Device.class)).roomId(mapperFacade.map(l.getLocation(), Room.class)).isOn(l.isWorking()).build();
     }
 

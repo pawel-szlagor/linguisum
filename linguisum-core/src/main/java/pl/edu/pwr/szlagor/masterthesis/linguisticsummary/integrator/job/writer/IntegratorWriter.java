@@ -1,13 +1,14 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job.writer;
 
+import java.util.List;
+
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
 
-import java.util.List;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
 
 /**
  * Created by Paweł on 2017-02-11.

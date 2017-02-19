@@ -1,11 +1,21 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job.config;
 
+import javax.sql.DataSource;
+import java.sql.Date;
+import java.time.LocalDateTime;
+import java.util.Random;
+
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobParameter;
+import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
 import org.springframework.batch.item.ItemWriter;
@@ -21,7 +31,11 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.PlatformTransactionManager;
+
+import com.google.common.collect.ImmutableMap;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.config.BasicMongoConfig;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job.processor.IntegratorProcessor;
@@ -30,14 +44,13 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job.writer.I
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.SnapshotSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.config.BasicMySQLConfig;
 
-import javax.sql.DataSource;
-
 /**
  * Created by Pawel on 2017-02-08.
  */
 @Configuration
 @ComponentScan("pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.*")
 @EnableBatchProcessing
+@EnableScheduling
 @Import({BasicMySQLConfig.class, BasicMongoConfig.class})
 public class BatchConfiguration {
     @Autowired
@@ -59,7 +72,10 @@ public class BatchConfiguration {
     private IntegratorWriter bulkWriter;
 
     @Autowired
-    private StepExecutionListener stepExecutionListener;
+    private Job importSnapshotsJob;
+
+    @Autowired
+    private JobRepository jobRepository;
 
     // tag::readerwriterprocessor[]
 
@@ -75,13 +91,13 @@ public class BatchConfiguration {
 
     // tag::jobstep[]
     @Bean
-    public Job importSnapshotsJob(JobCompletionNotificationListener listener) {
-        return jobBuilderFactory.get("importSnapshotsJob").incrementer(new RunIdIncrementer()).listener(listener).flow(importSnapshots()).end().build();
+    public Job importSnapshotsJob(JobCompletionNotificationListener listener, StepExecutionListener stepExecutionListener) {
+        return jobBuilderFactory.get("importSnapshotsJob").incrementer(new RunIdIncrementer()).listener(listener).flow(importSnapshots(stepExecutionListener)).end().build();
     }
 
     @Bean
-    public Step importSnapshots() {
-        return stepBuilderFactory.get("importSnapshots").listener(stepExecutionListener).<SnapshotSourceDto, Snapshot>chunk(100000).reader(reader).processor(processor).writer(bulkWriter).throttleLimit(10).build();
+    public Step importSnapshots(StepExecutionListener stepExecutionListener) {
+        return stepBuilderFactory.get("importSnapshots").listener(stepExecutionListener).<SnapshotSourceDto, Snapshot>chunk(10000).reader(reader).processor(processor).writer(bulkWriter).throttleLimit(10).build();
     }
     // end::jobstep[]
 
@@ -89,7 +105,6 @@ public class BatchConfiguration {
     public JdbcTemplate jdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
-
     @Bean
     public JobLauncherTestUtils jobLauncherTestUtils() {
         return new JobLauncherTestUtils();
@@ -105,9 +120,26 @@ public class BatchConfiguration {
     }
 
     @Bean
+    public JobLauncher jobLauncher() {
+        final SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
+        jobLauncher.setJobRepository(jobRepository);
+        return jobLauncher;
+    }
+
+    @Bean
     public TaskExecutor taskExecutor(){
         return new SyncTaskExecutor();
     }
 
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void importSnapchotsTask() throws Exception {
+
+        final LocalDateTime dateTime = LocalDateTime.now();
+        System.out.println("Job Started at :" + dateTime);
+        final JobParameters params = new JobParameters(ImmutableMap.of("currentDate", new JobParameter(Date.valueOf(dateTime.toLocalDate().minusDays(1)), false), "id", new JobParameter(new Random().nextLong(), true)));
+        JobExecution execution = jobLauncher().run(importSnapshotsJob, params);
+
+        System.out.println("Job finished with status :" + execution.getStatus());
+    }
 
 }

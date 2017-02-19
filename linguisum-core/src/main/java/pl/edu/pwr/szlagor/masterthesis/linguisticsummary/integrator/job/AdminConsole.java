@@ -10,7 +10,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job.config.B
  * Created by Pawel on 2017-02-08.
  */
 @Component
-public class JobLauncher {
+public class AdminConsole {
 
 
     public static void main(String[] args) throws Exception {
