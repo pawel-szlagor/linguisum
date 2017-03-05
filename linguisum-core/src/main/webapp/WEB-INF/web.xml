@@ -38,14 +38,16 @@
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
-            <param-value>classpath*:/org/springframework/batch/admin/web/resources/servlet-config.xml</param-value>
+            <param-value>
+                classpath*:/org/springframework/batch/admin/web/resources/servlet-config.xml,classpath*:/org/springframework/batch/admin/web/resources/webapp-config.xml
+            </param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet-mapping>
         <servlet-name>Batch Servlet</servlet-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>/batch/*</url-pattern>
     </servlet-mapping>
 
 </web-app>

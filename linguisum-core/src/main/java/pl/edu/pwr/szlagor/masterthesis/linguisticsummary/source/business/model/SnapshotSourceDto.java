@@ -1,13 +1,20 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model;
 
-import lombok.*;
-
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Singular;
+import lombok.ToString;
 
 /**
  * Created by Pawel on 2017-02-08.
  */
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -17,12 +24,12 @@ public class SnapshotSourceDto {
     private LocalDateTime observationTime;
     private ActivityLabelSourceDto label;
     @Singular
-    private List<DesiredTempSourceDto> desiredTemps;
+    private Set<DesiredTempSourceDto> desiredTemps;
     @Singular
-    private List<DeviceStateSourceDto> deviceStates;
+    private Set<DeviceStateSourceDto> deviceStates;
     @Singular
-    private List<MediaUsageSourceDto> mediaUsages;
+    private Set<MediaUsageSourceDto> mediaUsages;
     @Singular
-    private List<PersonPositionSourceDto> personPositions;
+    private Set<PersonPositionSourceDto> personPositions;
     private WeatherConditionSourceDto weatherConditions;
 }

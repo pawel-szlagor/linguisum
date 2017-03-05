@@ -2,7 +2,6 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +12,6 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.Ro
  * Created by Pawel on 2017-01-29.
  */
 @ToString(of = "name")
-@EqualsAndHashCode
 @Setter
 @Getter
 @Builder

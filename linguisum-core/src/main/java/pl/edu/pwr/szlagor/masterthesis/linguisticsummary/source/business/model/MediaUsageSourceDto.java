@@ -1,14 +1,18 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model;
 
-import lombok.*;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.MediaType;
-
 import java.time.LocalDateTime;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.MediaType;
 
 /**
  * Created by Pawel on 2017-01-31.
  */
-@EqualsAndHashCode
 @ToString(of = {"mediaType", "location", "usagePerMinute"})
 @Setter
 @Getter

@@ -12,10 +12,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Singular;
+import lombok.ToString;
 
 /**
  * Created by Pawel on 2017-02-01.
  */
+@ToString
 @Builder
 @Setter
 @Getter
@@ -24,6 +26,7 @@ import lombok.Singular;
 public class DaySchemaSourceDto {
     private boolean workingDay;
     private LocalTime wakingHour;
+    private LocalTime sleepHour;
     private PersonSourceDto personSourceDto;
     @Singular
     private List<DayOfWeek> dayOfWeeks;
@@ -32,8 +35,8 @@ public class DaySchemaSourceDto {
     private List<ActivitySchemaSourceDto> activities;
 
     public LocalTime calculateSleepHour() {
-        Double period = activities.stream().filter(a -> !SLEEPING.getName().equals(a.getName())).map(ActivitySchemaSourceDto
-                ::getAverageElapsedTime).reduce((a, b) -> a + b).get();
+        Double period = activities.stream().filter(a -> !SLEEPING.build().getName().equals(a.getName())).mapToDouble(ActivitySchemaSourceDto
+                                                                                                                             ::getAverageElapsedTime).sum();
         return wakingHour.plusMinutes(period.longValue());
     }
 

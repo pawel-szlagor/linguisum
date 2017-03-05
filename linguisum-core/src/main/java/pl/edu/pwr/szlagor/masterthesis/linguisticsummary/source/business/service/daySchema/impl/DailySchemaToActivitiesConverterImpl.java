@@ -3,7 +3,7 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.servic
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.apache.commons.collections.map.IdentityMap;
 import org.apache.commons.math3.util.Precision;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,6 +30,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.M
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.PersonPositionSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.PersonSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.RoomSourceDto;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.activity.SampleActivities;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.daySchema.DailySchemaToActivitiesConverter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.weatherconditions.WeatherConditionsService;
 
@@ -53,13 +55,19 @@ public class DailySchemaToActivitiesConverterImpl implements DailySchemaToActivi
     }
 
     @Override
-    public List<ActivitySourceDto> convert(DaySchemaSourceDto daily, LocalDate date) {
-        final Map<ActivitySchemaSourceDto, LocalDateTime> startTimes = new HashMap<>();
-        final List<ActivitySchemaSourceDto> activities = daily.getActivities();
-        for (int i = 0; i < activities.size(); i++) {
-            LocalDateTime currentTime = i == 0 ? LocalDateTime.of(date, daily.getWakingHour()) : startTimes.get(activities.get(i - 1)).plusMinutes((long) activities.get(i - 1).getAverageElapsedTime());
-            startTimes.put(activities.get(i), currentTime);
+    public synchronized List<ActivitySourceDto> convert(DaySchemaSourceDto daily, LocalDate date) {
+        final Map<ActivitySchemaSourceDto, LocalDateTime> startTimes = new IdentityMap(daily.getActivities().size() + 2);
+        final ActivitySchemaSourceDto sleepingBefore = SampleActivities.SLEEPING.averageElapsedTime(Duration.between(LocalTime.MIN, daily.getWakingHour()).toMinutes()).build();
+        final ActivitySchemaSourceDto sleepingAfter = SampleActivities.SLEEPING.averageElapsedTime(Duration.between(daily.calculateSleepHour(), LocalTime.MAX).toMinutes()).build();
+        startTimes.put(sleepingBefore, LocalDateTime.of(date, LocalTime.MIN));
+        final List<ActivitySchemaSourceDto> activities = Lists.newArrayList(daily.getActivities());
+        activities.add(0, sleepingBefore);
+        for (int i = 0; i < activities.size() - 1; i++) {
+            LocalDateTime currentTime = startTimes.get(activities.get(i)).plusMinutes(Math.round(activities.get(i).getAverageElapsedTime()));
+            startTimes.put(activities.get(i + 1), currentTime);
         }
+        startTimes.put(sleepingAfter, startTimes.get(activities.get(activities.size() - 1)).plusMinutes(Math.round(activities.get(activities.size() - 1).getAverageElapsedTime())));
+        activities.add(sleepingAfter);
         return activities.stream().map(l -> ActivitySourceDto.builder().name(l.getName()).mediaUsageSourceDtos(convertMediaUsage(startTimes.get(l), l)).deviceStateSourceDtos(convertDeviceState(startTimes.get(l), l)).personPositionSourceDtos(convertPersonPosition(startTimes.get(l), daily.getPersonSourceDto(), l)).desiredTempSourceDtos(convertDesiredTemp(startTimes.get(l), daily.getPersonSourceDto(), l)).activityLabelSourceDtos(convertLabels(startTimes.get(l), l)).build()).collect(Collectors.toList());
     }
 
@@ -85,7 +93,7 @@ public class DailySchemaToActivitiesConverterImpl implements DailySchemaToActivi
         final Random random = new Random();
         final LocalDateTime endTime = startTime.plusMinutes(Math.round(activitySchema.getAverageElapsedTime()));
         final Set<Map.Entry<DeviceSourceDto, Double>> entries = activitySchema.getTimeOfDeviceUsages().entrySet();
-        final Map<DeviceSourceDto, LocalDateTime> startTimes = entries.stream().map(Map.Entry::getKey).collect(Collectors.toMap(o -> o, o -> startTime.plusMinutes(random.nextInt((int) Duration.between(startTime, startTime.plusMinutes(Math.round(activitySchema.getAverageElapsedTime()))).toMinutes()))));
+        final Map<DeviceSourceDto, LocalDateTime> startTimes = entries.stream().map(Map.Entry::getKey).collect(Collectors.toMap(o -> o, o -> startTime.plusMinutes(random.nextInt((int) Duration.between(startTime, startTime.plusMinutes(Math.max(1, Math.round(activitySchema.getAverageElapsedTime())))).toMinutes()))));
         final Map<DeviceSourceDto, LocalDateTime> endTimes = entries.stream().collect(Collectors.toMap(Map.Entry::getKey, o -> startTimes.get(o.getKey()).plusMinutes(Math.round(o.getValue() * Duration.between(startTime, startTime.plusMinutes(Math.round(activitySchema.getAverageElapsedTime()))).toMinutes()))));
 
         final long eventDuration = Duration.between(startTime, endTime).toMinutes() * 60;
@@ -100,12 +108,12 @@ public class DailySchemaToActivitiesConverterImpl implements DailySchemaToActivi
     private synchronized List<PersonPositionSourceDto> convertPersonPosition(LocalDateTime startTime, PersonSourceDto user, ActivitySchemaSourceDto activitySchema) {
         final LocalDateTime endTime = startTime.plusMinutes(Math.round(activitySchema.getAverageElapsedTime()));
         final List<RoomSourceDto> entries = activitySchema.getLocationProbabilities().entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList());
-        final Map<RoomSourceDto, LocalDateTime> startTimes = new HashMap<>();
-        final Map<RoomSourceDto, LocalDateTime> endTimes = new HashMap<>();
+        final Map<RoomSourceDto, LocalDateTime> startTimes = new IdentityMap();
+        final Map<RoomSourceDto, LocalDateTime> endTimes = new IdentityMap();
         for (int i = 0; i < entries.size(); i++) {
             final LocalDateTime currentTime = i == 0 ? startTime : endTimes.get(entries.get(i - 1));
             startTimes.put(entries.get(i), currentTime);
-            endTimes.put(entries.get(i), i == entries.size() - 1 ? endTime : currentTime.plusMinutes((long) (activitySchema.getLocationProbabilities().get(entries.get(i)) * activitySchema.getAverageElapsedTime())));
+            endTimes.put(entries.get(i), i == entries.size() - 1 ? endTime : currentTime.plusMinutes(Math.round(activitySchema.getLocationProbabilities().get(entries.get(i)) * activitySchema.getAverageElapsedTime())));
         }
         long eventDuration = Duration.between(startTime, endTime).toMinutes() * 60;
         List<PersonPositionSourceDto> results = Lists.newArrayListWithExpectedSize(Math.toIntExact(eventDuration / 5));

@@ -1,24 +1,24 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.model;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dozer.Mapping;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Immutable;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -45,7 +45,6 @@ public class WeatherConditionSource {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Mapping
     private LocalDateTime observationTime;
     private double tempOut;
     private double windchill;
@@ -54,8 +53,11 @@ public class WeatherConditionSource {
     private double windSpeed;
     private double precipitation;
     @Singular
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @ElementCollection
+    @CollectionTable(
+            name = "weather_events",
+            joinColumns = @JoinColumn(name = "weather_id")
+    )
+    @ElementCollection(targetClass = WeatherEvent.class, fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private List<WeatherEvent> weatherEvents = new ArrayList<>();
     @Column(name = "SUNLIGHT")

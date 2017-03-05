@@ -21,7 +21,10 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Room;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.RoomState;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.converter.LocalDateConverter;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.DesiredTempSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.DeviceStateSourceDto;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.MediaUsageSourceDto;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.PersonPositionSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.RoomSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.SnapshotSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.WeatherConditionSourceDto;
@@ -36,18 +39,26 @@ public class IntegratorProcessor implements ItemProcessor<SnapshotSourceDto, Sna
     private MapperFacade mapperFacade = initializeMapperFacade();
 
     @Override
-    public Snapshot process(SnapshotSourceDto item) {
-        try {
-            return Snapshot.builder().deviceStates(item.getDeviceStates().stream().map(mapDeviceStateFunction()).collect(Collectors.toSet()))
-                    .mediaUsages(item.getMediaUsages().stream().map(l -> MediaUsage.builder().locationId(l.getLocation().getId()).mediaType(l.getMediaType()).usagePerMinute(l.getUsagePerMinute()).build()).collect(Collectors.toSet()))
-                    .personStates(item.getPersonPositions().stream().map(l -> PersonState.builder().locationId(l.getLocation().getId()).userId(l.getUser().getId()).build()).collect(Collectors.toSet()))
-                    .roomStates(item.getDesiredTemps().stream().map(l -> RoomState.builder().desiredTemp(l.getDesiredTemp()).personId(mapperFacade.map(l.getUser(), Person.class)).roomId(mapperFacade.map(l.getLocation(), Room.class)).build()).collect(Collectors.toSet()))
-                    .weatherConditions(mapperFacade.map(item.getWeatherConditions(), EnvironmentConditions.class))
-                    .timestamp(item.getObservationTime())
-                    .build();
-        }catch (Exception ex){
-            return null;
-        }
+    public synchronized Snapshot process(SnapshotSourceDto item) {
+        return Snapshot.builder().deviceStates(item.getDeviceStates().stream().map(mapDeviceStateFunction()).collect(Collectors.toSet()))
+                .mediaUsages(item.getMediaUsages().stream().map(mediaUsageSourceDtoMediaUsageFunction()).collect(Collectors.toSet()))
+                .personStates(item.getPersonPositions().stream().map(personPositionSourceDtoPersonStateFunction()).collect(Collectors.toSet()))
+                .roomStates(item.getDesiredTemps().stream().map(desiredTempSourceDtoRoomStateFunction()).collect(Collectors.toSet()))
+                .weatherConditions(mapperFacade.map(item.getWeatherConditions(), EnvironmentConditions.class))
+                .timestamp(item.getObservationTime())
+                .build();
+    }
+
+    private Function<MediaUsageSourceDto, MediaUsage> mediaUsageSourceDtoMediaUsageFunction() {
+        return l -> MediaUsage.builder().locationId(l.getLocation().getId()).mediaType(l.getMediaType()).usagePerMinute(l.getUsagePerMinute()).build();
+    }
+
+    private Function<PersonPositionSourceDto, PersonState> personPositionSourceDtoPersonStateFunction() {
+        return l -> PersonState.builder().locationId(l.getLocation().getId()).userId(l.getUser().getId()).build();
+    }
+
+    private Function<DesiredTempSourceDto, RoomState> desiredTempSourceDtoRoomStateFunction() {
+        return l -> RoomState.builder().desiredTemp(l.getDesiredTemp()).personId(mapperFacade.map(l.getUser(), Person.class)).roomId(mapperFacade.map(l.getLocation(), Room.class)).build();
     }
 
     private Function<DeviceStateSourceDto, DeviceState> mapDeviceStateFunction() {

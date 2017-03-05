@@ -1,5 +1,18 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.repository;
 
+import static com.google.common.collect.Sets.newHashSet;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.hasSize;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
@@ -8,25 +21,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.config.TestMongoConfig;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.*;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.DeviceType;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Device;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.DeviceState;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.EnvironmentConditions;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.MediaUsage;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Person;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.PersonState;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Room;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.RoomState;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.MediaType;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.RoomType;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.WeatherEvent;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.DeviceRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.RoomRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-
-import static com.google.common.collect.Sets.newHashSet;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 
 /**
  * Created by Pawel on 2017-01-16.
@@ -77,7 +88,7 @@ public class SnapshotRepositoryTest {
 
                 Person person = new Person(PERSON_ID, "name", "mail");
                 Room room = new Room(ROOM_ID, "name", RoomType.LIVING_ROOM);
-                Device device = new Device(DEVICE_ID, "deviceName", DeviceType.ELECTRIC_KETTEL);
+                Device device = new Device(DEVICE_ID, "deviceName", MediaType.ELECTRICITY, 0.1d);
 
                 entity.setWeatherConditions(env);
                 DeviceState deviceState = new DeviceState(device, room, true);

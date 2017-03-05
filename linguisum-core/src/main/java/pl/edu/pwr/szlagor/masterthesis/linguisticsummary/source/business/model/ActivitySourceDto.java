@@ -5,16 +5,16 @@ import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Singular;
+import lombok.ToString;
 
 /**
  * Created by Pawel on 2017-02-02.
  */
-@EqualsAndHashCode
+@ToString
 @Setter
 @Getter
 @Builder

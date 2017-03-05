@@ -6,18 +6,20 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.RoomType;
 
 /**
  * Created by Pawel on 2017-01-15.
  */
-@Getter
-@Setter
+@EqualsAndHashCode
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 @Entity
 public class Room {
 
@@ -25,6 +27,6 @@ public class Room {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
-    private RoomType roomType;
+    private RoomType type;
 
 }

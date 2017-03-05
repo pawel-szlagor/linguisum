@@ -1,18 +1,25 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model;
 
-import lombok.*;
+import javax.persistence.Embeddable;
+
 import org.springframework.data.mongodb.core.index.Indexed;
 
-import javax.persistence.Embeddable;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * Created by Pawel on 2017-01-16.
  */
-@Setter
-@Getter
+@ToString
+@EqualsAndHashCode
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Data
 @Embeddable
 public class PersonState {
 

@@ -6,13 +6,17 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Created by Pawel on 2017-01-31.
  */
+@EqualsAndHashCode
+@ToString
 @Setter
 @Getter
 @AllArgsConstructor

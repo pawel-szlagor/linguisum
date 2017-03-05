@@ -1,15 +1,6 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.importItems.impl;
 
-import com.google.common.collect.Lists;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.WeatherEvent;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.WeatherConditionSourceDto;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.importItems.WeatherConditionsImportService;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.weatherconditions.WeatherConditionsService;
+import static java.lang.Double.parseDouble;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -19,7 +10,17 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Scanner;
 
-import static java.lang.Double.parseDouble;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.WeatherEvent;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.WeatherConditionSourceDto;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.importItems.WeatherConditionsImportService;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.weatherconditions.WeatherConditionsService;
 
 /**
  * Created by Pawel on 2017-01-29.
@@ -30,10 +31,10 @@ import static java.lang.Double.parseDouble;
 @Service
 public class WeatherConditionsImportServiceImpl implements WeatherConditionsImportService {
 
-/*    private static final String INPUT_FILE_PATH = "E:\\Dysk Google\\Studia\\10 semestr\\Praca dyplomowa\\dane " +
-            "meteo\\dane meteo.txt"; */
-    private static final String INPUT_FILE_PATH = "C:\\Users\\Paweł\\Dysk Google\\Studia\\10 semestr\\Praca dyplomowa\\dane " +
+    private static final String INPUT_FILE_PATH = "E:\\Dysk Google\\Studia\\10 semestr\\Praca dyplomowa\\dane " +
             "meteo\\dane meteo.txt";
+/*    private static final String INPUT_FILE_PATH = "C:\\Users\\Paweł\\Dysk Google\\Studia\\10 semestr\\Praca dyplomowa\\dane " +
+            "meteo\\dane meteo.txt";*/
 
     private WeatherConditionsService weatherConditionsService;
 
@@ -45,7 +46,7 @@ public class WeatherConditionsImportServiceImpl implements WeatherConditionsImpo
     @Override
     public void importAll() throws FileNotFoundException {
         Scanner docu = new Scanner(new FileReader(INPUT_FILE_PATH));
-        List<WeatherConditionSourceDto> importedWeathers = Lists.newArrayListWithExpectedSize(365 * 24);
+        List<WeatherConditionSourceDto> importedWeathers = Lists.newArrayListWithExpectedSize(366 * 24);
         docu.nextLine();
         for (String line = docu.nextLine(); docu.hasNextLine(); line = docu.nextLine()) {
             Scanner in = new Scanner(line.replaceAll("\\,", " "));
@@ -60,7 +61,7 @@ public class WeatherConditionsImportServiceImpl implements WeatherConditionsImpo
             }
             importedWeathers.add(builder.build());
         }
-        weatherConditionsService.saveInBulk(importedWeathers);
+        weatherConditionsService.save(importedWeathers);
     }
 
 

@@ -24,6 +24,6 @@ public class NormalDistributionGeneratorImpl implements NormalDistributionGenera
 
     @Override
     public long nextInt(int max) {
-        return random.nextInt(max);
+        return new Random().nextInt(max);
     }
 }

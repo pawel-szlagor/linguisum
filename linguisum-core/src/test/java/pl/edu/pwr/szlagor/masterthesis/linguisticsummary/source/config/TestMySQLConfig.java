@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @PropertySource(value = {"classpath:application.properties"})
 @EnableTransactionManagement
 @ComponentScan("pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.*")
-@PropertySource("classpath:application.properties")
+//@PropertySource("classpath:application.properties")
 @EnableJpaRepositories(basePackages = "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source")
 public class TestMySQLConfig {
     private static final String PROPERTY_NAME_DATABASE_DRIVER = "db.driver";

@@ -15,7 +15,7 @@ public class ImportAllData {
         ImportDeviceData.importData();
         ImportPersonsData.importData();
         ImportRoomsData.importData();
-        ImportWeatherData.importData();
+        //ImportWeatherData.importData();
     }
 
 }

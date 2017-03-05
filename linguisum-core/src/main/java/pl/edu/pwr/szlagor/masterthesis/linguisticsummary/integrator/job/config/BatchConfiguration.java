@@ -27,12 +27,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.task.SyncTaskExecutor;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.google.common.collect.ImmutableMap;
@@ -91,8 +90,8 @@ public class BatchConfiguration {
 
     // tag::jobstep[]
     @Bean
-    public Job importSnapshotsJob(JobCompletionNotificationListener listener, StepExecutionListener stepExecutionListener) {
-        return jobBuilderFactory.get("importSnapshotsJob").incrementer(new RunIdIncrementer()).listener(listener).flow(importSnapshots(stepExecutionListener)).end().build();
+    public Job importJob(JobCompletionNotificationListener listener, StepExecutionListener stepExecutionListener) {
+        return jobBuilderFactory.get("importJob").incrementer(new RunIdIncrementer()).listener(listener).flow(importSnapshots(stepExecutionListener)).end().build();
     }
 
     @Bean
@@ -128,10 +127,10 @@ public class BatchConfiguration {
 
     @Bean
     public TaskExecutor taskExecutor(){
-        return new SyncTaskExecutor();
+        return new SimpleAsyncTaskExecutor();
     }
 
-    @Scheduled(cron = "0 0 0 * * ?")
+    //@Scheduled(cron = "0 0 0 * * ?")
     public void importSnapchotsTask() throws Exception {
 
         final LocalDateTime dateTime = LocalDateTime.now();

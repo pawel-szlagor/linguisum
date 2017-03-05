@@ -27,7 +27,7 @@ public class ActivitySchemaServiceImpl implements ActivitySchemaService {
     }
 
     @Override
-    public ActivitySchemaSourceDto randomizeDaily(ActivitySchemaSourceDto activitySchema) {
+    public synchronized ActivitySchemaSourceDto randomizeDaily(ActivitySchemaSourceDto activitySchema) {
         activitySchema.getLocationProbabilities().replaceAll((r, l) -> random.randomValueInBorders(l, l * SIGMA, l * SIGMA));
         activitySchema.getLocationProbabilities().entrySet().removeIf(r -> r.getValue() < MIN_DURATION);
         activitySchema.getLocationProbabilities().replaceAll((r, l) -> l * 1 / activitySchema.getLocationProbabilities().entrySet().stream().mapToDouble(Map.Entry::getValue).sum());

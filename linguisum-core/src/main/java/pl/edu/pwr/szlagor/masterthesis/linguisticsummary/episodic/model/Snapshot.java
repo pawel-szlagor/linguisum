@@ -1,7 +1,11 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model;
 
-import lombok.*;
-import org.bson.types.ObjectId;
+import javax.persistence.ElementCollection;
+import javax.persistence.Embedded;
+import javax.persistence.Id;
+import java.time.LocalDateTime;
+import java.util.Set;
+
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Immutable;
@@ -9,29 +13,31 @@ import org.hibernate.search.annotations.IndexedEmbedded;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Singular;
 
 /**
  * Created by Pawel on 2017-01-15.
  */
-
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Immutable
 @Document
-@Entity
 public class Snapshot {
 
-    @Id
+/*    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private ObjectId id;
+    private ObjectId id;*/
 
     @Indexed
+    @Id
     private LocalDateTime timestamp;
 
     @Singular
@@ -47,6 +53,7 @@ public class Snapshot {
     @ElementCollection
     private Set<DeviceState> deviceStates;
 
+    @IndexedEmbedded
     @Cascade(CascadeType.ALL)
     @ElementCollection
     private Set<RoomState> roomStates;
