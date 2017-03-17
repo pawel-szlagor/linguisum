@@ -10,12 +10,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Created by Pawel on 2017-01-16.
  */
 @Builder
 @EqualsAndHashCode
+@ToString
 @Setter
 @Getter
 @NoArgsConstructor
@@ -23,9 +25,9 @@ import lombok.Setter;
 @Embeddable
 public class RoomState {
     @Indexed
-    private Room roomId;
+    private Room room;
     @Indexed
-    private Person personId;
+    private Person person;
     @Indexed
     private double desiredTemp;
 

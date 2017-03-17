@@ -79,7 +79,7 @@ public class ImportedDataIntegrationIntTest {
         LocalDateTime testTime = INITIAL_TIME.plusSeconds(random.nextInt(SECONDS_DURATION / 5) * 5);
         System.out.println("Testtime: " + testTime);
         // when
-        final Snapshot snapshot = snapshotRepository.findByTimestamp(testTime);
+        final Snapshot snapshot = snapshotRepository.findByDateAndTime(testTime.toLocalDate(), testTime.toLocalTime());
         // then
         assertThat(snapshot.getWeatherConditions(), equalTo(mapperFacade.map(weatherConditionsService.findByDateTime(testTime), EnvironmentConditions.class)));
         final Set<DeviceStateSourceDto> deviceStateSourceDtos = deviceStateSourceService.findByObservationTimeAround(testTime);
@@ -97,7 +97,7 @@ public class ImportedDataIntegrationIntTest {
     }
 
     private Function<MediaUsageSourceDto, MediaUsage> mediaUsageSourceDtoMediaUsageFunction() {
-        return l -> MediaUsage.builder().locationId(l.getLocation().getId()).mediaType(l.getMediaType()).usagePerMinute(l.getUsagePerMinute()).build();
+        return l -> MediaUsage.builder().location(mapperFacade.map(l.getLocation(), Room.class)).mediaType(l.getMediaType()).usagePerMinute(l.getUsagePerMinute()).build();
     }
 
     private Function<PersonPositionSourceDto, PersonState> personPositionSourceDtoPersonStateFunction() {
@@ -105,11 +105,11 @@ public class ImportedDataIntegrationIntTest {
     }
 
     private Function<DesiredTempSourceDto, RoomState> desiredTempSourceDtoRoomStateFunction() {
-        return l -> RoomState.builder().desiredTemp(l.getDesiredTemp()).personId(mapperFacade.map(l.getUser(), Person.class)).roomId(mapperFacade.map(l.getLocation(), Room.class)).build();
+        return l -> RoomState.builder().desiredTemp(l.getDesiredTemp()).person(mapperFacade.map(l.getUser(), Person.class)).room(mapperFacade.map(l.getLocation(), Room.class)).build();
     }
 
     private Function<DeviceStateSourceDto, DeviceState> mapDeviceStateFunction() {
-        return l -> DeviceState.builder().deviceId(mapperFacade.map(l.getDevice(), Device.class)).roomId(mapperFacade.map(l.getLocation(), Room.class)).isOn(l.isWorking()).build();
+        return l -> DeviceState.builder().device(mapperFacade.map(l.getDevice(), Device.class)).isOn(l.isWorking()).build();
     }
 
     private MapperFacade initializeMapperFacade() {

@@ -41,7 +41,7 @@ public class JobLauncherTest {
         //JobExecution execution = new JobExecution(new JobInstance(1L, "name"),1L,  new JobParameters(ImmutableMap.of("currentDate", new JobParameter(Date.valueOf(DATE), false), "id", new JobParameter(new Random().nextLong(), true))), "config");
 
         //importJob.execute(execution);
-        IntStream.range(0, 366).parallel().forEach(i -> {
+        IntStream.range(0, 366).parallel().forEachOrdered(i -> {
             try {
                 JobExecution execution = jobLauncherTestUtils.launchJob(new JobParameters(ImmutableMap.of("currentDate", new JobParameter(Date.valueOf(DATE.plusDays(i)), false), "id", new JobParameter(new Random().nextLong(), true))));
                 Assert.assertEquals("COMPLETED", execution.getExitStatus().getExitCode());

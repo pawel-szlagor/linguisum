@@ -25,5 +25,5 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.Me
 public class MediaUsage {
     private MediaType mediaType;
     private double usagePerMinute;
-    private Long locationId;
+    private Room location;
 }

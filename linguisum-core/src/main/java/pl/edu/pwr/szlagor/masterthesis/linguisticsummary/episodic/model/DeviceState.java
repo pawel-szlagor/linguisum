@@ -23,8 +23,7 @@ import lombok.ToString;
 @Embeddable
 public class DeviceState {
 
-    private Device deviceId;
-    private Room roomId;
+    private Device device;
     private boolean isOn;
 
 }

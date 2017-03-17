@@ -18,11 +18,14 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.config.TestMongoConfig;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.business.snapshot.SnapshotService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Device;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.DeviceState;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.EnvironmentConditions;
@@ -32,6 +35,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.PersonSt
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Room;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.RoomState;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.SnapshotDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.MediaType;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.RoomType;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.WeatherEvent;
@@ -59,6 +63,9 @@ public class SnapshotRepositoryTest {
 
     @Autowired
     private SnapshotRepository snapshotRepository;
+
+    @Autowired
+    private SnapshotService snapshotService;
 
     @Autowired
     private DeviceRepository deviceRepository;
@@ -91,16 +98,17 @@ public class SnapshotRepositoryTest {
                 Device device = new Device(DEVICE_ID, "deviceName", MediaType.ELECTRICITY, 0.1d);
 
                 entity.setWeatherConditions(env);
-                DeviceState deviceState = new DeviceState(device, room, true);
+                DeviceState deviceState = new DeviceState(device, true);
                 entity.setPersonStates(newHashSet(new PersonState(PERSON_ID, 1L), new PersonState(2L, 2L)));
                 entity.setRoomStates(newHashSet(new RoomState(room, person, 21.5d), new RoomState(room, person, 18.5d), new RoomState(room, person,
                         19.5d), new RoomState(room, person, 21.0d), new RoomState(room, person, 22.0d), new RoomState(room, person, 18.5d)));
                 entity.setDeviceStates(newHashSet(deviceState));
-                entity.setMediaUsages(newHashSet(new MediaUsage(MediaType.ELECTRICITY, 5.5d, 1L), new MediaUsage
-                                (MediaType.ELECTRICITY, 12.5d, 4L), new MediaUsage(MediaType.ELECTRICITY, 2.4d, 6L), new
-                                MediaUsage(MediaType.HOT_WATER, 6.5d, 5L), new MediaUsage(MediaType.COLD_WATER, 9.5d, 5L),
-                        new MediaUsage(MediaType.GAS, 4.25d, 6L)));
-                entity.setTimestamp(LocalDateTime.now());
+                entity.setMediaUsages(newHashSet(new MediaUsage(MediaType.ELECTRICITY, 5.5d, room), new MediaUsage
+                                                         (MediaType.ELECTRICITY, 12.5d, room), new MediaUsage(MediaType.ELECTRICITY, 2.4d, room), new
+                                                         MediaUsage(MediaType.HOT_WATER, 6.5d, room), new MediaUsage(MediaType.COLD_WATER, 9.5d, room),
+                                                 new MediaUsage(MediaType.GAS, 4.25d, room)));
+                entity.setDate(LocalDateTime.now().toLocalDate());
+                entity.setTime(LocalDateTime.now().toLocalTime());
                 col.add(entity);
                 // when
 /*        deviceRepository.save(new Device(1L, "czajnik elektryczny", ELECTRIC_KETTEL));
@@ -129,11 +137,11 @@ public class SnapshotRepositoryTest {
         // given
         LocalDateTime now = LocalDateTime.now();
         LocalDate date = now.toLocalDate();
-        Snapshot snapshot = Snapshot.builder().timestamp(now).personState(PersonState.builder().locationId(ROOM_ID).userId(PERSON_ID).build()).build();
+        Snapshot snapshot = Snapshot.builder().time(now.toLocalTime()).personState(PersonState.builder().locationId(ROOM_ID).userId(PERSON_ID).build()).build();
         // when
         snapshotRepository.save(snapshot);
         // then
-        List<Snapshot> found = snapshotRepository.findByTimestampBetween(date.atStartOfDay(), date.plusDays(1).atStartOfDay());
+        List<Snapshot> found = snapshotRepository.findByDate(date);
         assertThat(found, Matchers.hasSize(1));
         assertThat(found, hasItem(hasProperty("timestamp", equalTo(now))));
     }
@@ -143,7 +151,7 @@ public class SnapshotRepositoryTest {
         // given
         LocalDateTime now = LocalDateTime.now();
         PersonState personState = PersonState.builder().locationId(ROOM_ID).userId(PERSON_ID).build();
-        Snapshot snapshot = Snapshot.builder().timestamp(now).personState(personState).personState(PersonState.builder().userId(98L).locationId(99L).build()).build();
+        Snapshot snapshot = Snapshot.builder().time(now.toLocalTime()).personState(personState).personState(PersonState.builder().userId(98L).locationId(99L).build()).build();
         // when
         snapshotRepository.save(snapshot);
         // then
@@ -159,7 +167,7 @@ public class SnapshotRepositoryTest {
         LocalDateTime now = LocalDateTime.now();
         PersonState personState = PersonState.builder().locationId(ROOM_ID).userId(PERSON_ID).build();
         PersonState personState1 = PersonState.builder().userId(98L).locationId(99L).build();
-        Snapshot snapshot = Snapshot.builder().timestamp(now).personState(personState).personState(personState1).build();
+        Snapshot snapshot = Snapshot.builder().time(now.toLocalTime()).personState(personState).personState(personState1).build();
         // when
         snapshotRepository.save(snapshot);
         // then
@@ -169,5 +177,16 @@ public class SnapshotRepositoryTest {
         assertThat(found, hasItem(hasProperty("personStates", hasSize(2))));
         assertThat(found, hasItem(hasProperty("personStates", hasItem(equalTo(personState)))));
         assertThat(found, hasItem(hasProperty("personStates", hasItem(equalTo(personState1)))));
+    }
+
+    @Test
+    public void shouldFindAllEntities() {
+        final Page<Snapshot> page = snapshotRepository.findAll(new PageRequest(0, 10000));
+
+    }
+
+    @Test
+    public void shouldFindAllWithService() {
+        final List<SnapshotDto> allInBulk = snapshotService.findAll();
     }
 }

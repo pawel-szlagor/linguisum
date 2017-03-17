@@ -22,6 +22,7 @@ import lombok.ToString;
 public class RoomStateDto {
 
     private RoomDto room;
+    private PersonDto person;
     private double desiredTemp;
 
 }

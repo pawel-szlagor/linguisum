@@ -18,8 +18,7 @@ import lombok.ToString;
 @AllArgsConstructor
 public class DeviceStateDto {
 
-    private Long deviceId;
-    private Long roomId;
+    private DeviceDto device;
     private boolean isOn;
 
 }

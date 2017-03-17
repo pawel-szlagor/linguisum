@@ -33,11 +33,14 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.Me
 public class DeviceSource {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "ID_DEVICE")
+    @Column(name = "ID")
     private Long id;
+    @Column(name = "NAME")
     private String name;
     @Enumerated(EnumType.STRING)
+    @Column(name = "MEDIA_TYPE")
     private MediaType mediaType;
+    @Column(name = "MEDIA_USAGE")
     private double mediaUsage;
 
 }

@@ -1,5 +1,6 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -26,23 +27,24 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.O
 @Setter
 @NoArgsConstructor
 @Immutable
-@Table(name = "DESIRED_TEMP", indexes = {@Index(columnList = "observationTime")})
+@Table(name = "DESIRED_TEMP", indexes = {@Index(columnList = "OBSERVATION_TIME")})
 @Entity
 public class DesiredTempSource implements ObservationTimeAware{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
+    @Column(name = "OBSERVATION_TIME")
     private LocalDateTime observationTime;
 
     @ManyToOne
-    @JoinColumn(name = "ID_USER")
+    @JoinColumn(name = "USER_ID")
     private PersonSource user;
 
+    @Column(name = "DESIRED_TEMP")
     private double desiredTemp;
 
     @ManyToOne
-    @JoinColumn(name = "ID_LOCATION")
+    @JoinColumn(name = "LOCATION_ID")
     private RoomSource location;
 }

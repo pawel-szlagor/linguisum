@@ -45,12 +45,13 @@ public class IntegratorProcessor implements ItemProcessor<SnapshotSourceDto, Sna
                 .personStates(item.getPersonPositions().stream().map(personPositionSourceDtoPersonStateFunction()).collect(Collectors.toSet()))
                 .roomStates(item.getDesiredTemps().stream().map(desiredTempSourceDtoRoomStateFunction()).collect(Collectors.toSet()))
                 .weatherConditions(mapperFacade.map(item.getWeatherConditions(), EnvironmentConditions.class))
-                .timestamp(item.getObservationTime())
+                .date(item.getObservationTime().toLocalDate())
+                .time(item.getObservationTime().toLocalTime())
                 .build();
     }
 
     private Function<MediaUsageSourceDto, MediaUsage> mediaUsageSourceDtoMediaUsageFunction() {
-        return l -> MediaUsage.builder().locationId(l.getLocation().getId()).mediaType(l.getMediaType()).usagePerMinute(l.getUsagePerMinute()).build();
+        return l -> MediaUsage.builder().location(mapperFacade.map(l.getLocation(), Room.class)).mediaType(l.getMediaType()).usagePerMinute(l.getUsagePerMinute()).build();
     }
 
     private Function<PersonPositionSourceDto, PersonState> personPositionSourceDtoPersonStateFunction() {
@@ -58,11 +59,11 @@ public class IntegratorProcessor implements ItemProcessor<SnapshotSourceDto, Sna
     }
 
     private Function<DesiredTempSourceDto, RoomState> desiredTempSourceDtoRoomStateFunction() {
-        return l -> RoomState.builder().desiredTemp(l.getDesiredTemp()).personId(mapperFacade.map(l.getUser(), Person.class)).roomId(mapperFacade.map(l.getLocation(), Room.class)).build();
+        return l -> RoomState.builder().desiredTemp(l.getDesiredTemp()).person(mapperFacade.map(l.getUser(), Person.class)).room(mapperFacade.map(l.getLocation(), Room.class)).build();
     }
 
     private Function<DeviceStateSourceDto, DeviceState> mapDeviceStateFunction() {
-        return l -> DeviceState.builder().deviceId(mapperFacade.map(l.getDevice(), Device.class)).roomId(mapperFacade.map(l.getLocation(), Room.class)).isOn(l.isWorking()).build();
+        return l -> DeviceState.builder().device(mapperFacade.map(l.getDevice(), Device.class)).isOn(l.isWorking()).build();
     }
 
     private MapperFacade initializeMapperFacade() {

@@ -42,7 +42,7 @@ public abstract class AbstractByDateService<DTO extends ObservationTimeAware, E 
     @Override
     public synchronized List<DTO> findByDate(LocalDate date) {
         Session session = entityManagerFactoryBean.getNativeEntityManagerFactory().unwrap(SessionFactory.class).openSession();
-        final Query query = session.createQuery("from " + getEntityClass().getSimpleName() + " where DATE(observationTime) = :date");
+        final Query query = session.createQuery("from " + getEntityClass().getSimpleName() + " where DATE(OBSERVATION_TIME) = :date");
         query.setParameter("date", java.sql.Date.valueOf(date));
         final List<DTO> list = query.<DTO>list();
         session.close();

@@ -33,9 +33,11 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.Ro
 public class RoomSource {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "ID_LOCATION")
+    @Column(name = "ID")
     private Long id;
+    @Column(name = "NAME")
     private String name;
     @Enumerated(EnumType.STRING)
+    @Column(name = "TYPE")
     private RoomType type;
 }

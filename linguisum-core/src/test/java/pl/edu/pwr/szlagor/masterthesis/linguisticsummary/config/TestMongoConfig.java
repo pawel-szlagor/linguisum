@@ -1,5 +1,6 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.config;
 
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -11,12 +12,13 @@ import com.mongodb.MongoClient;
  * Created by Pawel on 2017-01-16.
  */
 @Configuration
+@ComponentScan("pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.*")
 @EnableMongoRepositories(basePackages = "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository")
 public class TestMongoConfig extends AbstractMongoConfiguration {
 
     @Override
     protected String getDatabaseName() {
-        return "iHouseTest";
+        return "iHouse";
     }
 
     @Override

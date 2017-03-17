@@ -30,14 +30,14 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.O
 @Setter
 @NoArgsConstructor
 @Immutable
-@Table(name = "MEDIA_USAGE", indexes = {@Index(columnList = "observationTime")})
+@Table(name = "MEDIA_USAGE", indexes = {@Index(columnList = "OBSERVATION_TIME")})
 @Entity
 public class MediaUsageSource implements ObservationTimeAware{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "ID_USAGE")
+    @Column(name = "ID")
     private Long id;
-
+    @Column(name = "OBSERVATION_TIME")
     private LocalDateTime observationTime;
 
     @Enumerated(EnumType.STRING)

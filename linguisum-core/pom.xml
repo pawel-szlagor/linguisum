@@ -25,6 +25,8 @@
         <log4j.version>1.2.17</log4j.version>
         <spring-batch-core.version>3.0.7.RELEASE</spring-batch-core.version>
         <spring-boot-starter.version>1.5.1.RELEASE</spring-boot-starter.version>
+        <querydsl-mongodb.version>4.1.4</querydsl-mongodb.version>
+        <morphia.version>1.3.2</morphia.version>
     </properties>
 
     <dependencies>
@@ -116,6 +118,30 @@
             <version>${log4j.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.querydsl</groupId>
+            <artifactId>querydsl-apt</artifactId>
+            <version>${querydsl-mongodb.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.querydsl</groupId>
+            <artifactId>querydsl-mongodb</artifactId>
+            <version>${querydsl-mongodb.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.mongodb.morphia/morphia -->
+        <dependency>
+            <groupId>org.mongodb.morphia</groupId>
+            <artifactId>morphia</artifactId>
+            <version>${morphia.version}</version>
+        </dependency>
+
+        <!--        <dependency>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                    <version>1.6.1</version>
+                </dependency>-->
 
         <!-- Java EE APIs -->
 
@@ -246,6 +272,23 @@
             </testResource>
         </testResources>
         <plugins>
+            <plugin>
+                <groupId>com.mysema.maven</groupId>
+                <artifactId>apt-maven-plugin</artifactId>
+                <version>1.1.3</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>target/generated-sources/java</outputDirectory>
+                            <processor>org.springframework.data.mongodb.repository.support.MongoAnnotationProcessor
+                            </processor>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

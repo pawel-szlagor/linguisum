@@ -1,5 +1,6 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.persistence.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -27,7 +28,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.O
 @Setter
 @NoArgsConstructor
 @Immutable
-@Table(name = "PERSON_POSITION", indexes = {@Index(columnList = "observationTime")})
+@Table(name = "USER_LOCATION", indexes = {@Index(columnList = "OBSERVATION_TIME")})
 @Entity
 public class PersonPositionSource implements Serializable, ObservationTimeAware {
 
@@ -35,10 +36,11 @@ public class PersonPositionSource implements Serializable, ObservationTimeAware 
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column(name = "OBSERVATION_TIME")
     private LocalDateTime observationTime;
 
     @ManyToOne
-    @JoinColumn(name = "ID_USER_FK")
+    @JoinColumn(name = "USER_ID")
     private PersonSource user;
 
     @ManyToOne

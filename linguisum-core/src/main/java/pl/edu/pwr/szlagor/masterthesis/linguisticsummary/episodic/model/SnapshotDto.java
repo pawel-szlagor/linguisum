@@ -1,7 +1,10 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Set;
+
+import org.bson.types.ObjectId;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,11 +20,15 @@ import lombok.NoArgsConstructor;
 @Data
 public class SnapshotDto {
 
-    private LocalDateTime timestamp;
+    private ObjectId id;
+
+    private LocalDate date;
+
+    private LocalTime time;
 
     private Set<PersonStateDto> personStates;
 
-    private EnvironmentConditions environment;
+    private EnvironmentConditionsDto weatherConditions;
 
     private Set<DeviceStateDto> deviceStates;
 

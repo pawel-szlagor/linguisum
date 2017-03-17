@@ -2,10 +2,14 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Set;
 
+import org.bson.types.ObjectId;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Immutable;
@@ -32,13 +36,15 @@ import lombok.Singular;
 @Document
 public class Snapshot {
 
-/*    @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private ObjectId id;*/
+    private ObjectId id;
 
     @Indexed
-    @Id
-    private LocalDateTime timestamp;
+    private LocalDate date;
+
+    @Indexed
+    private LocalTime time;
 
     @Singular
     @IndexedEmbedded

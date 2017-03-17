@@ -10,11 +10,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.RoomType;
 
 /**
  * Created by Pawel on 2017-01-15.
  */
+@ToString
 @EqualsAndHashCode
 @Builder
 @AllArgsConstructor

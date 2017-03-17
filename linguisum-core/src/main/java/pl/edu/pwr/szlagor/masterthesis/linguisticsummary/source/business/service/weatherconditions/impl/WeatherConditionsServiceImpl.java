@@ -48,7 +48,7 @@ public class WeatherConditionsServiceImpl extends AbstractService<WeatherConditi
         if (cachedWeatherConditions == null) {
             this.cachedWeatherConditions = findAllInBulk();
         }
-        return cachedWeatherConditions.parallelStream().filter(w -> w.getObservationTime().isBefore(dateTime.plusMinutes(30L)) && w.getObservationTime().isAfter(dateTime.minusMinutes(30L).minusSeconds(1L))).reduce(null, (u, v) -> u == null ? v : u
+        return cachedWeatherConditions.stream().filter(w -> w.getObservationTime().isBefore(dateTime.plusMinutes(30L)) && w.getObservationTime().isAfter(dateTime.minusMinutes(30L).minusSeconds(1L))).reduce(null, (u, v) -> u == null ? v : u
         );
 //return getMapperFacade().map(repository.findByObservationTimeBetween(dateTime.minusMinutes(30L), dateTime.plusMinutes(30L).minusSeconds(1L)), getDtoClass());
     }

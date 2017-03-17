@@ -45,12 +45,19 @@ public class WeatherConditionSource {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @Column(name = "OBSERVATION_TIME")
     private LocalDateTime observationTime;
+    @Column(name = "TEMP_OUT")
     private double tempOut;
+    @Column(name = "WINDCHILL")
     private double windchill;
+    @Column(name = "HUMIDITY")
     private double humidity;
+    @Column(name = "PRESSURE")
     private int pressure;
+    @Column(name = "WIND_SPEED")
     private double windSpeed;
+    @Column(name = "PRECIPITATION")
     private double precipitation;
     @Singular
     @CollectionTable(

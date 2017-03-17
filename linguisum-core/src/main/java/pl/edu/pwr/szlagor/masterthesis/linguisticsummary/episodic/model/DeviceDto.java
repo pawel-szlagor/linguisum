@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.DeviceType;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.MediaType;
 
 /**
  * Created by Pawel on 2017-01-16.
@@ -19,7 +19,8 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.De
 @AllArgsConstructor
 public class DeviceDto {
 
-    private Long deviceId;
-    private String deviceName;
-    private DeviceType deviceType;
+    private Long id;
+    private String name;
+    private MediaType mediaType;
+    private double mediaUsage;
 }

@@ -28,24 +28,21 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.O
 @Setter
 @NoArgsConstructor
 @Immutable
-@Table(name = "DEVICE_STATE", indexes = {@Index(columnList = "observationTime")})
+@Table(name = "DEVICE_STATE", indexes = {@Index(columnList = "OBSERVATION_TIME")})
 @Entity
 public class DeviceStateSource implements Serializable, ObservationTimeAware {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
+    @Column(name = "OBSERVATION_TIME")
     private LocalDateTime observationTime;
 
     @ManyToOne
-    @JoinColumn(name = "ID_DEVICE")
+    @JoinColumn(name = "DEVICE_ID")
     private DeviceSource device;
 
-    @Column(name = "WORK")
+    @Column(name = "IS_ON")
     private boolean isWorking;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_LOCATION")
-    private RoomSource location;
 }
