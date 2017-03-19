@@ -2,11 +2,9 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.serv
 
 import java.util.List;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
-
 /**
  * Created by Pawel on 2017-03-17.
  */
 public interface CategoryPredicateService {
-    List<BooleanExpression> createPossiblePredicates();
+    List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates();
 }

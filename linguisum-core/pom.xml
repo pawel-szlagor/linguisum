@@ -16,7 +16,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
 
         <org.hibernate.ogm.version>4.1.0.Final</org.hibernate.ogm.version>
-        <spring-data-jpa.version>1.10.5.RELEASE</spring-data-jpa.version>
+        <spring-data-jpa.version>1.9.6.RELEASE</spring-data-jpa.version>
         <junit.version>4.12</junit.version>
         <spring-test.version>4.2.8.RELEASE</spring-test.version>
         <spring-data-mongodb.version>1.9.5.RELEASE</spring-data-mongodb.version>
@@ -25,7 +25,7 @@
         <log4j.version>1.2.17</log4j.version>
         <spring-batch-core.version>3.0.7.RELEASE</spring-batch-core.version>
         <spring-boot-starter.version>1.5.1.RELEASE</spring-boot-starter.version>
-        <querydsl-mongodb.version>4.1.4</querydsl-mongodb.version>
+        <querydsl-mongodb.version>3.7.4</querydsl-mongodb.version>
         <morphia.version>1.3.2</morphia.version>
     </properties>
 
@@ -81,6 +81,9 @@
             <artifactId>spring-batch-admin-manager</artifactId>
             <version>1.2.2.RELEASE</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.batch/spring-batch-samples -->
+
+
         <!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test &ndash;&gt;
 
                 <dependency>
@@ -119,7 +122,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.querydsl</groupId>
+            <groupId>com.mysema.querydsl</groupId>
             <artifactId>querydsl-apt</artifactId>
             <version>${querydsl-mongodb.version}</version>
             <scope>provided</scope>
@@ -127,9 +130,31 @@
 
         <dependency>
             <groupId>com.querydsl</groupId>
+            <artifactId>querydsl-apt</artifactId>
+            <version>4.1.4</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.mysema.querydsl</groupId>
             <artifactId>querydsl-mongodb</artifactId>
             <version>${querydsl-mongodb.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.querydsl</groupId>
+            <artifactId>querydsl-mongodb</artifactId>
+            <version>4.1.4</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.mysema.querydsl/querydsl-collections -->
+        <dependency>
+            <groupId>com.mysema.querydsl</groupId>
+            <artifactId>querydsl-collections</artifactId>
+            <version>${querydsl-mongodb.version}</version>
+        </dependency>
+
+
         <!-- https://mvnrepository.com/artifact/org.mongodb.morphia/morphia -->
         <dependency>
             <groupId>org.mongodb.morphia</groupId>
@@ -172,12 +197,26 @@
             <version>5.0.3.Final</version>
             <scope>provided</scope>
         </dependency>
+        <!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.springframework.data/spring-data-mongodb &ndash;&gt;
+                <dependency>
+                    <groupId>org.springframework.data</groupId>
+                    <artifactId>spring-data-mongodb</artifactId>
+                    <version>${spring-data-mongodb.version}</version>
+                </dependency>-->
         <!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-mongodb -->
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-mongodb</artifactId>
-            <version>${spring-data-mongodb.version}</version>
+            <version>1.8.6.RELEASE</version>
+            <!--            <exclusions>
+                            <exclusion>
+                                <groupId>org.springframework.data</groupId>
+                                <artifactId>spring-data-commons</artifactId>
+                            </exclusion>
+                        </exclusions>-->
         </dependency>
+
+
         <!-- https://mvnrepository.com/artifact/de.flapdoodle.embed/de.flapdoodle.embed.mongo -->
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
@@ -283,7 +322,7 @@
                         </goals>
                         <configuration>
                             <outputDirectory>target/generated-sources/java</outputDirectory>
-                            <processor>org.springframework.data.mongodb.repository.support.MongoAnnotationProcessor
+                            <processor>com.mysema.query.apt.morphia.MorphiaAnnotationProcessor
                             </processor>
                         </configuration>
                     </execution>

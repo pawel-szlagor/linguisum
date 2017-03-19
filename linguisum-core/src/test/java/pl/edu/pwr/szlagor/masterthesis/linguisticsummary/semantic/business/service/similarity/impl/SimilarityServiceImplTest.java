@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -31,7 +32,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
+import com.mysema.query.types.expr.BooleanExpression;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.business.snapshot.SnapshotService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.config.BasicMongoConfig;
@@ -119,10 +120,10 @@ public class SimilarityServiceImplTest {
     public void shouldSaveHolonWithParent() {
         // given
         final BooleanExpression after = QSnapshot.snapshot.date.after(LocalDate.of(2016, 5, 1));
-        HolonDto parent = HolonDto.builder().predicate(after).cardinality(10L).build();
+        HolonDto parent = HolonDto.builder().predicate(after).cardinality(new AtomicLong(10L)).build();
         final BooleanExpression contains = QSnapshot.snapshot.personStates.contains(
                 PersonState.builder().locationId(1L).userId(2L).build());
-        HolonDto child = HolonDto.builder().cardinality(6L).predicate(contains).parent(parent).build();
+        HolonDto child = HolonDto.builder().cardinality(new AtomicLong(6L)).predicate(contains).parent(parent).build();
         // when
         // holonService.save(child);
         holonRepository.findByRelevanceBetween(0.4, 1.0);

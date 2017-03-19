@@ -61,17 +61,21 @@ public class StepExecutionListener extends StepListenerSupport {
 
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
-        System.out.println("total time of read: " + readDuration);
-        System.out.println("total time of process: " + processDuration);
-        System.out.println("total time of write: " + writeDuration);
+        /*
+         * System.out.println("total time of read: " + readDuration);
+         * System.out.println("total time of process: " + processDuration);
+         * System.out.println("total time of write: " + writeDuration);
+         */
         return super.afterStep(stepExecution);
     }
 
     @Override
     public void afterChunk(ChunkContext context) {
-        System.out.println("total time of read: " + readDuration);
-        System.out.println("total time of process: " + processDuration);
-        System.out.println("total time of write: " + writeDuration);
+        /*
+         * System.out.println("total time of read: " + readDuration);
+         * System.out.println("total time of process: " + processDuration);
+         * System.out.println("total time of write: " + writeDuration);
+         */
         super.afterChunk(context);
     }
 

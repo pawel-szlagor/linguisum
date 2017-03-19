@@ -4,9 +4,10 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
+import com.mysema.query.types.expr.BooleanExpression;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +29,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.servi
 public class HolonDto {
     private CategoryPredicateTypes predicateType;
     private BooleanExpression predicate;
-    private Long cardinality;
+    private AtomicLong cardinality;
     private HolonDto parent;
     private List<HolonDto> children = new ArrayList<>();
 
@@ -48,10 +49,23 @@ public class HolonDto {
         children.add(HolonDto.builder().parent(this).predicate(predicate).predicateType(predicateType).build());
     }
 
+    public int count() {
+        if (children != null) {
+            return 1 + children.stream().mapToInt(HolonDto::count).sum();
+        } else {
+            return 1;
+        }
+    }
+
+    public HolonDto getRoot() {
+        return parent == null ? this : parent;
+    }
+
     public void addChildren(List<BooleanExpression> predicates, CategoryPredicateTypes predicateType) {
         final List<HolonDto> holonDtos = predicates.stream()
                                                    .map(p -> HolonDto.builder()
                                                                      .parent(this)
+                                                                     .cardinality(new AtomicLong(0))
                                                                      .predicate(p)
                                                                      .predicateType(predicateType)
                                                                      .build())

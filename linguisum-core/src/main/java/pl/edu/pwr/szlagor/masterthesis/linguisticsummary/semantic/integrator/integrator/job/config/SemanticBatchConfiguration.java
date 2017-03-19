@@ -2,6 +2,8 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.in
 
 import java.sql.Date;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import javax.sql.DataSource;
@@ -23,6 +25,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.MongoItemWriter;
+import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.batch.support.DatabaseType;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +36,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -41,12 +45,14 @@ import org.springframework.transaction.PlatformTransactionManager;
 import com.google.common.collect.ImmutableMap;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.config.BasicMongoConfig;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.summary.HolonDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.config.BasicSemanticConfig;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.SemanticReadItem;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.processor.SemanticIntegratorProcessor;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.reader.SemanticIntegratorReader;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.writer.SemanticIntegratorWriter;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.Holon;
 
 /**
  * Created by Pawel on 2017-02-08.
@@ -76,16 +82,33 @@ public class SemanticBatchConfiguration {
     private SemanticIntegratorWriter bulkWriter;
 
     @Autowired
-    private Job importSnapshotsJob;
+    private Job semanticExpressionJob;
 
     @Autowired
     private JobRepository jobRepository;
 
+    @Autowired
+    private SnapshotRepository snapshotRepository;
+
     // tag::readerwriterprocessor[]
 
     @Bean
-    public ItemWriter<Holon> writer() {
-        MongoItemWriter<Holon> writer = new MongoItemWriter<>();
+    public RepositoryItemReader<Snapshot> pageableReader() {
+        RepositoryItemReader<Snapshot> pageableReader = new RepositoryItemReader<>();
+        pageableReader.setRepository(snapshotRepository);
+        pageableReader.setPageSize(100000);
+        // pageableReader.setMaxItemCount(10000);
+        Map<String, Sort.Direction> sortMap = new HashMap<>();
+        sortMap.put("id", Sort.Direction.ASC);
+        pageableReader.setSort(sortMap);
+        pageableReader.setSaveState(false);
+        pageableReader.setMethodName("findAll");
+        return pageableReader;
+    }
+
+    @Bean
+    public ItemWriter<HolonDto> writer() {
+        MongoItemWriter<HolonDto> writer = new MongoItemWriter<>();
         writer.setTemplate(mongoTemplate);
         writer.setCollection("holon");
         return writer;
@@ -95,20 +118,20 @@ public class SemanticBatchConfiguration {
 
     // tag::jobstep[]
     @Bean
-    public Job importJob(JobCompletionNotificationListener listener, StepExecutionListener stepExecutionListener) {
+    public Job semanticExpressionJob(JobCompletionNotificationListener listener, StepExecutionListener stepExecutionListener) {
         return jobBuilderFactory.get("semanticExpressionJob")
                                 .incrementer(new RunIdIncrementer())
                                 .listener(listener)
-                                .flow(importSnapshots(stepExecutionListener))
+                                .flow(semanticExpression(stepExecutionListener))
                                 .end()
                                 .build();
     }
 
     @Bean
-    public Step importSnapshots(StepExecutionListener stepExecutionListener) {
+    public Step semanticExpression(StepExecutionListener stepExecutionListener) {
         return stepBuilderFactory.get("semanticExpression")
                                  .listener(stepExecutionListener)
-                                 .<HolonDto, Holon> chunk(10)
+                                 .<SemanticReadItem, HolonDto> chunk(1000)
                                  .reader(reader)
                                  .processor(processor)
                                  .writer(bulkWriter)
@@ -170,7 +193,7 @@ public class SemanticBatchConfiguration {
                 new JobParameter(Date.valueOf(dateTime.toLocalDate().minusDays(1)), false),
                 "id",
                 new JobParameter(new Random().nextLong(), true)));
-        JobExecution execution = jobLauncher().run(importSnapshotsJob, params);
+        JobExecution execution = jobLauncher().run(semanticExpressionJob, params);
 
         System.out.println("Job finished with status :" + execution.getStatus());
     }

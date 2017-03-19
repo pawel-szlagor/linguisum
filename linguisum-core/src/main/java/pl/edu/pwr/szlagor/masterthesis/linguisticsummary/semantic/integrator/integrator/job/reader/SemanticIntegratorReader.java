@@ -17,43 +17,45 @@ import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.busines
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Queue;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.IntStream;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.util.Pair;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
+import com.mysema.query.types.expr.BooleanExpression;
 
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.summary.HolonDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.CategoryPredicateService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.CategoryPredicateTypes;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.SemanticReadItem;
 
 /**
  * Created by Pawel on 2017-02-09.
  */
 @StepScope
 @Component
-public class SemanticIntegratorReader implements ItemReader<HolonDto>, InitializingBean {
+public class SemanticIntegratorReader implements ItemReader<SemanticReadItem>, InitializingBean, StepExecutionListener {
 
-    private AtomicLong counter = new AtomicLong(0);
-    private Queue<HolonDto> holons = new PriorityQueue<>(1000000,
-                                                         Comparator.comparing(HolonDto::getLevel, Comparator.naturalOrder())
-                                                                   .thenComparing(Comparator.comparing(h -> h.getParent().getCardinality(),
-                                                                           Comparator.nullsLast(Comparator.naturalOrder()))));
+    private long counter = 0L;
     private Map<CategoryPredicateTypes, List<BooleanExpression>> mapOfPredicates = new HashMap<>();
+    private final RepositoryItemReader<Snapshot> mongoItemReader;
     private final EnumeratedDistribution<CategoryPredicateTypes> categoriesDistribution;
     private final CategoryPredicateService dayPhasePredicateService;
     private final CategoryPredicateService deviceStatePredicateService;
@@ -68,9 +70,12 @@ public class SemanticIntegratorReader implements ItemReader<HolonDto>, Initializ
     private final CategoryPredicateService windspeedPredicateService;
     private final CategoryPredicateService roomStatePredicateService;
     private final SnapshotRepository snapshotRepository;
+    private final HolonDto root;
+    private StepExecution stepExecution;
 
     @Autowired
-    public SemanticIntegratorReader(@Qualifier(value = "windspeedPredicateService") CategoryPredicateService windspeedPredicateService,
+    public SemanticIntegratorReader(RepositoryItemReader<Snapshot> mongoItemReader,
+            @Qualifier(value = "windspeedPredicateService") CategoryPredicateService windspeedPredicateService,
             @Qualifier(value = "userPositionPredicateService") CategoryPredicateService userPositionPredicateService,
             @Qualifier(value = "tempOutPredicateService") CategoryPredicateService tempOutPredicateService,
             @Qualifier(value = "sunlightPredicateService") CategoryPredicateService sunlightPredicateService,
@@ -83,6 +88,7 @@ public class SemanticIntegratorReader implements ItemReader<HolonDto>, Initializ
             @Qualifier(value = "mediaUsagePredicateService") CategoryPredicateService mediaUsagePredicateService,
             @Qualifier(value = "roomStatePredicateService") CategoryPredicateService roomStatePredicateService,
             SnapshotRepository snapshotRepository) {
+        this.mongoItemReader = mongoItemReader;
         this.windspeedPredicateService = windspeedPredicateService;
         this.userPositionPredicateService = userPositionPredicateService;
         this.tempOutPredicateService = tempOutPredicateService;
@@ -97,37 +103,38 @@ public class SemanticIntegratorReader implements ItemReader<HolonDto>, Initializ
         this.roomStatePredicateService = roomStatePredicateService;
         this.snapshotRepository = snapshotRepository;
         categoriesDistribution = new EnumeratedDistribution(stream(values()).map(c -> new Pair(c, 1.0)).collect(toList()));
+        root = HolonDto.builder().cardinality(new AtomicLong(snapshotRepository.count())).build();
+
     }
 
     @Override
-    public synchronized HolonDto read() throws InterruptedException {
-        if (!holons.isEmpty()) {
-            return holons.poll();
-        } else if (holons.isEmpty() && counter.get() < 10) {
-            /*
-             * final List<CategoryPredicateTypes> randomCategories = stream(categoriesDistribution.sample(
-             * CategoryPredicateTypes.values().length, new CategoryPredicateTypes[] {})).distinct().collect(toList());
-             */
-            final List<CategoryPredicateTypes> randomCategories = Arrays.stream(CategoryPredicateTypes.values()).collect(toList());
+    public SemanticReadItem read() throws Exception {
+        final List<Snapshot> snapshots = IntStream.range(0, 10000).mapToObj(i -> readPortion()).filter(Objects::nonNull).collect(toList());
+        counter += 10000;
+        System.out.println("Przetworzono: " + counter);
+        if ((Boolean) stepExecution.getExecutionContext().get("readerExhausted")) {
+            final List<CategoryPredicateTypes> randomCategories = Arrays.stream(values()).collect(toList());
             Collections.shuffle(randomCategories);
-            HolonDto root = HolonDto.builder().cardinality(snapshotRepository.count()).build();
             generateHolonsWithPredicatesForLevel(randomCategories, root, 0);
-            addHolonsToQueue(root);
-            return holons.poll();
-        } else {
+        }
+        if (snapshots.isEmpty()) {
+            stepExecution.getExecutionContext().put("readerExhausted", Boolean.TRUE);
             return null;
         }
+        return new SemanticReadItem(snapshots, root);
     }
 
-    private void addHolonsToQueue(HolonDto root) {
-        if (root.getChildren() != null && !root.getChildren().isEmpty()) {
-            root.getChildren().forEach(h -> holons.add(h));
-            root.getChildren().forEach(this::addHolonsToQueue);
+    private Snapshot readPortion() {
+        try {
+            return mongoItemReader.read();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return null;
     }
 
     private void generateHolonsWithPredicatesForLevel(List<CategoryPredicateTypes> randomCategories, HolonDto root, int level) {
-        if (level < 6) {
+        if (level < 4) {
             root.addChildren(mapOfPredicates.get(randomCategories.get(level)), randomCategories.get(level));
             root.getChildren().forEach(c -> generateHolonsWithPredicatesForLevel(randomCategories, c, level + 1));
         }
@@ -147,5 +154,20 @@ public class SemanticIntegratorReader implements ItemReader<HolonDto>, Initializ
         mapOfPredicates.put(PERSON_STATE, userPositionPredicateService.createPossiblePredicates());
         mapOfPredicates.put(WIND_SPEED, windspeedPredicateService.createPossiblePredicates());
         mapOfPredicates.put(ROOM_STATE, roomStatePredicateService.createPossiblePredicates());
+        final List<CategoryPredicateTypes> randomCategories = Arrays.stream(values()).collect(toList());
+        Collections.shuffle(randomCategories);
+        generateHolonsWithPredicatesForLevel(randomCategories, root, 0);
+    }
+
+    @Override
+    public void beforeStep(StepExecution stepExecution) {
+        this.stepExecution = stepExecution;
+        this.stepExecution.getExecutionContext().put("readerExhausted", Boolean.FALSE);
+
+    }
+
+    @Override
+    public ExitStatus afterStep(StepExecution stepExecution) {
+        return stepExecution.getExitStatus();
     }
 }

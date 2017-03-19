@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import org.bson.types.ObjectId;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.search.annotations.IndexedEmbedded;
+import org.mongodb.morphia.annotations.Entity;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
@@ -31,6 +32,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.servi
 @Getter
 @Setter
 @Immutable
+@Entity
 @Document
 public class Holon {
 

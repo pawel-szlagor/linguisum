@@ -3,7 +3,7 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.c
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
+import com.mysema.query.types.expr.BooleanExpression;
 
 /**
  * Created by Pawel on 2017-03-18.

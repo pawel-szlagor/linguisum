@@ -20,7 +20,7 @@ public class HolonConverter implements Converter<HolonDto, Holon> {
     public Holon convert(HolonDto source) {
         return source == null ? null
                 : Holon.builder()
-                       .cardinality(source.getCardinality())
+                       .cardinality(source.getCardinality().get())
                        .relevance(getRelevance(source))
                        .predicateType(source.getPredicateType())
                        .predicate(getPredicate(source))
@@ -39,7 +39,7 @@ public class HolonConverter implements Converter<HolonDto, Holon> {
     }
 
     private double getRelevance(HolonDto source) {
-        return source.getParent() != null && source.getParent().getCardinality() > 0
-                ? Precision.round(source.getCardinality() / source.getParent().getCardinality(), 2) : 0.00;
+        return source.getParent() != null && source.getParent().getCardinality().get() > 0
+                ? Precision.round(source.getCardinality().doubleValue() / source.getParent().getCardinality().doubleValue(), 2) : 0.00;
     }
 }

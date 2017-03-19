@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
+import com.mysema.query.types.expr.BooleanExpression;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.DeviceState;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QSnapshot;

@@ -10,8 +10,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
-
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.levels.MemGradeService;
 
 /**
@@ -27,7 +25,7 @@ public class DayPhasePredicateServiceImpl implements CategoryPredicateService {
     }
 
     @Override
-    public List<BooleanExpression> createPossiblePredicates() {
+    public List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates() {
         return memGradeService.findByProperty(DAY_PHASE.name())
                               .stream()
                               .map(p -> snapshot.time.between(ofSecondOfDay((long) p.getLowerBoundary()),

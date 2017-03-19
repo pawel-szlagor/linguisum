@@ -1,7 +1,6 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate;
 
 import static java.util.stream.Collectors.toList;
-import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QRoomState.roomState;
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QSnapshot.snapshot;
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.TrapezoidalMemGradeTypes.DES_TEMP;
 
@@ -11,8 +10,7 @@ import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.dsl.BooleanExpression;
+import com.mysema.query.types.expr.BooleanExpression;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.PersonRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.RoomRepository;
@@ -37,20 +35,17 @@ public class RoomStatePredicateServiceImpl implements CategoryPredicateService {
     }
 
     @Override
-    public List<BooleanExpression> createPossiblePredicates() {
+    public List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates() {
         final Stream<BooleanExpression> booleanExpressionStream = roomRepository.findAll().stream().flatMap(
                 r -> personRepository.findAll().stream().flatMap(p -> memGradeService.findByProperty(DES_TEMP.name())
                                                                                      .stream()
-                                                                                     .map(t -> {
-                                                                                         final Expression expression = roomState.room.id.eq(
-                                                                                                 r.getId())
-                                                                                                                                        .and(roomState.person.id.eq(
-                                                                                                                                                p.getId()))
-                                                                                                                                        .and(roomState.desiredTemp.between(
-                                                                                                                                                t.getLowerBoundary(),
-                                                                                                                                                t.getUpperBoundary()));
-                                                                                         return snapshot.roomStates.contains(expression);
-                                                                                     })));
+                                                                                     .map(t -> snapshot.roomStates.any().room.id.eq(
+                                                                                             r.getId())
+                                                                                                                                .and(snapshot.roomStates.any().person.id.eq(
+                                                                                                                                        p.getId()))
+                                                                                                                                .and(snapshot.roomStates.any().desiredTemp.between(
+                                                                                                                                        t.getLowerBoundary(),
+                                                                                                                                        t.getUpperBoundary())))));
         return booleanExpressionStream.collect(toList());
     }
 }

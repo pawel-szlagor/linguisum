@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
-
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.PersonState;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QSnapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.PersonRepository;
@@ -31,7 +29,7 @@ public class UserPositionPredicateServiceImpl implements CategoryPredicateServic
 
     @Transactional(readOnly = true, value = "semanticTransactionManager")
     @Override
-    public List<BooleanExpression> createPossiblePredicates() {
+    public List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates() {
         return personRepository.findAll()
                                .stream()
                                .flatMap(p -> roomRepository.findAll().stream().map(
