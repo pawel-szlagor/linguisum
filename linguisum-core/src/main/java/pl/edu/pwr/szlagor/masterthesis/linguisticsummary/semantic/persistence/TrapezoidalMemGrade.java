@@ -1,10 +1,13 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,12 +18,14 @@ import lombok.Setter;
 /**
  * Created by Pawel on 2017-03-12.
  */
+@Cacheable
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Entity(name = "TRAPEZOIDAL_MEM_GRADE")
+@Entity
+@Table(name = "TRAPEZOIDAL_MEM_GRADE", indexes = { @Index(columnList = "PROPERTY_NAME") })
 public class TrapezoidalMemGrade {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id

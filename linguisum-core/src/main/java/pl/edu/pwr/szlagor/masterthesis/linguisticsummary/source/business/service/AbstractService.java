@@ -10,6 +10,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ public abstract class AbstractService<DTO, E, ID extends Serializable> implement
 
 
     @Autowired
+    @Qualifier("entityManagerFactory")
     private LocalContainerEntityManagerFactoryBean entityManagerFactoryBean;
 
     @Transactional

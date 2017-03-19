@@ -4,9 +4,10 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.config;
  * Created by Pawel on 2017-03-12.
  */
 
+import java.util.Properties;
+
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-import java.util.Properties;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -15,9 +16,11 @@ import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
@@ -25,17 +28,23 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.holon.HolonService;
 
 /**
  * Created by Pawel on 2017-01-16.
  */
 @EnableCaching
 @Configuration
-@PropertySource(value = {"classpath:application.properties"})
+@PropertySource(value = { "classpath:application.properties" })
 @EnableTransactionManagement
-@ComponentScan("pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.*")
+@ComponentScan(value = "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.*",
+        excludeFilters = { @ComponentScan.Filter(type = FilterType.ANNOTATION, value = Configuration.class),
+                           @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = MongoRepository.class), @ComponentScan.Filter(
+                                   type = FilterType.ASSIGNABLE_TYPE, value = HolonService.class) })
 @PropertySource("classpath:application.properties")
-@EnableJpaRepositories(basePackages = "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic")
+@EnableJpaRepositories(basePackages = "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic",
+        entityManagerFactoryRef = "semanticEntityManagerFactory", transactionManagerRef = "semanticTransactionManager",
+        excludeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = MongoRepository.class) })
 public class BasicSemanticConfig {
     private static final String PROPERTY_NAME_DATABASE_DRIVER = "db.driver";
     private static final String PROPERTY_NAME_DATABASE_PASSWORD = "db.password";
@@ -53,7 +62,7 @@ public class BasicSemanticConfig {
     @Resource
     private Environment env;
 
-    @Bean
+    @Bean(name = "semanticDataSource")
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
 
@@ -64,19 +73,19 @@ public class BasicSemanticConfig {
         return dataSource;
     }
 
-    @Bean(name = "entityManagerFactory")
+    @Bean(name = "semanticEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         entityManagerFactoryBean.setDataSource(dataSource());
+        entityManagerFactoryBean.setBeanName("semanticEntityManagerFactory");
         entityManagerFactoryBean.setJpaVendorAdapter(jpaVendorAdapter());
         entityManagerFactoryBean.setJpaProperties(hibProperties());
         entityManagerFactoryBean.setPersistenceUnitName("semanticMySQL");
-        entityManagerFactoryBean.setPackagesToScan("pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic", "pl" +
-                ".edu.pwr.szlagor.masterthesis.linguisticsummary.common");
+        entityManagerFactoryBean.setPackagesToScan("pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence");
         return entityManagerFactoryBean;
     }
 
-    @Bean
+    @Bean(name = "semanticJpaVendorAdapter")
     public JpaVendorAdapter jpaVendorAdapter() {
         HibernateJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
         adapter.setShowSql(true);
@@ -96,19 +105,19 @@ public class BasicSemanticConfig {
         return properties;
     }
 
-    @Bean
+    @Bean(name = "semanticTransactionManager")
     public JpaTransactionManager transactionManager() {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(entityManagerFactory().getObject());
         return transactionManager;
     }
 
-    @Bean
+    @Bean(name = "semanticCacheManager")
     public CacheManager getCacheManager() {
         return new EhCacheCacheManager(getEhCacheFactory().getObject());
     }
 
-    @Bean
+    @Bean(name = "semanticEhCacheFactory")
     public EhCacheManagerFactoryBean getEhCacheFactory() {
         EhCacheManagerFactoryBean factoryBean = new EhCacheManagerFactoryBean();
         factoryBean.setShared(true);

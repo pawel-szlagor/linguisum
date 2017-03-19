@@ -1,6 +1,7 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence;
 
 import static java.lang.Double.MAX_VALUE;
+import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.TrapezoidalMemGradeTypes.DES_TEMP;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.TrapezoidalMemGradeDto;
 
@@ -8,7 +9,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model
  * Created by Pawel on 2017-03-12.
  */
 public class TempInLevels {
-    private static final String PROPERTY_NAME = "desiredTemp";
+    private static final String PROPERTY_NAME = DES_TEMP.name();
     public static final TrapezoidalMemGradeDto ICY = TrapezoidalMemGradeDto.builder().lowerBoundary(-Double.MAX_VALUE).lowerExtremum(14.0).upperExtremum(15.0).upperBoundary(16.0).propertyName(PROPERTY_NAME).description("lodowata").build();
     public static final TrapezoidalMemGradeDto FREEZING = TrapezoidalMemGradeDto.builder().lowerBoundary(15.0).lowerExtremum(16.0).upperExtremum(17.5).upperBoundary(18.5).propertyName(PROPERTY_NAME).description("mroźna").build();
     public static final TrapezoidalMemGradeDto COLD = TrapezoidalMemGradeDto.builder().lowerBoundary(16.5).lowerExtremum(17.0).upperExtremum(19.0).upperBoundary(20.0).propertyName(PROPERTY_NAME).description("zimna").build();

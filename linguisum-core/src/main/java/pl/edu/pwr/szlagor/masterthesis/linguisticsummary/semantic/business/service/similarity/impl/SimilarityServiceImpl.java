@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.EnvironmentConditionsDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.SnapshotDto;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.levels.MemGradeService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.similarity.SimilarityService;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.levels.MemGradeService;
 
 /**
  * Created by Pawel on 2017-03-12.

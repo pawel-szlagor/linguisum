@@ -5,7 +5,7 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.servic
  */
 public interface IdAware {
 
-    void setId(long id);
+    void setId(Long id);
 
     long getId();
 }

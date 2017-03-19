@@ -12,8 +12,10 @@ import com.mongodb.MongoClient;
  * Created by Pawel on 2017-01-16.
  */
 @Configuration
-@ComponentScan("pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.*")
-@EnableMongoRepositories(basePackages = "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository")
+@ComponentScan(value = { "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.*",
+                         "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.holon.*" })
+@EnableMongoRepositories(basePackages = { "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository",
+                                          "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.repository" })
 public class BasicMongoConfig extends AbstractMongoConfiguration {
 
     @Override
@@ -30,16 +32,5 @@ public class BasicMongoConfig extends AbstractMongoConfiguration {
     protected String getMappingBasePackage() {
         return "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic";
     }
-
-/*
-    @Bean
-    public Morphia morphia(){
-        return new Morphia();
-    }
-
-    @Bean
-    public Datastore datastore() throws Exception {
-        return morphia().createDatastore(new MongoClient("127.0.0.1", 27017), "iHouse");
-    }*/
 
 }

@@ -1,6 +1,7 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence;
 
 import static java.lang.Double.MAX_VALUE;
+import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.TrapezoidalMemGradeTypes.PRECIPITATION;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.TrapezoidalMemGradeDto;
 
@@ -8,7 +9,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model
  * Created by Pawel on 2017-03-12.
  */
 public class PrecipitationLevels {
-    private static final String PROPERTY_NAME = "precipitation";
+    private static final String PROPERTY_NAME = PRECIPITATION.name();
     public static final TrapezoidalMemGradeDto DRY = TrapezoidalMemGradeDto.builder().lowerBoundary(-Double.MAX_VALUE).lowerExtremum(0).upperExtremum(0).upperBoundary(0.0).propertyName(PROPERTY_NAME).description("brak opadów").build();
     public static final TrapezoidalMemGradeDto LOW = TrapezoidalMemGradeDto.builder().lowerBoundary(0.0).lowerExtremum(2).upperExtremum(10).upperBoundary(15.0).propertyName(PROPERTY_NAME).description("niski opad").build();
     public static final TrapezoidalMemGradeDto MEDIUM = TrapezoidalMemGradeDto.builder().lowerBoundary(10.0).lowerExtremum(18).upperExtremum(25).upperBoundary(30.0).propertyName(PROPERTY_NAME).description("średni opad").build();

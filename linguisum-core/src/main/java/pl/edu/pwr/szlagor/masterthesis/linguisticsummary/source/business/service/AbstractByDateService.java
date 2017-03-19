@@ -10,15 +10,18 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.Sets;
+
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
@@ -35,13 +38,14 @@ public abstract class AbstractByDateService<DTO extends ObservationTimeAware, E 
     private Map<Integer, List<DTO>> orderedByDate;
 
     @Autowired
-    private LocalContainerEntityManagerFactoryBean entityManagerFactoryBean;
+    @PersistenceContext(unitName = "mySQL")
+    private EntityManager entityManagerFactoryBean;
 
     @SuppressWarnings(value = "unchecked")
     @Transactional(readOnly = true)
     @Override
     public synchronized List<DTO> findByDate(LocalDate date) {
-        Session session = entityManagerFactoryBean.getNativeEntityManagerFactory().unwrap(SessionFactory.class).openSession();
+        Session session = entityManagerFactoryBean.unwrap(SessionFactory.class).openSession();
         final Query query = session.createQuery("from " + getEntityClass().getSimpleName() + " where DATE(OBSERVATION_TIME) = :date");
         query.setParameter("date", java.sql.Date.valueOf(date));
         final List<DTO> list = query.<DTO>list();

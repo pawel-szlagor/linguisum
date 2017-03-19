@@ -31,23 +31,27 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
+
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.business.snapshot.SnapshotService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.config.BasicMongoConfig;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.PersonState;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QSnapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Room;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.SnapshotDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.summary.HolonDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.similarity.SimilarityService;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.holon.HolonService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.config.BasicSemanticConfig;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.repository.HolonRepository;
 
 /**
  * Created by Pawel on 2017-03-14.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {BasicSemanticConfig.class, BasicMongoConfig.class}, loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = { BasicMongoConfig.class, BasicSemanticConfig.class, }, loader = AnnotationConfigContextLoader.class)
 public class SimilarityServiceImplTest {
 
     private static final LocalDateTime INITIAL_TIME = LocalDate.of(2016, 1, 1).atStartOfDay();
@@ -61,6 +65,10 @@ public class SimilarityServiceImplTest {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    @Autowired
+    private HolonService holonService;
+    @Autowired
+    private HolonRepository holonRepository;
 
     @Test
     public void shouldCalculateSimilarityForEqualObjects() {
@@ -79,7 +87,7 @@ public class SimilarityServiceImplTest {
     public void shouldFindByExample() {
         // given
         final BooleanExpression expression = snapshot.personStates.contains(PersonState.builder().locationId(1L).userId(1L).build());
-        Predicate predicate = snapshot.date.after(LocalDate.of(2016, 1, 1)).and(snapshot.date.before(LocalDate.of(2016, 2, 1)));
+        BooleanExpression predicate = snapshot.date.after(LocalDate.of(2016, 1, 1)).and(snapshot.date.before(LocalDate.of(2016, 2, 1)));
         Aggregation agg = newAggregation(getMatchOperation(), getGroupOperation(), getProjectOperation());
         // when
         final List<TempCount> mappedResults = mongoTemplate.aggregate(agg, Snapshot.class, TempCount.class).getMappedResults();
@@ -107,4 +115,18 @@ public class SimilarityServiceImplTest {
         private Double desiredTemp;
     }
 
+    @Test
+    public void shouldSaveHolonWithParent() {
+        // given
+        final BooleanExpression after = QSnapshot.snapshot.date.after(LocalDate.of(2016, 5, 1));
+        HolonDto parent = HolonDto.builder().predicate(after).cardinality(10L).build();
+        final BooleanExpression contains = QSnapshot.snapshot.personStates.contains(
+                PersonState.builder().locationId(1L).userId(2L).build());
+        HolonDto child = HolonDto.builder().cardinality(6L).predicate(contains).parent(parent).build();
+        // when
+        // holonService.save(child);
+        holonRepository.findByRelevanceBetween(0.4, 1.0);
+        // then
+        holonService.findAll();
+    }
 }

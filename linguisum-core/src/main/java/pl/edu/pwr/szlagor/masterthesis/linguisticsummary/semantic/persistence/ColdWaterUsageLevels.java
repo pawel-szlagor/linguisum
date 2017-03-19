@@ -1,14 +1,15 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence;
 
 import static java.lang.Double.MAX_VALUE;
+import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.TrapezoidalMemGradeTypes.COLD_WATER;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.TrapezoidalMemGradeDto;
 
 /**
  * Created by Pawel on 2017-03-12.
  */
-public class WaterUsageLevels {
-    private static final String PROPERTY_NAME = "water.usage";
+public class ColdWaterUsageLevels {
+    private static final String PROPERTY_NAME = COLD_WATER.name();
     public static final TrapezoidalMemGradeDto NONE = TrapezoidalMemGradeDto.builder().lowerBoundary(-Double.MAX_VALUE).lowerExtremum(0).upperExtremum(0.5).upperBoundary(1.0).propertyName(PROPERTY_NAME).description("brak").build();
     public static final TrapezoidalMemGradeDto LOW = TrapezoidalMemGradeDto.builder().lowerBoundary(0.0).lowerExtremum(0.5).upperExtremum(2.5).upperBoundary(3.5).propertyName(PROPERTY_NAME).description("niskie").build();
     public static final TrapezoidalMemGradeDto MEDIUM = TrapezoidalMemGradeDto.builder().lowerBoundary(3.0).lowerExtremum(3.5).upperExtremum(5.5).upperBoundary(6.5).propertyName(PROPERTY_NAME).description("średnie").build();

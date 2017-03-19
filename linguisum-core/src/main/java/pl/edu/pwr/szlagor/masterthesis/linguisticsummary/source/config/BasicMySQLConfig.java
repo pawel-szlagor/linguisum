@@ -1,12 +1,14 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.config;
 
+import java.util.Properties;
+
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-import java.util.Properties;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -23,7 +25,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @PropertySource(value = {"classpath:application.properties"})
 @EnableTransactionManagement
-@ComponentScan("pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.*")
+@ComponentScan(value = "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.*",
+        excludeFilters = { @ComponentScan.Filter(type = FilterType.ANNOTATION, value = Configuration.class) })
 @PropertySource("classpath:application.properties")
 @EnableJpaRepositories(basePackages = "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source")
 public class BasicMySQLConfig {
@@ -58,6 +61,7 @@ public class BasicMySQLConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         entityManagerFactoryBean.setDataSource(dataSource());
+        entityManagerFactoryBean.setBeanName("entityManagerFactory");
         entityManagerFactoryBean.setJpaVendorAdapter(jpaVendorAdapter());
         entityManagerFactoryBean.setJpaProperties(hibProperties());
         entityManagerFactoryBean.setPersistenceUnitName("mySQL");

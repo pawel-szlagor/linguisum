@@ -12,8 +12,9 @@ import java.util.stream.Stream;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.config.BasicMongoConfig;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.TrapezoidalMemGradeDto;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.levels.MemGradeService;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.levels.MemGradeService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.config.BasicSemanticConfig;
 
 /**
@@ -26,9 +27,19 @@ public class ImportMemGradeData {
     }
 
     public static void importData() {
-        ApplicationContext ctx = new AnnotationConfigApplicationContext(BasicSemanticConfig.class);
+        ApplicationContext ctx = new AnnotationConfigApplicationContext(BasicSemanticConfig.class, BasicMongoConfig.class);
         MemGradeService service = ctx.getBean(MemGradeService.class);
-        final List<Field> fields = Stream.of(ElectricityUsageLevels.class.getFields(), HumidityLevels.class.getFields(), PrecipitationLevels.class.getFields(), PressureLevels.class.getFields(), SunlightLevels.class.getFields(), TempInLevels.class.getFields(), TempOutLevels.class.getFields(), WaterUsageLevels.class.getFields(), WindSpeedLevels.class.getFields()).flatMap(Arrays::stream).collect(toList());
+        final List<Field> fields = Stream.of(ElectricityUsageLevels.class.getFields(),
+                HumidityLevels.class.getFields(),
+                PrecipitationLevels.class.getFields(),
+                PressureLevels.class.getFields(),
+                SunlightLevels.class.getFields(),
+                TempInLevels.class.getFields(),
+                TempOutLevels.class.getFields(),
+                ColdWaterUsageLevels.class.getFields(),
+                HotWaterUsageLevels.class.getFields(),
+                DayPhaseLevels.class.getFields(),
+                WindSpeedLevels.class.getFields()).flatMap(Arrays::stream).collect(toList());
         for (Field field : fields) {
             field.setAccessible(true);
         }
