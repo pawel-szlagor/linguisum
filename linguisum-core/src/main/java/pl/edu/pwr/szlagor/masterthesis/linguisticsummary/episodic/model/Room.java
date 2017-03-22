@@ -60,39 +60,21 @@ public class Room {
         this.type = type;
     }
 
+    @Override
     public boolean equals(Object o) {
-        if (o == this)
+        if (this == o)
             return true;
-        if (!(o instanceof Room))
+        if (o == null || getClass() != o.getClass())
             return false;
-        final Room other = (Room) o;
-        if (!other.canEqual((Object) this))
-            return false;
-        final Object this$id = this.getId();
-        final Object other$id = other.getId();
-        if (this$id == null ? other$id != null : !this$id.equals(other$id))
-            return false;
-        final Object this$name = this.getName();
-        final Object other$name = other.getName();
-        if (this$name == null ? other$name != null : !this$name.equals(other$name))
-            return false;
-        final Object this$type = this.getType();
-        final Object other$type = other.getType();
-        if (this$type == null ? other$type != null : !this$type.equals(other$type))
-            return false;
-        return true;
+
+        Room room = (Room) o;
+
+        return id != null ? id.equals(room.id) : room.id == null;
     }
 
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = 1;
-        final Object $id = this.getId();
-        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
-        final Object $name = this.getName();
-        result = result * PRIME + ($name == null ? 43 : $name.hashCode());
-        final Object $type = this.getType();
-        result = result * PRIME + ($type == null ? 43 : $type.hashCode());
-        return result;
+        return id != null ? id.hashCode() : 0;
     }
 
     protected boolean canEqual(Object other) {

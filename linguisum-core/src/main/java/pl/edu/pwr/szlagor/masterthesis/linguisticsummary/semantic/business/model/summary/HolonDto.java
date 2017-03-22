@@ -2,6 +2,7 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.mode
 
 import static java.util.stream.Collectors.toList;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -27,6 +28,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.servi
 @Setter
 @ToString(exclude = "children")
 public class HolonDto {
+    private BigInteger id;
     private CategoryPredicateTypes predicateType;
     private BooleanExpression predicate;
     private AtomicLong cardinality;
@@ -79,5 +81,29 @@ public class HolonDto {
 
     public int getLevel() {
         return parent == null ? 0 : parent.getLevel() + 1;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        HolonDto holonDto = (HolonDto) o;
+
+        if (predicateType != holonDto.predicateType)
+            return false;
+        if (predicate != null ? !predicate.equals(holonDto.predicate) : holonDto.predicate != null)
+            return false;
+        return parent != null ? parent.equals(holonDto.parent) : holonDto.parent == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = predicateType != null ? predicateType.hashCode() : 0;
+        result = 31 * result + (predicate != null ? predicate.hashCode() : 0);
+        result = 31 * result + (parent != null ? parent.hashCode() : 0);
+        return result;
     }
 }

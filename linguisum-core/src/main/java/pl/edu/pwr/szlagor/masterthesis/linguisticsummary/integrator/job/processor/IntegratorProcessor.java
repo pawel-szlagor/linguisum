@@ -55,7 +55,10 @@ public class IntegratorProcessor implements ItemProcessor<SnapshotSourceDto, Sna
     }
 
     private Function<PersonPositionSourceDto, PersonState> personPositionSourceDtoPersonStateFunction() {
-        return l -> PersonState.builder().locationId(l.getLocation().getId()).userId(l.getUser().getId()).build();
+        return l -> PersonState.builder()
+                               .location(mapperFacade.map(l.getLocation(), Room.class))
+                               .user(mapperFacade.map(l.getUser(), Person.class))
+                               .build();
     }
 
     private Function<DesiredTempSourceDto, RoomState> desiredTempSourceDtoRoomStateFunction() {

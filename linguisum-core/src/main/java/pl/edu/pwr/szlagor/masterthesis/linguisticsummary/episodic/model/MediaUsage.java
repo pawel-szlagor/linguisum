@@ -3,6 +3,7 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model;
 import javax.persistence.Embeddable;
 
 import org.mongodb.morphia.annotations.Entity;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.MediaType;
 
@@ -14,6 +15,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.Me
 public class MediaUsage {
     private MediaType mediaType;
     private double usagePerMinute;
+    @DBRef(db = "room")
     private Room location;
 
     @java.beans.ConstructorProperties({ "mediaType", "usagePerMinute", "location" })
@@ -54,36 +56,24 @@ public class MediaUsage {
         this.location = location;
     }
 
+    @Override
     public boolean equals(Object o) {
-        if (o == this)
+        if (this == o)
             return true;
-        if (!(o instanceof MediaUsage))
+        if (o == null || getClass() != o.getClass())
             return false;
-        final MediaUsage other = (MediaUsage) o;
-        if (!other.canEqual((Object) this))
+
+        MediaUsage that = (MediaUsage) o;
+
+        if (mediaType != that.mediaType)
             return false;
-        final Object this$mediaType = this.getMediaType();
-        final Object other$mediaType = other.getMediaType();
-        if (this$mediaType == null ? other$mediaType != null : !this$mediaType.equals(other$mediaType))
-            return false;
-        if (Double.compare(this.getUsagePerMinute(), other.getUsagePerMinute()) != 0)
-            return false;
-        final Object this$location = this.getLocation();
-        final Object other$location = other.getLocation();
-        if (this$location == null ? other$location != null : !this$location.equals(other$location))
-            return false;
-        return true;
+        return location != null ? location.equals(that.location) : that.location == null;
     }
 
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = 1;
-        final Object $mediaType = this.getMediaType();
-        result = result * PRIME + ($mediaType == null ? 43 : $mediaType.hashCode());
-        final long $usagePerMinute = Double.doubleToLongBits(this.getUsagePerMinute());
-        result = result * PRIME + (int) ($usagePerMinute >>> 32 ^ $usagePerMinute);
-        final Object $location = this.getLocation();
-        result = result * PRIME + ($location == null ? 43 : $location.hashCode());
+        int result = mediaType != null ? mediaType.hashCode() : 0;
+        result = 31 * result + (location != null ? location.hashCode() : 0);
         return result;
     }
 

@@ -10,6 +10,7 @@ import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Q
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +37,6 @@ import com.mysema.query.types.expr.BooleanExpression;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.business.snapshot.SnapshotService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.config.BasicMongoConfig;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.PersonState;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QSnapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Room;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
@@ -87,7 +87,6 @@ public class SimilarityServiceImplTest {
     @Test
     public void shouldFindByExample() {
         // given
-        final BooleanExpression expression = snapshot.personStates.contains(PersonState.builder().locationId(1L).userId(1L).build());
         BooleanExpression predicate = snapshot.date.after(LocalDate.of(2016, 1, 1)).and(snapshot.date.before(LocalDate.of(2016, 2, 1)));
         Aggregation agg = newAggregation(getMatchOperation(), getGroupOperation(), getProjectOperation());
         // when
@@ -121,9 +120,11 @@ public class SimilarityServiceImplTest {
         // given
         final BooleanExpression after = QSnapshot.snapshot.date.after(LocalDate.of(2016, 5, 1));
         HolonDto parent = HolonDto.builder().predicate(after).cardinality(new AtomicLong(10L)).build();
-        final BooleanExpression contains = QSnapshot.snapshot.personStates.contains(
-                PersonState.builder().locationId(1L).userId(2L).build());
-        HolonDto child = HolonDto.builder().cardinality(new AtomicLong(6L)).predicate(contains).parent(parent).build();
+        HolonDto child = HolonDto.builder()
+                                 .cardinality(new AtomicLong(6L))
+                                 .predicate(after.and(QSnapshot.snapshot.time.after(LocalTime.of(23, 45))))
+                                 .parent(parent)
+                                 .build();
         // when
         // holonService.save(child);
         holonRepository.findByRelevanceBetween(0.4, 1.0);

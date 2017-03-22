@@ -3,6 +3,7 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.c
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
+import com.mongodb.util.JSON;
 import com.mysema.query.types.expr.BooleanExpression;
 
 /**
@@ -13,11 +14,11 @@ public class BooleanExpressionConverter implements AttributeConverter<BooleanExp
 
     @Override
     public String convertToDatabaseColumn(BooleanExpression attribute) {
-        return attribute.toString();
+        return JSON.serialize(attribute);
     }
 
     @Override
     public BooleanExpression convertToEntityAttribute(String dbData) {
-        return null;
+        return (BooleanExpression) JSON.parse(dbData);
     }
 }

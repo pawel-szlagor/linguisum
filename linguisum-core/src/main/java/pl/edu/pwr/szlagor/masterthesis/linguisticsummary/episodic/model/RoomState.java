@@ -4,6 +4,7 @@ import javax.persistence.Embeddable;
 
 import org.mongodb.morphia.annotations.Entity;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 /**
  * Created by Pawel on 2017-01-16.
@@ -12,8 +13,10 @@ import org.springframework.data.mongodb.core.index.Indexed;
 @Embeddable
 public class RoomState {
     @Indexed
+    @DBRef
     private Room room;
     @Indexed
+    @DBRef
     private Person person;
     @Indexed
     private double desiredTemp;
@@ -56,36 +59,24 @@ public class RoomState {
         this.desiredTemp = desiredTemp;
     }
 
+    @Override
     public boolean equals(Object o) {
-        if (o == this)
+        if (this == o)
             return true;
-        if (!(o instanceof RoomState))
+        if (o == null || getClass() != o.getClass())
             return false;
-        final RoomState other = (RoomState) o;
-        if (!other.canEqual((Object) this))
+
+        RoomState roomState = (RoomState) o;
+
+        if (room != null ? !room.equals(roomState.room) : roomState.room != null)
             return false;
-        final Object this$room = this.getRoom();
-        final Object other$room = other.getRoom();
-        if (this$room == null ? other$room != null : !this$room.equals(other$room))
-            return false;
-        final Object this$person = this.getPerson();
-        final Object other$person = other.getPerson();
-        if (this$person == null ? other$person != null : !this$person.equals(other$person))
-            return false;
-        if (Double.compare(this.getDesiredTemp(), other.getDesiredTemp()) != 0)
-            return false;
-        return true;
+        return person != null ? person.equals(roomState.person) : roomState.person == null;
     }
 
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = 1;
-        final Object $room = this.getRoom();
-        result = result * PRIME + ($room == null ? 43 : $room.hashCode());
-        final Object $person = this.getPerson();
-        result = result * PRIME + ($person == null ? 43 : $person.hashCode());
-        final long $desiredTemp = Double.doubleToLongBits(this.getDesiredTemp());
-        result = result * PRIME + (int) ($desiredTemp >>> 32 ^ $desiredTemp);
+        int result = room != null ? room.hashCode() : 0;
+        result = 31 * result + (person != null ? person.hashCode() : 0);
         return result;
     }
 

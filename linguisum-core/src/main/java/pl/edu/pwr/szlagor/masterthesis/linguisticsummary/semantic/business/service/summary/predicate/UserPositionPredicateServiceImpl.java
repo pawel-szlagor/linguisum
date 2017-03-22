@@ -33,7 +33,7 @@ public class UserPositionPredicateServiceImpl implements CategoryPredicateServic
         return personRepository.findAll()
                                .stream()
                                .flatMap(p -> roomRepository.findAll().stream().map(
-                                       r -> QSnapshot.snapshot.personStates.contains(new PersonState(p.getId(), r.getId()))))
+                                       r -> QSnapshot.snapshot.personStates.contains(new PersonState(p, r))))
                                .collect(toList());
     }
 }

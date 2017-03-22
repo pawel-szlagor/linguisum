@@ -19,11 +19,10 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
-import org.springframework.batch.core.partition.support.Partitioner;
-import org.springframework.batch.core.partition.support.SimplePartitioner;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.data.MongoItemReader;
 import org.springframework.batch.item.data.MongoItemWriter;
 import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.batch.support.DatabaseType;
@@ -35,6 +34,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -107,6 +107,21 @@ public class SemanticBatchConfiguration {
     }
 
     @Bean
+    public MongoItemReader<Snapshot> partitionedItemReader() {
+        MongoItemReader<Snapshot> itemReader = new MongoItemReader<>();
+        itemReader.setTemplate(mongoTemplate);
+        itemReader.setTargetType(Snapshot.class);
+        itemReader.setPageSize(10000);
+        itemReader.setMaxItemCount(200000);
+        Map<String, Sort.Direction> sortMap = new HashMap<>();
+        sortMap.put("id", Sort.DEFAULT_DIRECTION);
+        itemReader.setSort(sortMap);
+        itemReader.setSaveState(false);
+        itemReader.setQuery("{'id':{$gt:#{stepExecutionContext[fromId]}, $lte:#{stepExecutionContext[toId]}}}");
+        return itemReader;
+    }
+
+    @Bean
     public ItemWriter<HolonDto> writer() {
         MongoItemWriter<HolonDto> writer = new MongoItemWriter<>();
         writer.setTemplate(mongoTemplate);
@@ -118,24 +133,36 @@ public class SemanticBatchConfiguration {
 
     // tag::jobstep[]
     @Bean
-    public Job semanticExpressionJob(JobCompletionNotificationListener listener, StepExecutionListener stepExecutionListener) {
+    public Job semanticExpressionJob(JobCompletionNotificationListener listener,
+            StepExecutionListener stepExecutionListener,
+            SnapshotRepository repository) {
         return jobBuilderFactory.get("semanticExpressionJob")
                                 .incrementer(new RunIdIncrementer())
                                 .listener(listener)
-                                .flow(semanticExpression(stepExecutionListener))
+                                .flow(masterPartionerStep(stepExecutionListener, repository))
                                 .end()
                                 .build();
+    }
+
+    @Bean
+    public Step masterPartionerStep(StepExecutionListener stepExecutionListener, SnapshotRepository repository) {
+        return stepBuilderFactory.get("masterPartionerStep")
+                                 .partitioner("semanticExpression", partitioner(repository))
+                                 .step(semanticExpression(stepExecutionListener))
+                                 .gridSize(10)
+                                 .taskExecutor(taskExecutor())
+                                 .build();
     }
 
     @Bean
     public Step semanticExpression(StepExecutionListener stepExecutionListener) {
         return stepBuilderFactory.get("semanticExpression")
                                  .listener(stepExecutionListener)
-                                 .<SemanticReadItem, HolonDto> chunk(1000)
+                                 .<SemanticReadItem, HolonDto> chunk(1)
                                  .reader(reader)
                                  .processor(processor)
                                  .writer(bulkWriter)
-                                 .taskExecutor(taskExecutor())
+                                 .taskExecutor(semanticTaskExecutor())
                                  .throttleLimit(10)
                                  .build();
     }
@@ -180,8 +207,15 @@ public class SemanticBatchConfiguration {
     }
 
     @Bean
-    public Partitioner partitioner() {
-        return new SimplePartitioner();
+    public TaskExecutor semanticTaskExecutor() {
+        return new SyncTaskExecutor();
+    }
+
+    @Bean
+    public RangePartition partitioner(SnapshotRepository repository) {
+        final RangePartition rangePartition = new RangePartition(repository);
+        rangePartition.setMaxItemCount(200000);
+        return rangePartition;
     }
 
     // @Scheduled(cron = "0 0 0 * * ?")

@@ -2,12 +2,15 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model;
 
 import javax.persistence.Embeddable;
 
+import org.springframework.data.mongodb.core.mapping.DBRef;
+
 /**
  * Created by Pawel on 2017-01-16.
  */
 @Embeddable
 public class DeviceState {
 
+    @DBRef
     private Device device;
     private boolean isOn;
 

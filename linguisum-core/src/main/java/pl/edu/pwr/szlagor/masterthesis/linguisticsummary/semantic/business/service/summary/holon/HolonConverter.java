@@ -18,16 +18,17 @@ public class HolonConverter implements Converter<HolonDto, Holon> {
 
     @Override
     public Holon convert(HolonDto source) {
-        return source == null ? null
-                : Holon.builder()
-                       .cardinality(source.getCardinality().get())
-                       .relevance(getRelevance(source))
-                       .predicateType(source.getPredicateType())
-                       .predicate(getPredicate(source))
-                       .parent(convert(source.getParent()))
-                       .cumulatedPredicate(getCumulatedPredicate(source))
-                       .cumulatedPredicatesTypes(source.getCumulatedPredicatesTypes().collect(toList()))
-                       .build();
+        return source == null ? null : Holon.builder()
+                                            .id(source.getId())
+                                            .cardinality(source.getCardinality().get())
+                                            .relevance(getRelevance(source))
+                                            .predicateType(source.getPredicateType())
+                                            .predicate(source.getPredicate())
+                                            .predicateString(getPredicate(source))
+                                            .parent(convert(source.getParent()))
+                                            .cumulatedPredicate(getCumulatedPredicate(source))
+                                            .cumulatedPredicatesTypes(source.getCumulatedPredicatesTypes().collect(toList()))
+                                            .build();
     }
 
     private String getCumulatedPredicate(HolonDto source) {

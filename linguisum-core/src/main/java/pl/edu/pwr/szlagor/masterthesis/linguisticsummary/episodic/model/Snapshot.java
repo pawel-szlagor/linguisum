@@ -1,5 +1,6 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model;
 
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -12,7 +13,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-import org.bson.types.ObjectId;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Immutable;
@@ -25,13 +25,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
  * Created by Pawel on 2017-01-15.
  */
 @Immutable
-@Document
+@Document(collection = "snapshot")
 @Entity
 public class Snapshot {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private ObjectId id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private BigInteger id;
 
     @Indexed
     private LocalDate date;
@@ -62,7 +62,7 @@ public class Snapshot {
 
     @java.beans.ConstructorProperties({ "id", "date", "time", "personStates", "weatherConditions", "deviceStates", "roomStates",
                                         "mediaUsages" })
-    public Snapshot(ObjectId id,
+    public Snapshot(BigInteger id,
             LocalDate date,
             LocalTime time,
             Set<PersonState> personStates,
@@ -87,11 +87,11 @@ public class Snapshot {
         return new SnapshotBuilder();
     }
 
-    public ObjectId getId() {
+    public BigInteger getId() {
         return id;
     }
 
-    public void setId(ObjectId id) {
+    public void setId(BigInteger id) {
         this.id = id;
     }
 
@@ -152,7 +152,7 @@ public class Snapshot {
     }
 
     public static class SnapshotBuilder {
-        private ObjectId id;
+        private BigInteger id;
         private LocalDate date;
         private LocalTime time;
         private ArrayList<PersonState> personStates;
@@ -164,7 +164,7 @@ public class Snapshot {
         SnapshotBuilder() {
         }
 
-        public Snapshot.SnapshotBuilder id(ObjectId id) {
+        public Snapshot.SnapshotBuilder id(BigInteger id) {
             this.id = id;
             return this;
         }

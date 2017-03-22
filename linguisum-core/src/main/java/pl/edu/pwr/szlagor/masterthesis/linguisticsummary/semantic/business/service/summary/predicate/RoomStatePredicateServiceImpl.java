@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.mysema.query.types.expr.BooleanExpression;
 
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.RoomState;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.PersonRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.RoomRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.levels.MemGradeService;
@@ -39,13 +40,8 @@ public class RoomStatePredicateServiceImpl implements CategoryPredicateService {
         final Stream<BooleanExpression> booleanExpressionStream = roomRepository.findAll().stream().flatMap(
                 r -> personRepository.findAll().stream().flatMap(p -> memGradeService.findByProperty(DES_TEMP.name())
                                                                                      .stream()
-                                                                                     .map(t -> snapshot.roomStates.any().room.id.eq(
-                                                                                             r.getId())
-                                                                                                                                .and(snapshot.roomStates.any().person.id.eq(
-                                                                                                                                        p.getId()))
-                                                                                                                                .and(snapshot.roomStates.any().desiredTemp.between(
-                                                                                                                                        t.getLowerBoundary(),
-                                                                                                                                        t.getUpperBoundary())))));
+                                                                                     .map(t -> snapshot.roomStates.contains(
+                                                                                             new RoomState(r, p, t.getLowerExtremum())))));
         return booleanExpressionStream.collect(toList());
     }
 }

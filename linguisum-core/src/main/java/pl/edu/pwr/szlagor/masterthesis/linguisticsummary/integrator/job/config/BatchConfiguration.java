@@ -1,9 +1,10 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job.config;
 
-import javax.sql.DataSource;
 import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.Random;
+
+import javax.sql.DataSource;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -23,6 +24,7 @@ import org.springframework.batch.item.data.MongoItemWriter;
 import org.springframework.batch.support.DatabaseType;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -35,6 +37,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.google.common.collect.ImmutableMap;
+
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.config.BasicMongoConfig;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job.processor.IntegratorProcessor;
@@ -71,6 +74,7 @@ public class BatchConfiguration {
     private IntegratorWriter bulkWriter;
 
     @Autowired
+    @Qualifier(value = "importJob")
     private Job importSnapshotsJob;
 
     @Autowired

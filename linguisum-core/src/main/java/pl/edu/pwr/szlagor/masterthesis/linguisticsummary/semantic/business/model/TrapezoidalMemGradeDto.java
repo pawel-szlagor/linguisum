@@ -31,4 +31,8 @@ public class TrapezoidalMemGradeDto implements MemGrade {
             return (upperBoundary - value) / (upperBoundary - upperExtremum);
         }
     }
+
+    public boolean isBelonging(double value) {
+        return value > lowerBoundary && value < upperBoundary;
+    }
 }

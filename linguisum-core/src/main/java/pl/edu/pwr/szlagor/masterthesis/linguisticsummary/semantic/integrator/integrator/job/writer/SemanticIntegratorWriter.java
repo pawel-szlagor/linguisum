@@ -40,7 +40,7 @@ public class SemanticIntegratorWriter implements ItemWriter<HolonDto>, StepExecu
         // Holon.class);
         if ((Boolean) stepExecution.getExecutionContext().get("readerExhausted")) {
             List<Holon> holonToSave = convertToEntites(items.get(0).getRoot());
-            template.insert(holonToSave, "holons");
+            holonToSave.stream().forEach(template::save);
         }
     }
 

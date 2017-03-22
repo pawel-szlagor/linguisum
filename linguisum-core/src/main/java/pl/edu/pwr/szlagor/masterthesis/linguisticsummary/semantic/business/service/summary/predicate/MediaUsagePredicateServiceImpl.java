@@ -10,6 +10,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.MediaUsage;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.RoomRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.levels.MemGradeService;
 
@@ -32,9 +33,7 @@ public class MediaUsagePredicateServiceImpl implements CategoryPredicateService 
         return roomRepository.findAll()
                              .stream()
                              .flatMap(r -> stream(values()).flatMap(m -> memGradeService.findByProperty(m.name()).stream().map(
-                                     p -> snapshot.mediaUsages.any().location.eq(r).and(snapshot.mediaUsages.any().mediaType.eq(m)).and(
-                                             snapshot.mediaUsages.any().usagePerMinute.between(p.getLowerBoundary(),
-                                                     p.getUpperBoundary())))))
+                                     p -> snapshot.mediaUsages.contains(new MediaUsage(m, p.getUpperExtremum(), r)))))
                              .collect(toList());
     }
 }

@@ -35,6 +35,7 @@ import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 import com.mysema.query.types.expr.BooleanExpression;
@@ -53,7 +54,8 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.int
 @Component
 public class SemanticIntegratorReader implements ItemReader<SemanticReadItem>, InitializingBean, StepExecutionListener {
 
-    private long counter = 0L;
+    private static final int PORTION_COUNT = 1000;
+    private AtomicLong counter = new AtomicLong(0);
     private Map<CategoryPredicateTypes, List<BooleanExpression>> mapOfPredicates = new HashMap<>();
     private final RepositoryItemReader<Snapshot> mongoItemReader;
     private final EnumeratedDistribution<CategoryPredicateTypes> categoriesDistribution;
@@ -70,6 +72,7 @@ public class SemanticIntegratorReader implements ItemReader<SemanticReadItem>, I
     private final CategoryPredicateService windspeedPredicateService;
     private final CategoryPredicateService roomStatePredicateService;
     private final SnapshotRepository snapshotRepository;
+    private final MongoTemplate mongoTemplate;
     private final HolonDto root;
     private StepExecution stepExecution;
 
@@ -87,7 +90,8 @@ public class SemanticIntegratorReader implements ItemReader<SemanticReadItem>, I
             @Qualifier(value = "humidityPredicateService") CategoryPredicateService humidityPredicateService,
             @Qualifier(value = "mediaUsagePredicateService") CategoryPredicateService mediaUsagePredicateService,
             @Qualifier(value = "roomStatePredicateService") CategoryPredicateService roomStatePredicateService,
-            SnapshotRepository snapshotRepository) {
+            SnapshotRepository snapshotRepository,
+            MongoTemplate mongoTemplate) {
         this.mongoItemReader = mongoItemReader;
         this.windspeedPredicateService = windspeedPredicateService;
         this.userPositionPredicateService = userPositionPredicateService;
@@ -102,6 +106,7 @@ public class SemanticIntegratorReader implements ItemReader<SemanticReadItem>, I
         this.mediaUsagePredicateService = mediaUsagePredicateService;
         this.roomStatePredicateService = roomStatePredicateService;
         this.snapshotRepository = snapshotRepository;
+        this.mongoTemplate = mongoTemplate;
         categoriesDistribution = new EnumeratedDistribution(stream(values()).map(c -> new Pair(c, 1.0)).collect(toList()));
         root = HolonDto.builder().cardinality(new AtomicLong(snapshotRepository.count())).build();
 
@@ -109,8 +114,11 @@ public class SemanticIntegratorReader implements ItemReader<SemanticReadItem>, I
 
     @Override
     public SemanticReadItem read() throws Exception {
-        final List<Snapshot> snapshots = IntStream.range(0, 10000).mapToObj(i -> readPortion()).filter(Objects::nonNull).collect(toList());
-        counter += 10000;
+        final List<Snapshot> snapshots = IntStream.range(0, PORTION_COUNT)
+                                                  .mapToObj(i -> readPortion())
+                                                  .filter(Objects::nonNull)
+                                                  .collect(toList());
+        counter.getAndAdd(PORTION_COUNT);
         System.out.println("Przetworzono: " + counter);
         if ((Boolean) stepExecution.getExecutionContext().get("readerExhausted")) {
             final List<CategoryPredicateTypes> randomCategories = Arrays.stream(values()).collect(toList());
