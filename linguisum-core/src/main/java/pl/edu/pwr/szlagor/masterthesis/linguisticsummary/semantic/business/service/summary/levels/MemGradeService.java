@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.TrapezoidalMemGradeDto;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.TrapezoidalMemGrade;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.CommonService;
 
 /**
@@ -12,7 +13,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service
  */
 public interface MemGradeService extends CommonService<TrapezoidalMemGradeDto, Long> {
     @Transactional(readOnly = true, value = "semanticTransactionManager")
-    List<TrapezoidalMemGradeDto> findByProperty(String property);
+    List<TrapezoidalMemGrade> findByProperty(String property);
 
     double calculateDistance(Double one, Double other, String property);
 

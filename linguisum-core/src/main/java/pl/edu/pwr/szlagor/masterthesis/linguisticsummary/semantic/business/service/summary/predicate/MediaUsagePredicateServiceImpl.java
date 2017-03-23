@@ -2,16 +2,18 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.serv
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
-import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QSnapshot.snapshot;
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.MediaType.values;
+import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.QFSnapshot.fSnapshot;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.MediaUsage;
+import com.google.common.collect.Sets;
+
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.RoomRepository;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FMediaUsage;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.levels.MemGradeService;
 
 /**
@@ -33,7 +35,7 @@ public class MediaUsagePredicateServiceImpl implements CategoryPredicateService 
         return roomRepository.findAll()
                              .stream()
                              .flatMap(r -> stream(values()).flatMap(m -> memGradeService.findByProperty(m.name()).stream().map(
-                                     p -> snapshot.mediaUsages.contains(new MediaUsage(m, p.getUpperExtremum(), r)))))
+                                     p -> fSnapshot.mediaUsages.contains(new FMediaUsage(m, Sets.newHashSet(p), null, r)))))
                              .collect(toList());
     }
 }

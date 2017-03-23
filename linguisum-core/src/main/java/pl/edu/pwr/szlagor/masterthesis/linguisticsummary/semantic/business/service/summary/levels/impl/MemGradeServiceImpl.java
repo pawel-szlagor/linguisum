@@ -34,9 +34,8 @@ public class MemGradeServiceImpl implements MemGradeService {
 
     @Cacheable(value = "memGrade")
     @Override
-    public List<TrapezoidalMemGradeDto> findByProperty(String property) {
-        final List<TrapezoidalMemGrade> trapezoidalMemGrades = repository.findByPropertyName(property);
-        return getMapperFacade().mapAsList(trapezoidalMemGrades, TrapezoidalMemGradeDto.class);
+    public List<TrapezoidalMemGrade> findByProperty(String property) {
+        return repository.findByPropertyName(property);
     }
 
     @Override

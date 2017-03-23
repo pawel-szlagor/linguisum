@@ -1,6 +1,7 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate;
 
 import static java.util.stream.Collectors.toList;
+import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.QFSnapshot.fSnapshot;
 
 import java.util.List;
 
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.PersonState;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QSnapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.PersonRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.RoomRepository;
 
@@ -33,7 +33,7 @@ public class UserPositionPredicateServiceImpl implements CategoryPredicateServic
         return personRepository.findAll()
                                .stream()
                                .flatMap(p -> roomRepository.findAll().stream().map(
-                                       r -> QSnapshot.snapshot.personStates.contains(new PersonState(p, r))))
+                                       r -> fSnapshot.personStates.contains(new PersonState(p, r))))
                                .collect(toList());
     }
 }

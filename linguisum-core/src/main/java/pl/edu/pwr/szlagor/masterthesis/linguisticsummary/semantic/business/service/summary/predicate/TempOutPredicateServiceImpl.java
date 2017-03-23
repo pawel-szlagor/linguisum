@@ -1,8 +1,8 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate;
 
 import static java.util.stream.Collectors.toList;
-import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QSnapshot.snapshot;
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.TrapezoidalMemGradeTypes.TEMP_OUT;
+import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.QFSnapshot.fSnapshot;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class TempOutPredicateServiceImpl implements CategoryPredicateService {
     public List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates() {
         return memGradeService.findByProperty(TEMP_OUT.name())
                               .stream()
-                              .map(p -> snapshot.weatherConditions.tempOut.between(p.getLowerBoundary(), p.getUpperBoundary()))
+                              .map(fSnapshot.weatherConditions.fTempOut::contains)
                               .collect(toList());
     }
 }

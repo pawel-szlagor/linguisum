@@ -3,12 +3,15 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.in
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static java.util.stream.DoubleStream.of;
 import static org.hamcrest.junit.MatcherAssert.assertThat;
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QSnapshot.snapshot;
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot.builder;
 
+import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -30,6 +33,8 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.Me
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.DeviceRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.PersonRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.RoomRepository;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FSnapshot;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.QFSnapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.levels.MemGradeService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.config.SemanticBatchConfiguration;
 
@@ -102,13 +107,31 @@ public class SemanticIntegratorProcessorTest {
     public void shouldFilterWeekdayCorrectly() {
         // given
         LocalDate localDate = LocalDate.of(2016, 1, 1);
-        final List<Snapshot> days = IntStream.range(0, 10).mapToObj(d -> builder().date(localDate.plusDays(d)).build()).collect(toList());
+        final List<FSnapshot> days = IntStream.range(0, 10)
+                                              .mapToObj(d -> FSnapshot.builder().date(Date.valueOf(localDate.plusDays(d))).build())
+                                              .collect(toList());
 
         // when
-        final BooleanExpression expression = snapshot.date.dayOfWeek().in(Calendar.SUNDAY, Calendar.SATURDAY);
-        final List<Snapshot> filtered = days.stream().filter(GuavaHelpers.wrap(expression)::apply).collect(toList());
+        final BooleanExpression expression = QFSnapshot.fSnapshot.date.dayOfWeek().in(Calendar.SUNDAY, Calendar.SATURDAY);
+        final List<FSnapshot> filtered = days.stream().filter(GuavaHelpers.wrap(expression)::apply).collect(toList());
         // then
-        assertThat(filtered.stream().map(Snapshot::getDate).collect(toList()),
+        assertThat(filtered.stream().map(FSnapshot::getDate).collect(toList()),
                 Matchers.contains(19.0, 19.5, 20.0, 20.5, 21.0, 22.0, 23.0, 24.5));
+    }
+
+    @Test
+    public void shouldFilterHourlyCorrectly() {
+        // given
+        LocalTime time = LocalTime.of(12, 0, 0);
+        final List<FSnapshot> days = IntStream.iterate(0, i -> i + 15)
+                                              .limit(8)
+                                              .mapToObj(d -> FSnapshot.builder().time(time.plusMinutes(d)).build())
+                                              .collect(toList());
+
+        // when
+        final BooleanExpression expression = QFSnapshot.fSnapshot.time.between(time.plusHours(1L), time.plusHours(2));
+        final List<FSnapshot> filtered = days.stream().filter(GuavaHelpers.wrap(expression)::apply).collect(toList());
+        // then
+        assertThat(filtered.stream().map(FSnapshot::getTime).map(LocalTime::getHour).collect(toSet()), Matchers.contains(13));
     }
 }

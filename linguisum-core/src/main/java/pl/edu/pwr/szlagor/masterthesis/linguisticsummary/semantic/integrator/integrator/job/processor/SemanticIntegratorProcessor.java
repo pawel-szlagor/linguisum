@@ -12,8 +12,9 @@ import org.springframework.stereotype.Component;
 
 import com.mysema.query.collections.GuavaHelpers;
 
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FSnapshot;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FSnapshotConverter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.summary.HolonDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.holon.HolonConverter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.SemanticReadItem;
@@ -27,26 +28,33 @@ public class SemanticIntegratorProcessor implements ItemProcessor<SemanticReadIt
 
     private final SnapshotRepository snapshotRepository;
     private final HolonConverter converter;
+    private final FSnapshotConverter fSnapshotConverter;
 
     @Autowired
-    public SemanticIntegratorProcessor(SnapshotRepository snapshotRepository, HolonConverter converter) {
+    public SemanticIntegratorProcessor(SnapshotRepository snapshotRepository,
+            HolonConverter converter,
+            FSnapshotConverter fSnapshotConverter) {
         this.snapshotRepository = snapshotRepository;
         this.converter = converter;
+        this.fSnapshotConverter = fSnapshotConverter;
     }
 
     @Override
     public synchronized HolonDto process(SemanticReadItem item) throws Exception {
         final HolonDto root = item.getRoot();
-        root.getChildren().forEach(c -> adjustCardinality(c, item.getSnapshots()));
+        root.getChildren()
+            .forEach(c -> adjustCardinality(c, item.getSnapshots().stream().map(fSnapshotConverter::convert).collect(toList())));
         return root;
     }
 
-    private synchronized void adjustCardinality(HolonDto holon, List<Snapshot> snapshots) {
+    private synchronized void adjustCardinality(HolonDto holon, List<FSnapshot> fSnapshots) {
         try {
             if (holon.getParent() != null && holon.getParent().getCardinality().get() != 0) {
                 // final long count = CollQueryFactory.from(QSnapshot.snapshot,
                 // snapshots).where(holon.getPredicate()).count();
-                final List<Snapshot> collect = snapshots.stream().filter(GuavaHelpers.wrap(holon.getPredicate())::apply).collect(toList());
+                final List<FSnapshot> collect = fSnapshots.stream()
+                                                          .filter(GuavaHelpers.wrap(holon.getPredicate())::apply)
+                                                          .collect(toList());
                 // holon.getCardinality().getAndAdd(CollQueryFactory.from(QSnapshot.snapshot,
                 // snapshots).where(holon.getPredicate()).count());
                 holon.getCardinality().getAndAdd(collect.size());

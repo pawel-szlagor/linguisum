@@ -31,7 +31,7 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.data.RepositoryItemReader;
+import org.springframework.batch.item.data.MongoItemReader;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -57,7 +57,7 @@ public class SemanticIntegratorReader implements ItemReader<SemanticReadItem>, I
     private static final int PORTION_COUNT = 1000;
     private AtomicLong counter = new AtomicLong(0);
     private Map<CategoryPredicateTypes, List<BooleanExpression>> mapOfPredicates = new HashMap<>();
-    private final RepositoryItemReader<Snapshot> mongoItemReader;
+    private final MongoItemReader<Snapshot> mongoItemReader;
     private final EnumeratedDistribution<CategoryPredicateTypes> categoriesDistribution;
     private final CategoryPredicateService dayPhasePredicateService;
     private final CategoryPredicateService deviceStatePredicateService;
@@ -77,7 +77,7 @@ public class SemanticIntegratorReader implements ItemReader<SemanticReadItem>, I
     private StepExecution stepExecution;
 
     @Autowired
-    public SemanticIntegratorReader(RepositoryItemReader<Snapshot> mongoItemReader,
+    public SemanticIntegratorReader(@Qualifier(value = "partitionedItemReader") MongoItemReader<Snapshot> mongoItemReader,
             @Qualifier(value = "windspeedPredicateService") CategoryPredicateService windspeedPredicateService,
             @Qualifier(value = "userPositionPredicateService") CategoryPredicateService userPositionPredicateService,
             @Qualifier(value = "tempOutPredicateService") CategoryPredicateService tempOutPredicateService,
@@ -109,7 +109,6 @@ public class SemanticIntegratorReader implements ItemReader<SemanticReadItem>, I
         this.mongoTemplate = mongoTemplate;
         categoriesDistribution = new EnumeratedDistribution(stream(values()).map(c -> new Pair(c, 1.0)).collect(toList()));
         root = HolonDto.builder().cardinality(new AtomicLong(snapshotRepository.count())).build();
-
     }
 
     @Override
@@ -171,7 +170,11 @@ public class SemanticIntegratorReader implements ItemReader<SemanticReadItem>, I
     public void beforeStep(StepExecution stepExecution) {
         this.stepExecution = stepExecution;
         this.stepExecution.getExecutionContext().put("readerExhausted", Boolean.FALSE);
-
+        /*
+         * mongoItemReader.setQuery(String.format("{'id':{$gt:%s}, $lte:%s}}",
+         * stepExecution.getExecutionContext().get("fromId"),
+         * stepExecution.getExecutionContext().get("toId")));
+         */
     }
 
     @Override

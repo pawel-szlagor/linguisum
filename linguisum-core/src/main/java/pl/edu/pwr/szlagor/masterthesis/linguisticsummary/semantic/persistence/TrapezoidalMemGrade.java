@@ -45,6 +45,22 @@ public class TrapezoidalMemGrade {
 
     @Column(name = "DESCRIPTION")
     private String description;
+
+    public double calculateMembershipGrade(double value) {
+        if (value < lowerBoundary || value > upperBoundary) {
+            return 0;
+        } else if (value < lowerExtremum) {
+            return (value - lowerBoundary) / (lowerExtremum - lowerBoundary);
+        } else if (value < upperExtremum) {
+            return 1;
+        } else {
+            return (upperBoundary - value) / (upperBoundary - upperExtremum);
+        }
+    }
+
+    public boolean isBelonging(double value) {
+        return value > lowerBoundary && value < upperBoundary;
+    }
 }
 
 

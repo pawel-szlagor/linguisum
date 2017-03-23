@@ -1,5 +1,7 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy;
 
+import static org.apache.commons.collections.CollectionUtils.intersection;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -100,6 +102,30 @@ public class FMediaUsage {
 
         public FMediaUsage build() {
             return new FMediaUsage(mediaType, fUsagePerMinute, fMembershipProb, location);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+
+            FMediaUsageBuilder that = (FMediaUsageBuilder) o;
+
+            if (mediaType != that.mediaType)
+                return false;
+            if (fUsagePerMinute != null ? !intersection(fUsagePerMinute, that.fUsagePerMinute).isEmpty() : that.fUsagePerMinute != null)
+                return false;
+            return location != null ? location.equals(that.location) : that.location == null;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = mediaType != null ? mediaType.hashCode() : 0;
+            result = 31 * result + (fUsagePerMinute != null ? fUsagePerMinute.hashCode() : 0);
+            result = 31 * result + (location != null ? location.hashCode() : 0);
+            return result;
         }
 
         public String toString() {

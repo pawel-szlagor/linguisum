@@ -16,6 +16,7 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
@@ -29,6 +30,7 @@ import org.springframework.batch.support.DatabaseType;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -63,6 +65,8 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.int
 @EnableScheduling
 @Import({ BasicMongoConfig.class, BasicSemanticConfig.class })
 public class SemanticBatchConfiguration {
+    private static final int MAX_ITEM_COUNT = 200000;
+    private static final int PAGE_SIZE = 10000;
     @Autowired
     public JobBuilderFactory jobBuilderFactory;
 
@@ -96,8 +100,8 @@ public class SemanticBatchConfiguration {
     public RepositoryItemReader<Snapshot> pageableReader() {
         RepositoryItemReader<Snapshot> pageableReader = new RepositoryItemReader<>();
         pageableReader.setRepository(snapshotRepository);
-        pageableReader.setPageSize(100000);
-        // pageableReader.setMaxItemCount(10000);
+        pageableReader.setPageSize(PAGE_SIZE);
+        // pageableReader.setMaxItemCount(MAX_ITEM_COUNT);
         Map<String, Sort.Direction> sortMap = new HashMap<>();
         sortMap.put("id", Sort.Direction.ASC);
         pageableReader.setSort(sortMap);
@@ -107,17 +111,21 @@ public class SemanticBatchConfiguration {
     }
 
     @Bean
-    public MongoItemReader<Snapshot> partitionedItemReader() {
+    @StepScope
+    public MongoItemReader<Snapshot> partitionedItemReader(@Value("#{stepExecutionContext[fromId]}") int fromId,
+            @Value("#{stepExecutionContext[toId]}") int toId) {
         MongoItemReader<Snapshot> itemReader = new MongoItemReader<>();
         itemReader.setTemplate(mongoTemplate);
         itemReader.setTargetType(Snapshot.class);
-        itemReader.setPageSize(10000);
-        itemReader.setMaxItemCount(200000);
+        itemReader.setPageSize(PAGE_SIZE);
+        itemReader.setCurrentItemCount(fromId);
+        itemReader.setMaxItemCount(toId - fromId);
+        itemReader.setMaxItemCount(MAX_ITEM_COUNT);
         Map<String, Sort.Direction> sortMap = new HashMap<>();
         sortMap.put("id", Sort.DEFAULT_DIRECTION);
         itemReader.setSort(sortMap);
-        itemReader.setSaveState(false);
-        itemReader.setQuery("{'id':{$gt:#{stepExecutionContext[fromId]}, $lte:#{stepExecutionContext[toId]}}}");
+        itemReader.setSaveState(true);
+        itemReader.setQuery("{}");
         return itemReader;
     }
 
@@ -214,7 +222,7 @@ public class SemanticBatchConfiguration {
     @Bean
     public RangePartition partitioner(SnapshotRepository repository) {
         final RangePartition rangePartition = new RangePartition(repository);
-        rangePartition.setMaxItemCount(200000);
+        rangePartition.setMaxItemCount(MAX_ITEM_COUNT);
         return rangePartition;
     }
 
