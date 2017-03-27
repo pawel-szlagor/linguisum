@@ -49,7 +49,6 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.config.BasicMo
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.config.BasicSemanticConfig;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.SemanticReadItem;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.processor.SemanticIntegratorProcessor;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.reader.SemanticIntegratorReader;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.reader.SemanticRepositoryItemReader;
@@ -158,7 +157,7 @@ public class SemanticBatchConfiguration {
         return stepBuilderFactory.get("masterPartionerStep")
                                  .partitioner("semanticExpression", partitioner(repository))
                                  .step(semanticExpression(stepExecutionListener))
-                                 .gridSize(10)
+                                 .gridSize(20)
                                  .taskExecutor(taskExecutor())
                                  .build();
     }
@@ -167,7 +166,7 @@ public class SemanticBatchConfiguration {
     public Step semanticExpression(StepExecutionListener stepExecutionListener) {
         return stepBuilderFactory.get("semanticExpression")
                                  .listener(stepExecutionListener)
-                                 .<SemanticReadItem, Holon> chunk(1)
+                                 .<Snapshot, Holon> chunk(10000)
                                  .reader(reader)
                                  .processor(processor)
                                  .writer(bulkWriter)

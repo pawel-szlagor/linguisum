@@ -1,11 +1,7 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.processor;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.math3.util.Precision;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +9,11 @@ import org.springframework.stereotype.Component;
 
 import com.mysema.query.collections.GuavaHelpers;
 
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FSnapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FSnapshotConverter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.summary.HolonDto;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.SemanticReadItem;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.tasklet.HolonCache;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.Holon;
 
@@ -26,7 +22,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.su
  */
 @StepScope
 @Component
-public class SemanticIntegratorProcessor implements ItemProcessor<SemanticReadItem, Holon> {
+public class SemanticIntegratorProcessor implements ItemProcessor<Snapshot, Holon> {
 
     private final SnapshotRepository snapshotRepository;
     private final FSnapshotConverter fSnapshotConverter;
@@ -42,30 +38,19 @@ public class SemanticIntegratorProcessor implements ItemProcessor<SemanticReadIt
     }
 
     @Override
-    public Holon process(SemanticReadItem item) throws Exception {
-        System.out.println("processing: " + item.getSnapshots().size());
-        holonCache.getRootHolons().forEach(r -> r.getCardinality().getAndAdd(item.getSnapshots().size()));
+    public Holon process(Snapshot item) throws Exception {
+        holonCache.getRootHolons().forEach(r -> r.getCardinality().getAndIncrement());
         holonCache.getRootHolons().forEach(r -> r.getChildren().forEach(
-                c -> adjustCardinality(c, item.getSnapshots().stream().map(fSnapshotConverter::convert).collect(toList()))));
+                c -> adjustCardinality(c, fSnapshotConverter.convert(item))));
         return holonCache.getRootHolons().get(0);
     }
 
-    private void adjustCardinality(Holon holon, List<FSnapshot> fSnapshots) {
+    private void adjustCardinality(Holon holon, FSnapshot fSnapshot) {
         try {
-            if (holon.getParent() != null && holon.getParent().getCardinality().get() != 0) {
-                // final long count = CollQueryFactory.from(QSnapshot.snapshot,
-                // snapshots).where(holon.getPredicate()).count();
-                final List<FSnapshot> collect = fSnapshots.stream()
-                                                          .filter(GuavaHelpers.wrap(holon.getPredicate())::apply)
-                                                          .collect(toList());
-                // holon.getCardinality().getAndAdd(CollQueryFactory.from(QSnapshot.snapshot,
-                // snapshots).where(holon.getPredicate()).count());
-                holon.getCardinality().getAndAdd(collect.size());
-                holon.setRelevance(holon.getParent() != null && holon.getParent().getCardinality().get() > 0
-                        ? Precision.round(holon.getCardinality().doubleValue() / holon.getParent().getCardinality().doubleValue(), 2)
-                        : 0.00);
+            if (GuavaHelpers.wrap(holon.getPredicate()).apply(fSnapshot)) {
+                holon.getCardinality().getAndIncrement();
                 if (holon.getChildren() != null) {
-                    holon.getChildren().forEach(c -> adjustCardinality(c, collect));
+                    holon.getChildren().forEach(c -> adjustCardinality(c, fSnapshot));
                 }
             }
         } catch (Exception ex) {
