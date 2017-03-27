@@ -7,10 +7,10 @@ import com.mysema.query.types.expr.BooleanExpression;
 /**
  * Created by Pawel on 2017-03-18.
  */
-public class BooleanExpressionConverter implements Converter<BooleanExpression, String> {
+public class StringToBooleanExpressionConverter implements Converter<String, BooleanExpression> {
 
     @Override
-    public String convert(BooleanExpression source) {
-        return source.toString();
+    public BooleanExpression convert(String source) {
+        return null;
     }
 }

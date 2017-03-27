@@ -15,10 +15,15 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.rep
 public class RangePartition implements Partitioner {
     private final SnapshotRepository repository;
     private Long maxItemCount;
+    private int pageSize;
 
     @Autowired
     public RangePartition(SnapshotRepository repository) {
         this.repository = repository;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
     }
 
     @Override
@@ -27,30 +32,27 @@ public class RangePartition implements Partitioner {
         Map<String, ExecutionContext> result = new HashMap<>();
 
         final long count = maxItemCount != null ? maxItemCount : repository.count();
-        long range = count / gridSize;
-        long fromId = 1;
-        long toId = range;
+        long range = count / gridSize / pageSize;
+        long startPage = 0;
+        long endPage = range;
 
         for (int i = 1; i <= gridSize; i++) {
             ExecutionContext value = new ExecutionContext();
 
             System.out.println("\nStarting : Thread" + i);
-            System.out.println("fromId : " + fromId);
-            System.out.println("toId : " + toId);
+            System.out.println("startPage : " + startPage);
+            System.out.println("endPage : " + endPage);
 
-            value.putLong("fromId", fromId);
-            value.putLong("toId", toId);
+            value.putLong("startPage", startPage);
+            value.putLong("endPage", endPage);
 
             // give each thread a name, thread 1,2,3
             value.putString("name", "Thread" + i);
 
             result.put("partition" + i, value);
 
-            fromId = toId + 1;
-            toId += range;
-            if (i == gridSize) {
-                toId = count;
-            }
+            startPage = endPage;
+            endPage += range;
 
         }
 

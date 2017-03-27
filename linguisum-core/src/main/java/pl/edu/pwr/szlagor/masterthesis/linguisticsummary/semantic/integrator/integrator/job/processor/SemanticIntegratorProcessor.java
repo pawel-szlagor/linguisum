@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.math3.util.Precision;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,38 +17,40 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.rep
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FSnapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FSnapshotConverter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.summary.HolonDto;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.holon.HolonConverter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.SemanticReadItem;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.tasklet.HolonCache;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.Holon;
 
 /**
  * Created by Pawel on 2017-02-08.
  */
 @StepScope
 @Component
-public class SemanticIntegratorProcessor implements ItemProcessor<SemanticReadItem, HolonDto> {
+public class SemanticIntegratorProcessor implements ItemProcessor<SemanticReadItem, Holon> {
 
     private final SnapshotRepository snapshotRepository;
-    private final HolonConverter converter;
     private final FSnapshotConverter fSnapshotConverter;
+    private final HolonCache holonCache;
 
     @Autowired
     public SemanticIntegratorProcessor(SnapshotRepository snapshotRepository,
-            HolonConverter converter,
-            FSnapshotConverter fSnapshotConverter) {
+            FSnapshotConverter fSnapshotConverter,
+            HolonCache holonCache) {
         this.snapshotRepository = snapshotRepository;
-        this.converter = converter;
         this.fSnapshotConverter = fSnapshotConverter;
+        this.holonCache = holonCache;
     }
 
     @Override
-    public synchronized HolonDto process(SemanticReadItem item) throws Exception {
-        final HolonDto root = item.getRoot();
-        root.getChildren()
-            .forEach(c -> adjustCardinality(c, item.getSnapshots().stream().map(fSnapshotConverter::convert).collect(toList())));
-        return root;
+    public Holon process(SemanticReadItem item) throws Exception {
+        System.out.println("processing: " + item.getSnapshots().size());
+        holonCache.getRootHolons().forEach(r -> r.getCardinality().getAndAdd(item.getSnapshots().size()));
+        holonCache.getRootHolons().forEach(r -> r.getChildren().forEach(
+                c -> adjustCardinality(c, item.getSnapshots().stream().map(fSnapshotConverter::convert).collect(toList()))));
+        return holonCache.getRootHolons().get(0);
     }
 
-    private synchronized void adjustCardinality(HolonDto holon, List<FSnapshot> fSnapshots) {
+    private void adjustCardinality(Holon holon, List<FSnapshot> fSnapshots) {
         try {
             if (holon.getParent() != null && holon.getParent().getCardinality().get() != 0) {
                 // final long count = CollQueryFactory.from(QSnapshot.snapshot,
@@ -58,6 +61,9 @@ public class SemanticIntegratorProcessor implements ItemProcessor<SemanticReadIt
                 // holon.getCardinality().getAndAdd(CollQueryFactory.from(QSnapshot.snapshot,
                 // snapshots).where(holon.getPredicate()).count());
                 holon.getCardinality().getAndAdd(collect.size());
+                holon.setRelevance(holon.getParent() != null && holon.getParent().getCardinality().get() > 0
+                        ? Precision.round(holon.getCardinality().doubleValue() / holon.getParent().getCardinality().doubleValue(), 2)
+                        : 0.00);
                 if (holon.getChildren() != null) {
                     holon.getChildren().forEach(c -> adjustCardinality(c, collect));
                 }

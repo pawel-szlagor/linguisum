@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
 import org.hamcrest.Matchers;
@@ -37,6 +38,8 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.QFSnapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.levels.MemGradeService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.config.SemanticBatchConfiguration;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.Holon;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.repository.HolonRepository;
 
 /**
  * Created by Pawel on 2017-03-21.
@@ -53,6 +56,8 @@ public class SemanticIntegratorProcessorTest {
     private PersonRepository personRepository;
     @Autowired
     private MemGradeService memGradeService;
+    @Autowired
+    private HolonRepository holonRepository;
 
     @Test
     public void shouldFilterRoomStatesCorrectly() {
@@ -69,6 +74,9 @@ public class SemanticIntegratorProcessorTest {
         final BooleanExpression expression = snapshot.roomStates.contains(
                 new RoomState(roomRepository.findOne(1L), personRepository.findOne(1L), 20.0));
         final List<Snapshot> filtered = roomStates.stream().filter(GuavaHelpers.wrap(expression)::apply).collect(toList());
+        final Holon holon = Holon.builder().cardinality(new AtomicLong(123L)).predicate(expression).build();
+        holonRepository.save(holon);
+        final Holon one = holonRepository.findOne(holon.getId());
         // then
         assertThat(filtered.stream().flatMap(s -> s.getRoomStates().stream().map(RoomState::getPerson)).distinct().collect(toList()),
                 Matchers.contains(personRepository.findOne(1L)));

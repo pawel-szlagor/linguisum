@@ -1,5 +1,7 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.writer;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.List;
 
 import org.springframework.batch.core.ExitStatus;
@@ -13,47 +15,53 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.summary.HolonDto;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.holon.HolonConverter;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.tasklet.HolonCache;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.Holon;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.repository.HolonRepository;
 
 /**
  * Created by Paweł on 2017-02-11.
  */
 @StepScope
 @Component
-public class SemanticIntegratorWriter implements ItemWriter<HolonDto>, StepExecutionListener {
+public class SemanticIntegratorWriter implements ItemWriter<Holon>, StepExecutionListener {
     private final MongoTemplate template;
-    private HolonDto root;
+    private HolonCache holonCache;
     private StepExecution stepExecution;
-    private HolonConverter converter;
+    private final HolonRepository repository;
 
     @Autowired
-    public SemanticIntegratorWriter(MongoTemplate template, HolonConverter converter) {
+    public SemanticIntegratorWriter(MongoTemplate template, HolonCache holonCache, HolonRepository repository) {
         this.template = template;
-        this.converter = converter;
+        this.holonCache = holonCache;
+        this.repository = repository;
     }
 
     @Override
-    public synchronized void write(List<? extends HolonDto> items) throws Exception {
+    public void write(List<? extends Holon> items) throws Exception {
         // template.insert(items.stream().filter(i->i.getRelevance() > 0.6 || i.getRelevance() < 0.4).collect(toList()),
         // Holon.class);
-        if ((Boolean) stepExecution.getExecutionContext().get("readerExhausted")) {
-            List<Holon> holonToSave = convertToEntites(items.get(0).getRoot());
-            holonToSave.stream().forEach(template::save);
-        }
+        List<Holon> holonToSave = holonCache.getRootHolons()
+                                            .stream()
+                                            .map(this::convertToEntites)
+                                            .flatMap(List::stream)
+                                            .filter(h -> h.getCardinality().get() > 0)
+                                            .collect(toList());
+        System.out.println("zapisuje: " + holonToSave.size());
+        holonToSave.forEach(template::save);
+        // repository.save(holonToSave);
     }
 
-    private List<Holon> convertToEntites(HolonDto root) {
+    private List<Holon> convertToEntites(Holon root) {
         List<Holon> entites = Lists.newArrayListWithExpectedSize(root.count());
         addEntityToList(root, entites);
-        stepExecution.getExecutionContext().put("readerExhausted", Boolean.FALSE);
+        // stepExecution.getExecutionContext().put("readerExhausted", Boolean.FALSE);
         return entites;
     }
 
-    private void addEntityToList(HolonDto root, List<Holon> entites) {
+    private void addEntityToList(Holon root, List<Holon> entites) {
         if (root.getChildren() != null) {
-            entites.add(converter.convert(root));
+            entites.add(root);
             root.getChildren().forEach(c -> addEntityToList(c, entites));
         }
     }

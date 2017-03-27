@@ -20,11 +20,10 @@ public class HolonConverter implements Converter<HolonDto, Holon> {
     public Holon convert(HolonDto source) {
         return source == null ? null : Holon.builder()
                                             .id(source.getId())
-                                            .cardinality(source.getCardinality().get())
                                             .relevance(getRelevance(source))
                                             .predicateType(source.getPredicateType())
-                                            .predicate(source.getPredicate())
-                                            .predicateString(getPredicate(source))
+                                            // .predicate(source.getPredicate())
+                                            // .predicateString(getPredicate(source))
                                             .parent(convert(source.getParent()))
                                             .cumulatedPredicate(getCumulatedPredicate(source))
                                             .cumulatedPredicatesTypes(source.getCumulatedPredicatesTypes().collect(toList()))

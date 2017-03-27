@@ -61,6 +61,11 @@ public class TrapezoidalMemGrade {
     public boolean isBelonging(double value) {
         return value > lowerBoundary && value < upperBoundary;
     }
+
+    @Override
+    public String toString() {
+        return "TrapezoidalMemGrade{" + "description='" + description + '\'' + '}';
+    }
 }
 
 

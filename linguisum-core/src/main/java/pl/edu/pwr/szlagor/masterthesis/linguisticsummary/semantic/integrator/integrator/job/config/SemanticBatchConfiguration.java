@@ -22,10 +22,10 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.MongoItemReader;
 import org.springframework.batch.item.data.MongoItemWriter;
-import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.batch.support.DatabaseType;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
-import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -49,12 +48,15 @@ import com.google.common.collect.ImmutableMap;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.config.BasicMongoConfig;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.summary.HolonDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.config.BasicSemanticConfig;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.SemanticReadItem;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.processor.SemanticIntegratorProcessor;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.reader.SemanticIntegratorReader;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.reader.SemanticRepositoryItemReader;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.tasklet.HolonCache;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.tasklet.HolonCreatorTasklet;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.writer.SemanticIntegratorWriter;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.Holon;
 
 /**
  * Created by Pawel on 2017-02-08.
@@ -65,7 +67,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.int
 @EnableScheduling
 @Import({ BasicMongoConfig.class, BasicSemanticConfig.class })
 public class SemanticBatchConfiguration {
-    private static final int MAX_ITEM_COUNT = 200000;
+    private static final Integer MAX_ITEM_COUNT = 1000000;
     private static final int PAGE_SIZE = 10000;
     @Autowired
     public JobBuilderFactory jobBuilderFactory;
@@ -86,6 +88,9 @@ public class SemanticBatchConfiguration {
     private SemanticIntegratorWriter bulkWriter;
 
     @Autowired
+    private HolonCreatorTasklet holonCreatorTasklet;
+
+    @Autowired
     private Job semanticExpressionJob;
 
     @Autowired
@@ -97,41 +102,37 @@ public class SemanticBatchConfiguration {
     // tag::readerwriterprocessor[]
 
     @Bean
-    public RepositoryItemReader<Snapshot> pageableReader() {
-        RepositoryItemReader<Snapshot> pageableReader = new RepositoryItemReader<>();
-        pageableReader.setRepository(snapshotRepository);
+    public ItemReader<Snapshot> pageableReader() {
+        MongoItemReader<Snapshot> pageableReader = new MongoItemReader<Snapshot>();
         pageableReader.setPageSize(PAGE_SIZE);
-        // pageableReader.setMaxItemCount(MAX_ITEM_COUNT);
+        pageableReader.setTargetType(Snapshot.class);
+        pageableReader.setMaxItemCount(MAX_ITEM_COUNT);
         Map<String, Sort.Direction> sortMap = new HashMap<>();
         sortMap.put("id", Sort.Direction.ASC);
         pageableReader.setSort(sortMap);
         pageableReader.setSaveState(false);
-        pageableReader.setMethodName("findAll");
+        pageableReader.setTemplate(mongoTemplate);
+        pageableReader.setQuery("{}");
         return pageableReader;
     }
 
     @Bean
     @StepScope
-    public MongoItemReader<Snapshot> partitionedItemReader(@Value("#{stepExecutionContext[fromId]}") int fromId,
-            @Value("#{stepExecutionContext[toId]}") int toId) {
-        MongoItemReader<Snapshot> itemReader = new MongoItemReader<>();
-        itemReader.setTemplate(mongoTemplate);
-        itemReader.setTargetType(Snapshot.class);
+    public ItemReader<Snapshot> partitionedItemReader(@Value("#{stepExecutionContext[startPage]}") int startPage,
+            @Value("#{stepExecutionContext[endPage]}") int endPage) {
+        SemanticRepositoryItemReader<Snapshot> itemReader = new SemanticRepositoryItemReader<>();
+        itemReader.setRepository(snapshotRepository);
+        itemReader.setMethodName("findAll");
         itemReader.setPageSize(PAGE_SIZE);
-        itemReader.setCurrentItemCount(fromId);
-        itemReader.setMaxItemCount(toId - fromId);
-        itemReader.setMaxItemCount(MAX_ITEM_COUNT);
-        Map<String, Sort.Direction> sortMap = new HashMap<>();
-        sortMap.put("id", Sort.DEFAULT_DIRECTION);
-        itemReader.setSort(sortMap);
         itemReader.setSaveState(true);
-        itemReader.setQuery("{}");
+        itemReader.setPage(startPage);
+        itemReader.setEndPage(endPage);
         return itemReader;
     }
 
     @Bean
-    public ItemWriter<HolonDto> writer() {
-        MongoItemWriter<HolonDto> writer = new MongoItemWriter<>();
+    public ItemWriter<Holon> writer() {
+        MongoItemWriter<Holon> writer = new MongoItemWriter<>();
         writer.setTemplate(mongoTemplate);
         writer.setCollection("holon");
         return writer;
@@ -147,8 +148,8 @@ public class SemanticBatchConfiguration {
         return jobBuilderFactory.get("semanticExpressionJob")
                                 .incrementer(new RunIdIncrementer())
                                 .listener(listener)
-                                .flow(masterPartionerStep(stepExecutionListener, repository))
-                                .end()
+                                .start(semanticExpressionCreator())
+                                .next(masterPartionerStep(stepExecutionListener, repository))
                                 .build();
     }
 
@@ -166,15 +167,26 @@ public class SemanticBatchConfiguration {
     public Step semanticExpression(StepExecutionListener stepExecutionListener) {
         return stepBuilderFactory.get("semanticExpression")
                                  .listener(stepExecutionListener)
-                                 .<SemanticReadItem, HolonDto> chunk(1)
+                                 .<SemanticReadItem, Holon> chunk(1)
                                  .reader(reader)
                                  .processor(processor)
                                  .writer(bulkWriter)
                                  .taskExecutor(semanticTaskExecutor())
-                                 .throttleLimit(10)
+                                 .throttleLimit(5)
                                  .build();
     }
+
+    @Bean
+    public Step semanticExpressionCreator() {
+        holonCreatorTasklet.setMaxItemsCount(MAX_ITEM_COUNT);
+        return stepBuilderFactory.get("semanticExpressionCreator").tasklet(holonCreatorTasklet).build();
+    }
+
     // end::jobstep[]
+    @Bean
+    public HolonCache holonCache() {
+        return new HolonCache();
+    }
 
     @Bean
     public JdbcTemplate jdbcTemplate(@Qualifier(value = "semanticDataSource") DataSource dataSource) {
@@ -216,13 +228,14 @@ public class SemanticBatchConfiguration {
 
     @Bean
     public TaskExecutor semanticTaskExecutor() {
-        return new SyncTaskExecutor();
+        return new SimpleAsyncTaskExecutor();
     }
 
     @Bean
     public RangePartition partitioner(SnapshotRepository repository) {
         final RangePartition rangePartition = new RangePartition(repository);
         rangePartition.setMaxItemCount(MAX_ITEM_COUNT);
+        rangePartition.setPageSize(PAGE_SIZE);
         return rangePartition;
     }
 

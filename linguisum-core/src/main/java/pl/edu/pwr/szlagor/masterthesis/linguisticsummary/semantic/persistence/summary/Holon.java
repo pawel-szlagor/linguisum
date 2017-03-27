@@ -1,9 +1,13 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary;
 
-import java.math.BigInteger;
-import java.util.List;
+import static java.util.stream.Collectors.toList;
 
-import javax.persistence.Convert;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Stream;
+
 import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.EnumType;
@@ -12,12 +16,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-import org.hibernate.annotations.Immutable;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.mongodb.morphia.annotations.Entity;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.mysema.query.types.expr.DslExpression;
+import com.mysema.query.types.expr.BooleanExpression;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +29,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.CategoryPredicateTypes;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.converter.BooleanExpressionConverter;
 
 /**
  * Created by Pawel on 2017-03-17.
@@ -35,7 +38,6 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.co
 @NoArgsConstructor
 @Getter
 @Setter
-@Immutable
 @Entity
 @Document
 public class Holon {
@@ -45,17 +47,72 @@ public class Holon {
     private BigInteger id;
     @Enumerated(EnumType.STRING)
     private CategoryPredicateTypes predicateType;
-    private String predicateString;
-    @Convert(converter = BooleanExpressionConverter.class)
-    private DslExpression predicate;
+    private BooleanExpression predicate;
     private String cumulatedPredicate;
     @ElementCollection
     private List<CategoryPredicateTypes> cumulatedPredicatesTypes;
-    private Long cardinality;
+    private AtomicLong cardinality;
     private double relevance;
     @Embedded
     @IndexedEmbedded
     private Holon parent;
+    @Transient
+    private List<Holon> children;
+
+    @Transient
+    public BooleanExpression getCumulatedPredicate() {
+        return parent != null && parent.getCumulatedPredicate() != null ? parent.getCumulatedPredicate().and(predicate) : predicate;
+    }
+
+    @Transient
+    public Stream<CategoryPredicateTypes> getCumulatedPredicatesTypes() {
+        return parent != null && parent.getCumulatedPredicatesTypes() != null
+                ? Stream.concat(parent.getCumulatedPredicatesTypes(), Stream.of(predicateType)) : Stream.of(predicateType);
+    }
+
+    @Transient
+    public void addChild(BooleanExpression predicate, CategoryPredicateTypes predicateType) {
+        if (children == null) {
+            children = new ArrayList<>();
+        }
+        children.add(Holon.builder().parent(this).predicate(predicate).predicateType(predicateType).build());
+    }
+
+    @Transient
+    public int count() {
+        if (children != null) {
+            return 1 + children.stream().mapToInt(Holon::count).sum();
+        } else {
+            return 1;
+        }
+    }
+
+    @Transient
+    public Holon getRoot() {
+        return parent == null ? this : parent;
+    }
+
+    @Transient
+    public void addChildren(List<BooleanExpression> predicates, CategoryPredicateTypes predicateType) {
+        final List<Holon> holons = predicates.stream()
+                                             .map(p -> Holon.builder()
+                                                            .parent(this)
+                                                            .cardinality(new AtomicLong(0))
+                                                            .predicate(p)
+                                                            .predicateType(predicateType)
+                                                            .build())
+                                             .collect(toList());
+        if (children == null) {
+            children = holons;
+        } else {
+            children.addAll(holons);
+        }
+    }
+
+    @Transient
+    public int getLevel() {
+        return parent == null ? 0 : parent.getLevel() + 1;
+    }
 
     @Override
     public boolean equals(Object o) {
