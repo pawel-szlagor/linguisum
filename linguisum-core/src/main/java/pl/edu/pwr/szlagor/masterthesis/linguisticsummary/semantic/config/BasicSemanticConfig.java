@@ -58,6 +58,7 @@ public class BasicSemanticConfig {
     private static final String HIBERNATE_CACHE_USE_QUERY_CACHE = "hibernate.cache.use_query_cache";
     private static final String HIBERNATE_CACHE_REGION_FACTORY_CLASS = "hibernate.cache.region.factory_class";
     private static final String HIBERNATE_JDBC_FETCH_SIZE = "hibernate.jdbc.fetch_size";
+    private static final String HIBERNATE_CON_POOL_SIZE = "hibernate.connection.pool_size";
 
     @Resource
     private Environment env;
@@ -102,6 +103,7 @@ public class BasicSemanticConfig {
         properties.put(HIBERNATE_CACHE_USE_QUERY_CACHE, true);
         properties.put(HIBERNATE_CACHE_REGION_FACTORY_CLASS, env.getRequiredProperty(HIBERNATE_CACHE_REGION_FACTORY_CLASS));
         properties.put(HIBERNATE_JDBC_FETCH_SIZE, env.getRequiredProperty(HIBERNATE_JDBC_FETCH_SIZE));
+        properties.put(HIBERNATE_CON_POOL_SIZE, env.getRequiredProperty(HIBERNATE_CON_POOL_SIZE));
         return properties;
     }
 

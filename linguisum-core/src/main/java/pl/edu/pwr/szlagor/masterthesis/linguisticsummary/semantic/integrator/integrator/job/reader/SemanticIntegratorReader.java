@@ -1,11 +1,6 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.reader;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.IntStream;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
@@ -18,14 +13,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.SemanticReadItem;
 
 /**
  * Created by Pawel on 2017-02-09.
  */
 @StepScope
 @Component
-public class SemanticIntegratorReader implements ItemReader<SemanticReadItem>, InitializingBean, StepExecutionListener {
+public class SemanticIntegratorReader implements ItemReader<Snapshot>, InitializingBean, StepExecutionListener {
 
     private static final int PORTION_COUNT = 10000;
     private AtomicLong counter = new AtomicLong(0);
@@ -39,18 +33,9 @@ public class SemanticIntegratorReader implements ItemReader<SemanticReadItem>, I
     }
 
     @Override
-    public synchronized SemanticReadItem read() throws Exception {
-        final List<Snapshot> snapshots = IntStream.range(0, PORTION_COUNT)
-                                                  .mapToObj(i -> readPortion())
-                                                  .filter(Objects::nonNull)
-                                                  .collect(toList());
-        counter.getAndAdd(PORTION_COUNT);
-        System.out.println("Wczytano: " + counter);
-        if (snapshots.isEmpty()) {
-            stepExecution.getExecutionContext().put("readerExhausted", Boolean.TRUE);
-            return null;
-        }
-        return new SemanticReadItem(snapshots);
+    public Snapshot read() throws Exception {
+        // counter.getAndIncrement();
+        return readPortion();
     }
 
     private Snapshot readPortion() {
