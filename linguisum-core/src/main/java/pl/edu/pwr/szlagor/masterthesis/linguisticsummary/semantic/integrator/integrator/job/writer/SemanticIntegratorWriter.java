@@ -1,6 +1,6 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.writer;
 
-import static java.util.stream.Collectors.toList;
+import static org.apache.commons.math3.util.Precision.round;
 
 import java.util.List;
 
@@ -41,15 +41,17 @@ public class SemanticIntegratorWriter implements ItemWriter<Holon>, StepExecutio
     public void write(List<? extends Holon> items) throws Exception {
         // template.insert(items.stream().filter(i->i.getRelevance() > 0.6 || i.getRelevance() < 0.4).collect(toList()),
         // Holon.class);
-        List<Holon> holonToSave = holonCache.getRootHolons()
-                                            .stream()
-                                            .map(this::convertToEntites)
-                                            .flatMap(List::stream)
-                                            .filter(h -> h.getCardinality().get() > 0)
-                                            .collect(toList());
-        System.out.println("zapisuje: " + holonToSave.size());
-        holonToSave.forEach(template::save);
-        // repository.save(holonToSave);
+        holonCache.getRootHolons()
+                  .stream()
+                  .map(this::convertToEntites)
+                  .flatMap(List::stream)
+                  .filter(h -> h.getCardinality().get() > 0)
+                  .forEach(h -> {
+                      h.setRelevance(h.getParent() != null && h.getParent().getCardinality().get() > 0
+                              ? round(h.getCardinality().doubleValue() / h.getParent().getCardinality().doubleValue(), 2) : 0.00);
+                      template.save(h);
+                  });
+        System.out.println("zapisuje: ");
     }
 
     private List<Holon> convertToEntites(Holon root) {

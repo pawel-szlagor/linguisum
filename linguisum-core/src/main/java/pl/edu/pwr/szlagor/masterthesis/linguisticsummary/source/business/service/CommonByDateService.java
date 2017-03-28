@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Created by Pawel on 2017-01-29.
  */
-@Transactional
+@Transactional(value = "sourceTransactionManager")
 public interface CommonByDateService<DTO, ID extends Serializable> extends CommonService<DTO, ID> {
     List<DTO> findByDate(LocalDate date);
 

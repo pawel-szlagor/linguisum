@@ -1,4 +1,4 @@
-package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.config;
+package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.common.job;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

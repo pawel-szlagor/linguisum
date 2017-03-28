@@ -1,6 +1,5 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model;
 
-import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -13,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import org.bson.types.ObjectId;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Immutable;
@@ -30,8 +30,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Snapshot {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private BigInteger id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private ObjectId id;
 
     @Indexed
     private LocalDate date;
@@ -62,7 +62,7 @@ public class Snapshot {
 
     @java.beans.ConstructorProperties({ "id", "date", "time", "personStates", "weatherConditions", "deviceStates", "roomStates",
                                         "mediaUsages" })
-    public Snapshot(BigInteger id,
+    public Snapshot(ObjectId id,
             LocalDate date,
             LocalTime time,
             Set<PersonState> personStates,
@@ -87,11 +87,11 @@ public class Snapshot {
         return new SnapshotBuilder();
     }
 
-    public BigInteger getId() {
+    public ObjectId getId() {
         return id;
     }
 
-    public void setId(BigInteger id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 
@@ -152,7 +152,7 @@ public class Snapshot {
     }
 
     public static class SnapshotBuilder {
-        private BigInteger id;
+        private ObjectId id;
         private LocalDate date;
         private LocalTime time;
         private ArrayList<PersonState> personStates;
@@ -164,7 +164,7 @@ public class Snapshot {
         SnapshotBuilder() {
         }
 
-        public Snapshot.SnapshotBuilder id(BigInteger id) {
+        public Snapshot.SnapshotBuilder id(ObjectId id) {
             this.id = id;
             return this;
         }

@@ -5,17 +5,17 @@ import static java.util.stream.Collectors.toList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.math3.util.Precision;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.mysema.query.collections.GuavaHelpers;
+import com.mysema.query.collections.CollQueryFactory;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FSnapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FSnapshotConverter;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.QFSnapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.summary.HolonDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.SemanticReadItem;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.tasklet.HolonCache;
@@ -53,19 +53,10 @@ public class SemanticIntegratorProcessor implements ItemProcessor<SemanticReadIt
     private void adjustCardinality(Holon holon, List<FSnapshot> fSnapshots) {
         try {
             if (holon.getParent() != null && holon.getParent().getCardinality().get() != 0) {
-                // final long count = CollQueryFactory.from(QSnapshot.snapshot,
-                // snapshots).where(holon.getPredicate()).count();
-                final List<FSnapshot> collect = fSnapshots.stream()
-                                                          .filter(GuavaHelpers.wrap(holon.getPredicate())::apply)
-                                                          .collect(toList());
-                // holon.getCardinality().getAndAdd(CollQueryFactory.from(QSnapshot.snapshot,
-                // snapshots).where(holon.getPredicate()).count());
-                holon.getCardinality().getAndAdd(collect.size());
-                holon.setRelevance(holon.getParent() != null && holon.getParent().getCardinality().get() > 0
-                        ? Precision.round(holon.getCardinality().doubleValue() / holon.getParent().getCardinality().doubleValue(), 2)
-                        : 0.00);
+                final long count = CollQueryFactory.from(QFSnapshot.fSnapshot, fSnapshots).where(holon.getCumulatedPredicate()).count();
+                holon.getCardinality().getAndAdd(count);
                 if (holon.getChildren() != null) {
-                    holon.getChildren().forEach(c -> adjustCardinality(c, collect));
+                    holon.getChildren().forEach(c -> adjustCardinality(c, fSnapshots));
                 }
             }
         } catch (Exception ex) {

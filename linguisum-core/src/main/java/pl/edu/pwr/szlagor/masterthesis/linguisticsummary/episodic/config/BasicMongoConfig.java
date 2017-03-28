@@ -14,8 +14,8 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.converter.BooleanExpressionConverter;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.converter.StringToBooleanExpressionConverter;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.common.converter.BooleanExpressionConverter;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.common.converter.StringToBooleanExpressionConverter;
 
 /**
  * Created by Pawel on 2017-01-16.
@@ -39,7 +39,7 @@ public class BasicMongoConfig extends AbstractMongoConfiguration {
 
     @Override
     protected String getMappingBasePackage() {
-        return "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic";
+        return "pl.edu.pwr.szlagor.masterthesis.linguisticsummary";
     }
 
     @Bean

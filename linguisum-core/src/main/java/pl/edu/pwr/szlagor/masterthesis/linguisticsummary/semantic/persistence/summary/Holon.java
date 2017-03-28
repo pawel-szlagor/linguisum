@@ -2,7 +2,6 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.s
 
 import static java.util.stream.Collectors.toList;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -16,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import org.bson.types.ObjectId;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.mongodb.morphia.annotations.Entity;
 import org.springframework.data.annotation.Transient;
@@ -43,8 +43,8 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.servi
 public class Holon {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private BigInteger id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private ObjectId _id;
     @Enumerated(EnumType.STRING)
     private CategoryPredicateTypes predicateType;
     private BooleanExpression predicate;
@@ -123,7 +123,7 @@ public class Holon {
 
         Holon holon = (Holon) o;
 
-        if (id != null ? !id.equals(holon.id) : holon.id != null)
+        if (_id != null ? !_id.equals(holon._id) : holon._id != null)
             return false;
         if (predicateType != holon.predicateType)
             return false;
@@ -134,7 +134,7 @@ public class Holon {
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
+        int result = _id != null ? _id.hashCode() : 0;
         result = 31 * result + (predicateType != null ? predicateType.hashCode() : 0);
         result = 31 * result + (predicate != null ? predicate.hashCode() : 0);
         result = 31 * result + (parent != null ? parent.hashCode() : 0);

@@ -29,10 +29,10 @@ public abstract class AbstractService<DTO, E, ID extends Serializable> implement
 
 
     @Autowired
-    @Qualifier("entityManagerFactory")
+    @Qualifier("sourceEntityManagerFactory")
     private LocalContainerEntityManagerFactoryBean entityManagerFactoryBean;
 
-    @Transactional
+    @Transactional(value = "sourceTransactionManager")
     @Override
     public synchronized DTO save(DTO dto) {
         Assert.notNull(dto);
@@ -41,7 +41,7 @@ public abstract class AbstractService<DTO, E, ID extends Serializable> implement
         return getMapperFacade().map(entity, getDtoClass());
     }
 
-    @Transactional
+    @Transactional(value = "sourceTransactionManager")
     @Override
     public synchronized void save(Collection<DTO> dtos) {
         Assert.notNull(dtos);
@@ -50,7 +50,7 @@ public abstract class AbstractService<DTO, E, ID extends Serializable> implement
         //return entities.stream().map(e -> getMapperFacade().map(e, getDtoClass())).collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, value = "sourceTransactionManager")
     @Override
     public synchronized DTO findById(ID id) {
         Assert.notNull(id);
@@ -58,14 +58,14 @@ public abstract class AbstractService<DTO, E, ID extends Serializable> implement
         return getMapperFacade().map(entity, getDtoClass());
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, value = "sourceTransactionManager")
     @Override
     public synchronized List<DTO> findAll() {
         List<E> entities = getRepository().findAll();
         return entities.stream().map(e -> getMapperFacade().map(e, getDtoClass())).collect(Collectors.toList());
     }
 
-    @Transactional
+    @Transactional(value = "sourceTransactionManager")
     @Override
     public synchronized void saveInBulk(Collection<DTO> collection) {
         StatelessSession session = entityManagerFactoryBean.getNativeEntityManagerFactory().unwrap(SessionFactory.class).openStatelessSession();
@@ -79,7 +79,7 @@ public abstract class AbstractService<DTO, E, ID extends Serializable> implement
     }
 
     @SuppressWarnings(value = "unchecked")
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, value = "sourceTransactionManager")
     @Override
     public synchronized List<DTO> findAllInBulk() {
         Session session = entityManagerFactoryBean.getNativeEntityManagerFactory().unwrap(SessionFactory.class).openSession();

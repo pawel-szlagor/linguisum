@@ -23,7 +23,6 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Environm
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.MediaUsage;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.RoomState;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.levels.MemGradeService;
 
 /**
  * Created by Pawel on 2017-03-23.

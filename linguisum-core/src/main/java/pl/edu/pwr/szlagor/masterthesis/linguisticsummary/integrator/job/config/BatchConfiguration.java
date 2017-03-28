@@ -43,6 +43,8 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job.processor.IntegratorProcessor;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job.reader.IntegratorReader;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job.writer.IntegratorWriter;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.config.BasicSemanticConfig;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.tasklet.HolonCache;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.SnapshotSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.config.BasicMySQLConfig;
 
@@ -53,7 +55,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.config.BasicMySQ
 @ComponentScan("pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.*")
 @EnableBatchProcessing
 @EnableScheduling
-@Import({BasicMySQLConfig.class, BasicMongoConfig.class})
+@Import({ BasicMySQLConfig.class, BasicMongoConfig.class, BasicSemanticConfig.class })
 public class BatchConfiguration {
     @Autowired
     public JobBuilderFactory jobBuilderFactory;
@@ -105,7 +107,7 @@ public class BatchConfiguration {
     // end::jobstep[]
 
     @Bean
-    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+    public JdbcTemplate jdbcTemplate(@Qualifier(value = "sourceDataSource") DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
     @Bean
@@ -114,7 +116,8 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public JobRepository jobRepository(DataSource dataSource, PlatformTransactionManager transactionManager) throws Exception {
+    public JobRepository jobRepository(@Qualifier(value = "sourceDataSource") DataSource dataSource,
+            @Qualifier(value = "sourceTransactionManager") PlatformTransactionManager transactionManager) throws Exception {
         final JobRepositoryFactoryBean jobRepositoryFactoryBean = new JobRepositoryFactoryBean();
         jobRepositoryFactoryBean.setDataSource(dataSource);
         jobRepositoryFactoryBean.setDatabaseType(DatabaseType.MYSQL.getProductName());
@@ -145,4 +148,8 @@ public class BatchConfiguration {
         System.out.println("Job finished with status :" + execution.getStatus());
     }
 
+    @Bean
+    public HolonCache holonCache() {
+        return new HolonCache();
+    }
 }

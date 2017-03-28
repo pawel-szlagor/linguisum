@@ -1,4 +1,4 @@
-package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.converter;
+package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.common.converter;
 
 import org.springframework.core.convert.converter.Converter;
 

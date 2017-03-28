@@ -35,8 +35,8 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.rep
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.PersonRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.RoomRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FSnapshot;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.MemGradeService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.QFSnapshot;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.levels.MemGradeService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.config.SemanticBatchConfiguration;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.Holon;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.repository.HolonRepository;
@@ -76,7 +76,7 @@ public class SemanticIntegratorProcessorTest {
         final List<Snapshot> filtered = roomStates.stream().filter(GuavaHelpers.wrap(expression)::apply).collect(toList());
         final Holon holon = Holon.builder().cardinality(new AtomicLong(123L)).predicate(expression).build();
         holonRepository.save(holon);
-        final Holon one = holonRepository.findOne(holon.getId());
+        final Holon one = holonRepository.findOne(holon.get_id());
         // then
         assertThat(filtered.stream().flatMap(s -> s.getRoomStates().stream().map(RoomState::getPerson)).distinct().collect(toList()),
                 Matchers.contains(personRepository.findOne(1L)));

@@ -10,7 +10,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.int
  * Created by Pawel on 2017-02-08.
  */
 @Component
-public class JobLauncher {
+public class SemanticJobLauncher {
 
     public static void main(String[] args) throws Exception {
         ApplicationContext ctx = new AnnotationConfigApplicationContext(SemanticBatchConfiguration.class);

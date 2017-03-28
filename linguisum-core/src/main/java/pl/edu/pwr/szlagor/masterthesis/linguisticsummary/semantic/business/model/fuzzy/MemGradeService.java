@@ -1,4 +1,4 @@
-package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.levels;
+package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy;
 
 import java.util.List;
 

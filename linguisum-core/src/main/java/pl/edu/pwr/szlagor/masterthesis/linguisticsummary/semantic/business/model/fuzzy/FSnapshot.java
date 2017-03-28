@@ -1,12 +1,22 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy;
 
-import java.math.BigInteger;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.Set;
 
+import javax.persistence.ElementCollection;
+import javax.persistence.Embedded;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+import org.bson.types.ObjectId;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Immutable;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.mongodb.morphia.annotations.Entity;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,17 +39,35 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.PersonSt
 @Entity
 public class FSnapshot {
 
-    private BigInteger id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private ObjectId id;
+    @Indexed
     private Date date;
+    @Indexed
     private LocalTime time;
     @Singular
+    @IndexedEmbedded
+    @ElementCollection
+    @Cascade(CascadeType.ALL)
     private Set<PersonState> personStates;
+    @IndexedEmbedded
+    @Embedded
     private FEnvironmentConditions weatherConditions;
     @Singular
+    @IndexedEmbedded
+    @Cascade(CascadeType.ALL)
+    @ElementCollection
     private Set<DeviceState> deviceStates;
     @Singular
+    @IndexedEmbedded
+    @Cascade(CascadeType.ALL)
+    @ElementCollection
     private Set<FRoomState> roomStates;
     @Singular
+    @IndexedEmbedded
+    @Cascade(CascadeType.ALL)
+    @ElementCollection
     private Set<FMediaUsage> mediaUsages;
 
 }

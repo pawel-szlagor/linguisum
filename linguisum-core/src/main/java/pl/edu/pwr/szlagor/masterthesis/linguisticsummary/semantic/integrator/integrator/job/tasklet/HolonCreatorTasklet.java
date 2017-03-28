@@ -12,7 +12,6 @@ import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.busines
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.CategoryPredicateTypes.TEMP_OUT;
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.CategoryPredicateTypes.WIND_SPEED;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,7 +108,7 @@ public class HolonCreatorTasklet implements Tasklet {
             // final List<CategoryPredicateTypes> subList = factors.subList(Math.min(firstIndex, secondIndex),
             // Math.max(firstIndex, secondIndex));
             final List<CategoryPredicateTypes> subList = factors.subList(0, 4);
-            Collections.shuffle(subList);
+            // Collections.shuffle(subList);
             Holon root = Holon.builder()
                               .cardinality(new AtomicLong(0))
                               /*

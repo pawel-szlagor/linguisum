@@ -37,11 +37,11 @@ public abstract class AbstractByDateService<DTO extends ObservationTimeAware, E 
     private Map<Integer, List<DTO>> orderedByDate;
 
     @Autowired
-    @Qualifier("entityManagerFactory")
+    @Qualifier("sourceEntityManagerFactory")
     private LocalContainerEntityManagerFactoryBean entityManagerFactoryBean;
 
     @SuppressWarnings(value = "unchecked")
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, value = "sourceTransactionManager")
     @Override
     public synchronized List<DTO> findByDate(LocalDate date) {
         Session session = entityManagerFactoryBean.getNativeEntityManagerFactory().unwrap(SessionFactory.class).openSession();

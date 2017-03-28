@@ -45,6 +45,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import com.google.common.collect.ImmutableMap;
 
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.common.job.StepExecutionListener;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.config.BasicMongoConfig;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
@@ -62,7 +63,8 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.su
  * Created by Pawel on 2017-02-08.
  */
 @Configuration
-@ComponentScan("pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.*")
+@ComponentScan({ "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.*",
+                 "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.common.*" })
 @EnableBatchProcessing
 @EnableScheduling
 @Import({ BasicMongoConfig.class, BasicSemanticConfig.class })
@@ -86,9 +88,6 @@ public class SemanticBatchConfiguration {
 
     @Autowired
     private SemanticIntegratorWriter bulkWriter;
-
-    @Autowired
-    private HolonCreatorTasklet holonCreatorTasklet;
 
     @Autowired
     private Job semanticExpressionJob;
@@ -142,13 +141,12 @@ public class SemanticBatchConfiguration {
 
     // tag::jobstep[]
     @Bean
-    public Job semanticExpressionJob(JobCompletionNotificationListener listener,
-            StepExecutionListener stepExecutionListener,
-            SnapshotRepository repository) {
+    public Job semanticExpressionJob(StepExecutionListener stepExecutionListener,
+            SnapshotRepository repository,
+            HolonCreatorTasklet holonCreatorTasklet) {
         return jobBuilderFactory.get("semanticExpressionJob")
                                 .incrementer(new RunIdIncrementer())
-                                .listener(listener)
-                                .start(semanticExpressionCreator())
+                                .start(semanticExpressionCreator(holonCreatorTasklet))
                                 .next(masterPartionerStep(stepExecutionListener, repository))
                                 .build();
     }
@@ -158,7 +156,7 @@ public class SemanticBatchConfiguration {
         return stepBuilderFactory.get("masterPartionerStep")
                                  .partitioner("semanticExpression", partitioner(repository))
                                  .step(semanticExpression(stepExecutionListener))
-                                 .gridSize(10)
+                                 .gridSize(20)
                                  .taskExecutor(taskExecutor())
                                  .build();
     }
@@ -167,7 +165,7 @@ public class SemanticBatchConfiguration {
     public Step semanticExpression(StepExecutionListener stepExecutionListener) {
         return stepBuilderFactory.get("semanticExpression")
                                  .listener(stepExecutionListener)
-                                 .<SemanticReadItem, Holon> chunk(1)
+                                 .<SemanticReadItem, Holon> chunk(10000)
                                  .reader(reader)
                                  .processor(processor)
                                  .writer(bulkWriter)
@@ -177,7 +175,7 @@ public class SemanticBatchConfiguration {
     }
 
     @Bean
-    public Step semanticExpressionCreator() {
+    public Step semanticExpressionCreator(HolonCreatorTasklet holonCreatorTasklet) {
         holonCreatorTasklet.setMaxItemsCount(MAX_ITEM_COUNT);
         return stepBuilderFactory.get("semanticExpressionCreator").tasklet(holonCreatorTasklet).build();
     }

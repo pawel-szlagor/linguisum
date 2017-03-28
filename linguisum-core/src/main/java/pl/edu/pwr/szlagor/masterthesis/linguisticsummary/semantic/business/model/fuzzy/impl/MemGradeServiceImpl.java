@@ -1,4 +1,4 @@
-package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.levels.impl;
+package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.impl;
 
 import java.util.Collection;
 import java.util.List;
@@ -14,9 +14,9 @@ import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import ma.glasnost.orika.metadata.ClassMapBuilder;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.TrapezoidalMemGradeDto;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.levels.MemGradeService;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.MemGradeRepository;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.MemGradeService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.TrapezoidalMemGrade;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.repository.MemGradeRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.converter.LocalDateConverter;
 
 /**

@@ -28,7 +28,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @ComponentScan(value = "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.*",
         excludeFilters = { @ComponentScan.Filter(type = FilterType.ANNOTATION, value = Configuration.class) })
 @PropertySource("classpath:application.properties")
-@EnableJpaRepositories(basePackages = "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source")
+@EnableJpaRepositories(basePackages = "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source",
+        entityManagerFactoryRef = "sourceEntityManagerFactory", transactionManagerRef = "sourceTransactionManager")
 public class BasicMySQLConfig {
     private static final String PROPERTY_NAME_DATABASE_DRIVER = "db.driver";
     private static final String PROPERTY_NAME_DATABASE_PASSWORD = "db.password";
@@ -46,7 +47,7 @@ public class BasicMySQLConfig {
     @Resource
     private Environment env;
 
-    @Bean
+    @Bean(name = "sourceDataSource")
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
 
@@ -57,14 +58,14 @@ public class BasicMySQLConfig {
         return dataSource;
     }
 
-    @Bean(name = "entityManagerFactory")
+    @Bean(name = "sourceEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         entityManagerFactoryBean.setDataSource(dataSource());
-        entityManagerFactoryBean.setBeanName("entityManagerFactory");
+        entityManagerFactoryBean.setBeanName("sourceEntityManagerFactory");
         entityManagerFactoryBean.setJpaVendorAdapter(jpaVendorAdapter());
         entityManagerFactoryBean.setJpaProperties(hibProperties());
-        entityManagerFactoryBean.setPersistenceUnitName("mySQL");
+        entityManagerFactoryBean.setPersistenceUnitName("sourceMySQL");
         entityManagerFactoryBean.setPackagesToScan("pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source", "pl" +
                 ".edu.pwr.szlagor.masterthesis.linguisticsummary.common");
         return entityManagerFactoryBean;
@@ -90,7 +91,7 @@ public class BasicMySQLConfig {
         return properties;
     }
 
-    @Bean
+    @Bean(name = "sourceTransactionManager")
     public JpaTransactionManager transactionManager() {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(entityManagerFactory().getObject());

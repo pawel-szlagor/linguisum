@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Created by Pawel on 2017-01-29.
  */
-@Transactional
+@Transactional(value = "sourceTransactionManager")
 public interface CommonService<DTO, ID extends Serializable> {
     DTO save(DTO dto);
 
