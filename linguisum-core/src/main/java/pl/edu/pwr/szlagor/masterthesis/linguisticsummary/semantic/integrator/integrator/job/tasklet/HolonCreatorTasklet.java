@@ -12,11 +12,11 @@ import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.busines
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.CategoryPredicateTypes.TEMP_OUT;
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.CategoryPredicateTypes.WIND_SPEED;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -25,6 +25,8 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -40,13 +42,18 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.su
  */
 @Component
 public class HolonCreatorTasklet implements Tasklet {
+    private static final int MAX_HOLONS = 500000;
     private final HolonCache holonCache;
     private final List<CategoryPredicateTypes> factors = Lists.newArrayList(PERSON_STATE,
             TEMP_OUT,
             DEVICE_STATE,
             SUNLIGHT,
             WIND_SPEED,
-            PRECIPITATION_TYPE);
+            PRECIPITATION_TYPE,
+            PRESSURE,
+            PRECIPITATION,
+            PRESSURE,
+            HUMIDITY);
     private final CategoryPredicateTypes result = ROOM_STATE;
     private final SnapshotRepository snapshotRepository;
     private final MongoTemplate template;
@@ -102,26 +109,22 @@ public class HolonCreatorTasklet implements Tasklet {
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         initializePredicates();
-        for (int i = 0; i < 1; i++) {
-            int firstIndex = random.nextInt(factors.size() - 3);
-            int secondIndex = random.nextInt(factors.size() - 3) + 3;
-            // final List<CategoryPredicateTypes> subList = factors.subList(Math.min(firstIndex, secondIndex),
-            // Math.max(firstIndex, secondIndex));
-            final List<CategoryPredicateTypes> subList = factors.subList(0, 4);
-            // Collections.shuffle(subList);
-            Holon root = Holon.builder()
-                              .cardinality(new AtomicLong(0))
-                              /*
-                               * .cardinality(
-                               * maxItemsCount != null ? new AtomicLong(maxItemsCount) : new
-                               * AtomicLong(snapshotRepository.count()))
-                               */
-                              .build();
-            generateHolonsWithPredicatesForLevel(subList, result, root, 0);
-            // List<Holon> holonToSave = convertToEntites(root);
-            // holonToSave.forEach(template::save);
-            holonCache.getRootHolons().add(root);
+        Collections.shuffle(factors);
+        final List<CategoryPredicateTypes> subList = factors.subList(0, random.nextInt(5) + 1);
+        Holon root = Holon.builder().cardinality(snapshotRepository.count()).build();
+        generateHolonsWithPredicatesForLevel(subList, result, root, 0);
+        List<Holon> holonToSave = convertToEntites(root);
+        while (holonToSave.size() > MAX_HOLONS) {
+            root = Holon.builder().cardinality(root.getCardinality()).build();
+            generateHolonsWithPredicatesForLevel(subList.subList(0, subList.size() - 1), result, root, 0);
+            holonToSave = convertToEntites(root);
         }
+        System.out.println("Stworzono: " + holonToSave.size() + " holonów");
+        template.insert(holonToSave, Holon.class);
+        Query query = Query.query(Criteria.where("cardinality").lt(0.01d));
+        template.remove(query, Holon.class);
+        holonCache.getRootHolons().clear();
+        holonCache.getRootHolons().add(root);
         return RepeatStatus.FINISHED;
     }
 
@@ -145,10 +148,12 @@ public class HolonCreatorTasklet implements Tasklet {
             Holon root,
             int level) {
         if (level < factors.size()) {
-            root.addChildren(mapOfPredicates.get(factors.get(level)), (factors.get(level)));
+            root.addChildren(mapOfPredicates.get(factors.get(level)), factors.get(level));
             root.getChildren().forEach(c -> generateHolonsWithPredicatesForLevel(factors, result, c, level + 1));
+            // root.addChildren(mapOfPredicates.get(result), result);
+        } else if (level == factors.size()) {
+            root.addChildren(mapOfPredicates.get(result), result);
         }
-        root.addChildren(mapOfPredicates.get(result), result);
     }
 
     private List<Holon> convertToEntites(Holon root) {

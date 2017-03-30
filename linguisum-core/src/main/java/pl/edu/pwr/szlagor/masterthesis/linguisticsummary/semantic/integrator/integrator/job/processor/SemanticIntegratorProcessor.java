@@ -1,24 +1,11 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.processor;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.mysema.query.collections.CollQueryFactory;
-
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FSnapshot;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FSnapshotConverter;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.QFSnapshot;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.summary.HolonDto;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.SemanticReadItem;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.tasklet.HolonCache;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.FSnapshotRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.Holon;
 
 /**
@@ -26,81 +13,35 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.su
  */
 @StepScope
 @Component
-public class SemanticIntegratorProcessor implements ItemProcessor<SemanticReadItem, Holon> {
+public class SemanticIntegratorProcessor implements ItemProcessor<Holon, Holon> {
 
-    private final SnapshotRepository snapshotRepository;
-    private final FSnapshotConverter fSnapshotConverter;
-    private final HolonCache holonCache;
+    private final FSnapshotRepository fsnapshotRepository;
+    private long counter = 0L;
 
     @Autowired
-    public SemanticIntegratorProcessor(SnapshotRepository snapshotRepository,
-            FSnapshotConverter fSnapshotConverter,
-            HolonCache holonCache) {
-        this.snapshotRepository = snapshotRepository;
-        this.fSnapshotConverter = fSnapshotConverter;
-        this.holonCache = holonCache;
+    public SemanticIntegratorProcessor(FSnapshotRepository fsnapshotRepository) {
+        this.fsnapshotRepository = fsnapshotRepository;
     }
 
     @Override
-    public Holon process(SemanticReadItem item) throws Exception {
-        System.out.println("processing: " + item.getSnapshots().size());
-        holonCache.getRootHolons().forEach(r -> r.getCardinality().getAndAdd(item.getSnapshots().size()));
-        holonCache.getRootHolons().forEach(r -> r.getChildren().forEach(
-                c -> adjustCardinality(c, item.getSnapshots().stream().map(fSnapshotConverter::convert).collect(toList()))));
-        return holonCache.getRootHolons().get(0);
+    public Holon process(Holon item) throws Exception {
+        if (item.getParent() != null && item.getParent().getCardinality() != null && item.getParent().getCardinality() == 0) {
+            propagateCardToChildren(item);
+        } else {
+            item.setCardinality(fsnapshotRepository.count(item.getCumulatedPredicate()));
+        }
+        if (counter % 10000 == 0) {
+            System.out.println("przetworzono: " + counter);
+        }
+        counter++;
+        return item;
     }
 
-    private void adjustCardinality(Holon holon, List<FSnapshot> fSnapshots) {
-        try {
-            if (holon.getParent() != null && holon.getParent().getCardinality().get() != 0) {
-                final long count = CollQueryFactory.from(QFSnapshot.fSnapshot, fSnapshots).where(holon.getCumulatedPredicate()).count();
-                holon.getCardinality().getAndAdd(count);
-                if (holon.getChildren() != null) {
-                    holon.getChildren().forEach(c -> adjustCardinality(c, fSnapshots));
-                }
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+    private void propagateCardToChildren(Holon item) {
+        item.setCardinality(0L);
+        if (item.getChildren() != null) {
+            item.getChildren().forEach(this::propagateCardToChildren);
         }
     }
 
-    /*
-     * private void adjustCardinality(HolonDto holon, List<Snapshot> snapshots) {
-     * try {
-     * //final List<Snapshot> collect = snapshots.stream().filter(s->from(QSnapshot.snapshot,
-     * s).where(holon.getPredicate()).exists()).collect(toList());
-     * final List<Snapshot> collect =
-     * snapshots.stream().filter(GuavaHelpers.wrap(holon.getPredicate())::apply).collect(toList());
-     * if (!collect.isEmpty() && holon.getChildren() != null) {
-     * holon.getCardinality().getAndAdd(collect.size());
-     * holon.getChildren().forEach(c -> adjustCardinality(c, collect));
-     * }
-     * }catch (Exception ex){
-     * ex.printStackTrace();
-     * }
-     * }
-     */
-
-    private synchronized void setCard(HolonDto item) {
-        if (item.getParent() != null && item.getParent().getCardinality().get() == 0) {
-            item.setCardinality(new AtomicLong(0));
-        } else if (item.getCardinality() == null) {
-            try {
-                item.setCardinality(new AtomicLong(snapshotRepository.count(item.getCumulatedPredicate())));
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            // item.getChildren().forEach(this::setCard);
-        }
-    }
-
-    private synchronized void setCardParent(HolonDto item) {
-        if (item.getParent() != null && item.getParent().getCardinality() == null) {
-            try {
-                item.getParent().setCardinality(new AtomicLong(snapshotRepository.count(item.getParent().getCumulatedPredicate())));
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
 }

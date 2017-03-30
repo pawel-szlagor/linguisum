@@ -22,41 +22,42 @@ public class StepExecutionListener extends StepListenerSupport {
     private Duration readDuration = Duration.ZERO;
     private Duration processDuration = Duration.ZERO;
     private Duration writeDuration = Duration.ZERO;
+    private static Long counter = 0L;
 
     @Override
     public void beforeRead() {
         // System.out.println("before read: "+Duration.between(currentTime, LocalDateTime.now()) );
-        readTime = LocalDateTime.now();
+        // readTime = LocalDateTime.now();
     }
 
     @Override
     public void afterRead(Object item) {
         // System.out.println("after read: "+ Duration.between(currentTime, LocalDateTime.now()) );
-        readDuration = readDuration.plus(Duration.between(LocalDateTime.now(), readTime));
+        // readDuration = readDuration.plus(Duration.between(LocalDateTime.now(), readTime));
     }
 
     @Override
     public void beforeProcess(Object item) {
         // System.out.println("before process: "+ Duration.between(currentTime, LocalDateTime.now()) );
-        processTime = LocalDateTime.now();
+        // processTime = LocalDateTime.now();
     }
 
     @Override
     public void afterProcess(Object item, Object result) {
         // System.out.println("after process: "+ Duration.between(currentTime, LocalDateTime.now()) );
-        processDuration = processDuration.plus(Duration.between(LocalDateTime.now(), processTime));
+        // processDuration = processDuration.plus(Duration.between(LocalDateTime.now(), processTime));
     }
 
     @Override
     public void beforeWrite(List items) {
         // System.out.println("before write: "+ Duration.between(currentTime, LocalDateTime.now()) );
-        writeTime = LocalDateTime.now();
+        // writeTime = LocalDateTime.now();
     }
 
     @Override
     public void afterWrite(List items) {
         // System.out.println("after write: "+ Duration.between(currentTime, LocalDateTime.now()) );
-        writeDuration = writeDuration.plus(Duration.between(LocalDateTime.now(), writeTime));
+        // writeDuration = writeDuration.plus(Duration.between(LocalDateTime.now(), writeTime));
     }
 
     @Override
@@ -66,14 +67,20 @@ public class StepExecutionListener extends StepListenerSupport {
          * System.out.println("total time of process: " + processDuration);
          * System.out.println("total time of write: " + writeDuration);
          */
-        return super.afterStep(stepExecution);
+        if (counter++ < 1000) {
+            return new ExitStatus("REPEAT");
+        } else {
+            return new ExitStatus("FINISHED");
+        }
     }
 
     @Override
     public void afterChunk(ChunkContext context) {
-        System.out.println("total time of read: " + readDuration);
-        System.out.println("total time of process: " + processDuration);
-        System.out.println("total time of write: " + writeDuration);
+        /*
+         * System.out.println("total time of read: " + readDuration);
+         * System.out.println("total time of process: " + processDuration);
+         * System.out.println("total time of write: " + writeDuration);
+         */
         super.afterChunk(context);
     }
 

@@ -17,6 +17,7 @@ import org.hibernate.annotations.Immutable;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.mongodb.morphia.annotations.Entity;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,6 +37,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.PersonSt
 @NoArgsConstructor
 @AllArgsConstructor
 @Immutable
+@Document
 @Entity
 public class FSnapshot {
 

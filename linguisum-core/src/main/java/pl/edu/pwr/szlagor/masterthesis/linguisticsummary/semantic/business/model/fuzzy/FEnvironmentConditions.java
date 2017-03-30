@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.mongodb.morphia.annotations.Entity;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.WeatherEvent;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.TrapezoidalMemGrade;
@@ -16,20 +18,34 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.Tr
  */
 @Entity
 public class FEnvironmentConditions {
-
+    @Indexed
+    @DBRef
     private Set<TrapezoidalMemGrade> fTempOut;
     private Map<TrapezoidalMemGrade, Double> fTempOutProb;
+    @Indexed
+    @DBRef
     private Set<TrapezoidalMemGrade> fWindchill;
     private Map<TrapezoidalMemGrade, Double> fWindchillProb;
+    @Indexed
+    @DBRef
     private Set<TrapezoidalMemGrade> fHumidity;
     private Map<TrapezoidalMemGrade, Double> fHumidityProb;
+    @Indexed
+    @DBRef
     private Set<TrapezoidalMemGrade> fPressure;
     private Map<TrapezoidalMemGrade, Double> fPressureProb;
+    @Indexed
+    @DBRef
     private Set<TrapezoidalMemGrade> fWindSpeed;
     private Map<TrapezoidalMemGrade, Double> fWindSpeedProb;
+    @Indexed
+    @DBRef
     private Set<TrapezoidalMemGrade> fPrecipitation;
     private Map<TrapezoidalMemGrade, Double> fPrecipitationProb;
+    @Indexed
     private List<WeatherEvent> weatherEvents;
+    @Indexed
+    @DBRef
     private Set<TrapezoidalMemGrade> fSunlightEmission;
     private Map<TrapezoidalMemGrade, Double> fSunlightEmissionProb;
 

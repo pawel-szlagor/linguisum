@@ -1,71 +1,76 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.reader;
 
-import java.util.concurrent.atomic.AtomicLong;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
-import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepExecutionListener;
+import java.util.List;
+
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
+import com.google.common.collect.Lists;
+
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.tasklet.HolonCache;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.Holon;
 
 /**
  * Created by Pawel on 2017-02-09.
  */
-@StepScope
 @Component
-public class SemanticIntegratorReader implements ItemReader<Snapshot>, InitializingBean, StepExecutionListener {
+@StepScope
+public class SemanticIntegratorReader implements ItemReader<Holon>, InitializingBean {
 
-    private static final int PORTION_COUNT = 10000;
-    private AtomicLong counter = new AtomicLong(0);
-
-    private final ItemReader<Snapshot> mongoItemReader;
-    private StepExecution stepExecution;
+    private final HolonCache holonCache;
+    private Integer holonPosition;
+    private final List<Holon> holonList;
 
     @Autowired
-    public SemanticIntegratorReader(@Qualifier(value = "pageableReader") ItemReader<Snapshot> mongoItemReader) {
-        this.mongoItemReader = mongoItemReader;
+    public SemanticIntegratorReader(HolonCache holonCache) {
+        this.holonCache = holonCache;
+        if (holonPosition != null) {
+            holonList = convertToEntites(holonCache.getRootHolons().get(holonPosition)).stream().sorted(comparing(Holon::getLevel)).collect(
+                    toList());
+        } else {
+            holonList = holonCache.getRootHolons()
+                                  .stream()
+                                  .map(this::convertToEntites)
+                                  .flatMap(List::stream)
+                                  .sorted(comparing(Holon::getLevel))
+                                  .collect(toList());
+        }
     }
 
     @Override
-    public Snapshot read() throws Exception {
-        // counter.getAndIncrement();
-        return readPortion();
-    }
-
-    private Snapshot readPortion() {
-        try {
-            return mongoItemReader.read();
-        } catch (Exception e) {
-            e.printStackTrace();
+    public Holon read() throws Exception {
+        if (!holonList.isEmpty()) {
+            return holonList.remove(0);
         }
         return null;
     }
 
+    private List<Holon> convertToEntites(Holon root) {
+        List<Holon> entites = Lists.newArrayListWithExpectedSize(root.count());
+        addEntityToList(root, entites);
+        return entites;
+    }
+
+    private void addEntityToList(Holon root, List<Holon> entites) {
+        entites.add(root);
+        if (root.getChildren() != null) {
+            root.getChildren().forEach(c -> addEntityToList(c, entites));
+        }
+    }
+
+    public void setHolonPosition(int holonPosition) {
+        this.holonPosition = holonPosition;
+    }
 
     @Override
     public void afterPropertiesSet() {
 
     }
 
-    @Override
-    public void beforeStep(StepExecution stepExecution) {
-        this.stepExecution = stepExecution;
-        this.stepExecution.getExecutionContext().put("readerExhausted", Boolean.FALSE);
-        /*
-         * mongoItemReader.setQuery(String.format("{'id':{$gt:%s}, $lte:%s}}",
-         * stepExecution.getExecutionContext().get("fromId"),
-         * stepExecution.getExecutionContext().get("toId")));
-         */
-    }
-
-    @Override
-    public ExitStatus afterStep(StepExecution stepExecution) {
-        return stepExecution.getExitStatus();
-    }
 }

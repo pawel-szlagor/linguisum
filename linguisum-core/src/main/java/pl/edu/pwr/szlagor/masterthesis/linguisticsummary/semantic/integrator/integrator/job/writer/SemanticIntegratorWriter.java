@@ -3,6 +3,7 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.in
 import static org.apache.commons.math3.util.Precision.round;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
@@ -11,6 +12,9 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -25,10 +29,13 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.repository.Hol
 @StepScope
 @Component
 public class SemanticIntegratorWriter implements ItemWriter<Holon>, StepExecutionListener {
+    private static final Predicate<Holon> PROCESSED_PREDICATE = h -> h.getParent() != null && h.getParent().getCardinality() != null
+            && h.getCardinality() != null && h.getCardinality() > 0;
     private final MongoTemplate template;
     private HolonCache holonCache;
     private StepExecution stepExecution;
     private final HolonRepository repository;
+    private long counter = 0L;
 
     @Autowired
     public SemanticIntegratorWriter(MongoTemplate template, HolonCache holonCache, HolonRepository repository) {
@@ -39,19 +46,20 @@ public class SemanticIntegratorWriter implements ItemWriter<Holon>, StepExecutio
 
     @Override
     public void write(List<? extends Holon> items) throws Exception {
-        // template.insert(items.stream().filter(i->i.getRelevance() > 0.6 || i.getRelevance() < 0.4).collect(toList()),
-        // Holon.class);
-        holonCache.getRootHolons()
-                  .stream()
-                  .map(this::convertToEntites)
-                  .flatMap(List::stream)
-                  .filter(h -> h.getCardinality().get() > 0)
-                  .forEach(h -> {
-                      h.setRelevance(h.getParent() != null && h.getParent().getCardinality().get() > 0
-                              ? round(h.getCardinality().doubleValue() / h.getParent().getCardinality().doubleValue(), 2) : 0.00);
-                      template.save(h);
-                  });
-        System.out.println("zapisuje: ");
+        items.forEach(h -> {
+            h.setRelevance(h.getParent() != null && h.getParent().getCardinality() > 0
+                    ? round(h.getCardinality().doubleValue() / h.getParent().getCardinality().doubleValue(), 2) : 0.00);
+            Query query = Query.query(Criteria.where("_id").is(h.get_id()));
+            Update update = Update.update("cardinality", h.getCardinality());
+            Update updateRelevance = Update.update("relevance", h.getRelevance());
+            template.upsert(query, update, Holon.class);
+            template.upsert(query, updateRelevance, Holon.class);
+            if (counter % 10000 == 0) {
+                System.out.println("Update: " + counter);
+            }
+            counter++;
+        });
+        // System.out.println("zapisuje: ");
     }
 
     private List<Holon> convertToEntites(Holon root) {
@@ -62,8 +70,8 @@ public class SemanticIntegratorWriter implements ItemWriter<Holon>, StepExecutio
     }
 
     private void addEntityToList(Holon root, List<Holon> entites) {
+        entites.add(root);
         if (root.getChildren() != null) {
-            entites.add(root);
             root.getChildren().forEach(c -> addEntityToList(c, entites));
         }
     }

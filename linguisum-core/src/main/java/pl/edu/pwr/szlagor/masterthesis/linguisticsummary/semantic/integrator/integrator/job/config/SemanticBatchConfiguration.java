@@ -50,7 +50,6 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.config.BasicMo
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.config.BasicSemanticConfig;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.SemanticReadItem;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.processor.SemanticIntegratorProcessor;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.reader.SemanticIntegratorReader;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.reader.SemanticRepositoryItemReader;
@@ -71,6 +70,8 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.su
 public class SemanticBatchConfiguration {
     private static final Integer MAX_ITEM_COUNT = 1000000;
     private static final int PAGE_SIZE = 10000;
+    private static final int GRID_SIZE = 1;
+    private static final int CHUNK_SIZE = 1000;
     @Autowired
     public JobBuilderFactory jobBuilderFactory;
 
@@ -81,13 +82,13 @@ public class SemanticBatchConfiguration {
     private MongoTemplate mongoTemplate;
 
     @Autowired
-    private SemanticIntegratorProcessor processor;
-
-    @Autowired
     private SemanticIntegratorReader reader;
 
     @Autowired
-    private SemanticIntegratorWriter bulkWriter;
+    private SemanticIntegratorProcessor processor;
+
+    @Autowired
+    private SemanticIntegratorWriter writer;
 
     @Autowired
     private Job semanticExpressionJob;
@@ -141,13 +142,16 @@ public class SemanticBatchConfiguration {
 
     // tag::jobstep[]
     @Bean
-    public Job semanticExpressionJob(StepExecutionListener stepExecutionListener,
-            SnapshotRepository repository,
-            HolonCreatorTasklet holonCreatorTasklet) {
+    public Job semanticExpressionJob(Step semanticExpressionCreator, Step semanticExpression) {
         return jobBuilderFactory.get("semanticExpressionJob")
                                 .incrementer(new RunIdIncrementer())
-                                .start(semanticExpressionCreator(holonCreatorTasklet))
-                                .next(masterPartionerStep(stepExecutionListener, repository))
+                                .start(semanticExpressionCreator)
+                                .next(semanticExpression)
+                                .on("REPEAT")
+                                .to(semanticExpressionCreator)
+                                .on("FINISHED")
+                                .end()
+                                .build()
                                 .build();
     }
 
@@ -156,7 +160,7 @@ public class SemanticBatchConfiguration {
         return stepBuilderFactory.get("masterPartionerStep")
                                  .partitioner("semanticExpression", partitioner(repository))
                                  .step(semanticExpression(stepExecutionListener))
-                                 .gridSize(20)
+                                 .gridSize(GRID_SIZE)
                                  .taskExecutor(taskExecutor())
                                  .build();
     }
@@ -165,12 +169,12 @@ public class SemanticBatchConfiguration {
     public Step semanticExpression(StepExecutionListener stepExecutionListener) {
         return stepBuilderFactory.get("semanticExpression")
                                  .listener(stepExecutionListener)
-                                 .<SemanticReadItem, Holon> chunk(10000)
+                                 .<Holon, Holon> chunk(CHUNK_SIZE)
                                  .reader(reader)
                                  .processor(processor)
-                                 .writer(bulkWriter)
+                                 .writer(writer)
                                  .taskExecutor(semanticTaskExecutor())
-                                 .throttleLimit(5)
+                                 .throttleLimit(1)
                                  .build();
     }
 
@@ -231,9 +235,9 @@ public class SemanticBatchConfiguration {
 
     @Bean
     public RangePartition partitioner(SnapshotRepository repository) {
-        final RangePartition rangePartition = new RangePartition(repository);
-        rangePartition.setMaxItemCount(MAX_ITEM_COUNT);
-        rangePartition.setPageSize(PAGE_SIZE);
+        final RangePartition rangePartition = new RangePartition(repository, holonCache());
+        // rangePartition.setMaxItemCount(MAX_ITEM_COUNT);
+        rangePartition.setGridSize(GRID_SIZE);
         return rangePartition;
     }
 

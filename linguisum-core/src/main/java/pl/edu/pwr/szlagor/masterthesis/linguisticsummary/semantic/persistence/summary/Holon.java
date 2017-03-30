@@ -4,9 +4,9 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
+import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.EnumType;
@@ -28,6 +28,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.common.converter.BooleanExpressionConverter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.CategoryPredicateTypes;
 
 /**
@@ -47,11 +48,12 @@ public class Holon {
     private ObjectId _id;
     @Enumerated(EnumType.STRING)
     private CategoryPredicateTypes predicateType;
+    @Convert(converter = BooleanExpressionConverter.class)
     private BooleanExpression predicate;
     private String cumulatedPredicate;
     @ElementCollection
     private List<CategoryPredicateTypes> cumulatedPredicatesTypes;
-    private AtomicLong cardinality;
+    private Long cardinality;
     private double relevance;
     @Embedded
     @IndexedEmbedded
@@ -97,7 +99,6 @@ public class Holon {
         final List<Holon> holons = predicates.stream()
                                              .map(p -> Holon.builder()
                                                             .parent(this)
-                                                            .cardinality(new AtomicLong(0))
                                                             .predicate(p)
                                                             .predicateType(predicateType)
                                                             .build())

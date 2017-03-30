@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
 import org.hamcrest.Matchers;
@@ -74,7 +73,7 @@ public class SemanticIntegratorProcessorTest {
         final BooleanExpression expression = snapshot.roomStates.contains(
                 new RoomState(roomRepository.findOne(1L), personRepository.findOne(1L), 20.0));
         final List<Snapshot> filtered = roomStates.stream().filter(GuavaHelpers.wrap(expression)::apply).collect(toList());
-        final Holon holon = Holon.builder().cardinality(new AtomicLong(123L)).predicate(expression).build();
+        final Holon holon = Holon.builder().cardinality(123L).predicate(expression).build();
         holonRepository.save(holon);
         final Holon one = holonRepository.findOne(holon.get_id());
         // then
