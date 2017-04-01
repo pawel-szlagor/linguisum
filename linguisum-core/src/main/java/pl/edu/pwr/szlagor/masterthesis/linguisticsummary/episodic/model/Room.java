@@ -18,13 +18,13 @@ public class Room {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+	private Long _id;
     private String name;
     private RoomType type;
 
-    @java.beans.ConstructorProperties({ "id", "name", "type" })
-    public Room(Long id, String name, RoomType type) {
-        this.id = id;
+	@java.beans.ConstructorProperties({"_id", "name", "type"})
+	public Room(Long _id, String name, RoomType type) {
+		this._id = _id;
         this.name = name;
         this.type = type;
     }
@@ -37,11 +37,11 @@ public class Room {
     }
 
     public Long getId() {
-        return id;
+		return _id;
     }
 
     public void setId(Long id) {
-        this.id = id;
+		this._id = id;
     }
 
     public String getName() {
@@ -69,12 +69,12 @@ public class Room {
 
         Room room = (Room) o;
 
-        return id != null ? id.equals(room.id) : room.id == null;
+		return _id != null ? _id.equals(room._id) : room._id == null;
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+		return _id != null ? _id.hashCode() : 0;
     }
 
     protected boolean canEqual(Object other) {
@@ -82,7 +82,7 @@ public class Room {
     }
 
     public String toString() {
-        return "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Room(id=" + this.getId() + ", name=" + this.getName()
+		return "Room(_id=" + this.getId() + ", name=" + this.getName()
                 + ", type=" + this.getType() + ")";
     }
 
@@ -114,7 +114,8 @@ public class Room {
         }
 
         public String toString() {
-            return "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Room.RoomBuilder(id=" + this.id + ", name=" + this.name
+			return "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Room.RoomBuilder(_id=" + this.id
+					+ ", name=" + this.name
                     + ", type=" + this.type + ")";
         }
     }

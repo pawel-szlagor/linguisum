@@ -76,7 +76,7 @@ public class DeviceState {
     }
 
     public String toString() {
-        return "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.DeviceState(device=" + this.getDevice() + ", isOn="
+		return "DeviceState(device=" + this.getDevice() + ", isOn="
                 + this.isOn() + ")";
     }
 

@@ -88,7 +88,7 @@ public class Device {
     }
 
     public String toString() {
-        return "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Device(id=" + this.getId() + ", name=" + this.getName()
+		return "Device(id=" + this.getId() + ", name=" + this.getName()
                 + ", mediaType=" + this.getMediaType() + ", mediaUsage=" + this.getMediaUsage() + ")";
     }
 }

@@ -49,7 +49,7 @@ public class PersonState {
     }
 
     public String toString() {
-        return "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.PersonState(user=" + this.getUser() + ", location="
+		return "PersonState(user=" + this.getUser() + ", location="
                 + this.getLocation() + ")";
     }
 

@@ -77,7 +77,7 @@ public class Person {
     }
 
     public String toString() {
-        return "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Person(id=" + this.getId() + ", name=" + this.getName()
+		return "Person(id=" + this.getId() + ", name=" + this.getName()
                 + ", mail=" + this.getMail() + ")";
     }
 

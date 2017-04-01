@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.mysema.query.types.expr.BooleanExpression;
+
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.WeatherEvent;
 
 /**
@@ -18,6 +20,9 @@ public class PrecipitationTypePredicateServiceImpl implements CategoryPredicateS
 
     @Override
     public List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates() {
-        return stream(WeatherEvent.values()).map(fSnapshot.weatherConditions.weatherEvents::contains).collect(toList());
+		final List<BooleanExpression> expressions = stream(WeatherEvent.values())
+				.map(fSnapshot.weatherConditions.weatherEvents::contains).collect(toList());
+		expressions.add(fSnapshot.weatherConditions.weatherEvents.isEmpty());
+		return expressions;
     }
 }

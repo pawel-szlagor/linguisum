@@ -45,14 +45,14 @@ public class HolonCreatorTasklet implements Tasklet {
     private static final int MAX_HOLONS = 500000;
     private final HolonCache holonCache;
     private final List<CategoryPredicateTypes> factors = Lists.newArrayList(PERSON_STATE,
-            TEMP_OUT,
-            DEVICE_STATE,
-            SUNLIGHT,
-            WIND_SPEED,
-            PRECIPITATION_TYPE,
-            PRESSURE,
-            PRECIPITATION,
-            PRESSURE,
+			// TEMP_OUT,
+			// DEVICE_STATE,
+			// SUNLIGHT,
+			// WIND_SPEED,
+			// PRECIPITATION_TYPE,
+			// PRESSURE,
+			// PRECIPITATION,
+			// PRESSURE,
             HUMIDITY);
     private final CategoryPredicateTypes result = ROOM_STATE;
     private final SnapshotRepository snapshotRepository;
@@ -110,7 +110,7 @@ public class HolonCreatorTasklet implements Tasklet {
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         initializePredicates();
         Collections.shuffle(factors);
-        final List<CategoryPredicateTypes> subList = factors.subList(0, random.nextInt(5) + 1);
+		final List<CategoryPredicateTypes> subList = factors.subList(0, random.nextInt(2) + 1);
         Holon root = Holon.builder().cardinality(snapshotRepository.count()).build();
         generateHolonsWithPredicatesForLevel(subList, result, root, 0);
         List<Holon> holonToSave = convertToEntites(root);

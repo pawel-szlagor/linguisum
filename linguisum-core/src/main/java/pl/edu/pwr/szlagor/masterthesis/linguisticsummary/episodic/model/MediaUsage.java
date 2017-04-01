@@ -82,7 +82,7 @@ public class MediaUsage {
     }
 
     public String toString() {
-        return "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.MediaUsage(mediaType=" + this.getMediaType()
+		return "MediaUsage(mediaType=" + this.getMediaType()
                 + ", usagePerMinute=" + this.getUsagePerMinute() + ", location=" + this.getLocation() + ")";
     }
 

@@ -85,7 +85,7 @@ public class RoomState {
     }
 
     public String toString() {
-        return "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.RoomState(room=" + this.getRoom() + ", person="
+		return "RoomState(room=" + this.getRoom() + ", person="
                 + this.getPerson() + ", desiredTemp=" + this.getDesiredTemp() + ")";
     }
 

@@ -67,10 +67,10 @@ public class StepExecutionListener extends StepListenerSupport {
          * System.out.println("total time of process: " + processDuration);
          * System.out.println("total time of write: " + writeDuration);
          */
-        if (counter++ < 1000) {
+		if (counter++ < 2) {
             return new ExitStatus("REPEAT");
         } else {
-            return new ExitStatus("FINISHED");
+			return ExitStatus.COMPLETED;
         }
     }
 
