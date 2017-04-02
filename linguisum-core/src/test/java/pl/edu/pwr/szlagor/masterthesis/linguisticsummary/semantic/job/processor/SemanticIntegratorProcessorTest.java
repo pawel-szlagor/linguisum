@@ -1,4 +1,4 @@
-package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.processor;
+package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.processor;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.stream;
@@ -9,7 +9,6 @@ import static org.hamcrest.junit.MatcherAssert.assertThat;
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QSnapshot.snapshot;
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot.builder;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Calendar;
@@ -36,7 +35,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.rep
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FSnapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.MemGradeService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.QFSnapshot;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.config.SemanticBatchConfiguration;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.config.SemanticBatchConfiguration;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.Holon;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.repository.HolonRepository;
 
@@ -115,7 +114,7 @@ public class SemanticIntegratorProcessorTest {
         // given
         LocalDate localDate = LocalDate.of(2016, 1, 1);
         final List<FSnapshot> days = IntStream.range(0, 10)
-                                              .mapToObj(d -> FSnapshot.builder().date(Date.valueOf(localDate.plusDays(d))).build())
+                                              .mapToObj(d -> FSnapshot.builder().date(localDate.plusDays(d)).build())
                                               .collect(toList());
 
         // when

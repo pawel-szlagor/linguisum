@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.mongodb.morphia.annotations.Entity;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Person;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Room;
@@ -16,7 +17,9 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.Tr
  */
 @Entity
 public class FRoomState {
+    @Indexed
     private Room room;
+    @Indexed(name = "persons2")
     private Person person;
     private Set<TrapezoidalMemGrade> fDesiredTemp;
     private Map<TrapezoidalMemGrade, Double> fMembershipProb;
@@ -93,7 +96,7 @@ public class FRoomState {
     }
 
     public String toString() {
-        return "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FRoomState(room=" + this.getRoom()
+        return "FRoomState(room=" + this.getRoom()
                 + ", person=" + this.getPerson() + ", fDesiredTemp=" + this.getFDesiredTemp() + ", fMembershipProb="
                 + this.getFMembershipProb() + ")";
     }

@@ -1,13 +1,15 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate;
 
-import static java.util.stream.Collectors.toList;
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.QFSnapshot.fSnapshot;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.mysema.query.types.expr.BooleanExpression;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.PersonState;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.PersonRepository;
@@ -30,10 +32,13 @@ public class UserPositionPredicateServiceImpl implements CategoryPredicateServic
     @Transactional(readOnly = true, value = "semanticTransactionManager")
     @Override
     public List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates() {
-        return personRepository.findAll()
-                               .stream()
-                               .flatMap(p -> roomRepository.findAll().stream().map(
-                                       r -> fSnapshot.personStates.contains(new PersonState(p, r))))
-                               .collect(toList());
+        final List<BooleanExpression> booleanExpressions = personRepository.findAll()
+                                                                           .stream()
+                                                                           .flatMap(p -> roomRepository.findAll().stream().map(
+                                                                                   r -> fSnapshot.personStates.contains(
+                                                                                           new PersonState(p, r))))
+                                                                           .collect(Collectors.toList());
+        booleanExpressions.add(fSnapshot.roomStates.isEmpty());
+        return booleanExpressions;
     }
 }

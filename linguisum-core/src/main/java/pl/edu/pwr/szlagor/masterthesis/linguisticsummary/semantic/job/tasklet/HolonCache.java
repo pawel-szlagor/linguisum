@@ -1,4 +1,4 @@
-package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.tasklet;
+package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.tasklet;
 
 import java.util.ArrayList;
 import java.util.List;

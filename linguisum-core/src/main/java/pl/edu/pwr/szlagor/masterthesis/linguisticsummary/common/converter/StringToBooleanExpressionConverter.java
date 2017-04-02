@@ -7,7 +7,6 @@ import com.mysema.query.types.expr.BooleanExpression;
 /**
  * Created by Pawel on 2017-03-18.
  */
-@javax.persistence.Converter
 public class StringToBooleanExpressionConverter implements Converter<String, BooleanExpression> {
 
     @Override

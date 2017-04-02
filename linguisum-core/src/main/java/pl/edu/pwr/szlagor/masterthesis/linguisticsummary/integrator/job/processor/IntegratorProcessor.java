@@ -1,10 +1,13 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job.processor;
 
+import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ma.glasnost.orika.MapperFacade;
@@ -20,6 +23,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.PersonSt
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Room;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.RoomState;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.RoomRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.converter.LocalDateConverter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.DesiredTempSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.DeviceStateSourceDto;
@@ -37,17 +41,37 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.W
 public class IntegratorProcessor implements ItemProcessor<SnapshotSourceDto, Snapshot> {
 
     private MapperFacade mapperFacade = initializeMapperFacade();
+    private final List<Room> allRoomsList;
+
+    @Autowired
+    public IntegratorProcessor(RoomRepository roomRepository) {
+        allRoomsList = roomRepository.findAll();
+    }
 
     @Override
     public synchronized Snapshot process(SnapshotSourceDto item) {
         return Snapshot.builder().deviceStates(item.getDeviceStates().stream().map(mapDeviceStateFunction()).collect(Collectors.toSet()))
                 .mediaUsages(item.getMediaUsages().stream().map(mediaUsageSourceDtoMediaUsageFunction()).collect(Collectors.toSet()))
                 .personStates(item.getPersonPositions().stream().map(personPositionSourceDtoPersonStateFunction()).collect(Collectors.toSet()))
-                .roomStates(item.getDesiredTemps().stream().map(desiredTempSourceDtoRoomStateFunction()).collect(Collectors.toSet()))
+                       .roomStates(processRoomStates(item))
                 .weatherConditions(mapperFacade.map(item.getWeatherConditions(), EnvironmentConditions.class))
                 .date(item.getObservationTime().toLocalDate())
                 .time(item.getObservationTime().toLocalTime())
                 .build();
+    }
+
+    private Set<RoomState> processRoomStates(SnapshotSourceDto item) {
+        final List<Long> roomsIds = item.getDesiredTemps().stream().map(d -> d.getLocation().getId()).collect(Collectors.toList());
+        final Set<RoomState> roomsWithTempSet = item.getDesiredTemps()
+                                                    .stream()
+                                                    .map(desiredTempSourceDtoRoomStateFunction())
+                                                    .collect(Collectors.toSet());
+        final Set<RoomState> roomWithTempNotSet = allRoomsList.stream()
+                                                              .filter(r -> !roomsIds.contains(r.getId()))
+                                                              .map(r -> RoomState.builder().room(r).build())
+                                                              .collect(Collectors.toSet());
+        roomsWithTempSet.addAll(roomWithTempNotSet);
+        return roomsWithTempSet;
     }
 
     private Function<MediaUsageSourceDto, MediaUsage> mediaUsageSourceDtoMediaUsageFunction() {

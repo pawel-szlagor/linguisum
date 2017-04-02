@@ -55,6 +55,7 @@ public class Holon {
     private List<CategoryPredicateTypes> cumulatedPredicatesTypes;
     private Long cardinality;
     private double relevance;
+    // @Transient
     @Embedded
     @IndexedEmbedded
     private Holon parent;

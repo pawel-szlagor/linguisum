@@ -12,7 +12,6 @@ import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.busines
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.TrapezoidalMemGradeTypes.TEMP_OUT;
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.TrapezoidalMemGradeTypes.WIND_SPEED;
 
-import java.sql.Date;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +40,7 @@ public class FSnapshotConverter implements Converter<Snapshot, FSnapshot> {
     public FSnapshot convert(Snapshot source) {
         return FSnapshot.builder()
                         .time(source.getTime())
-                        .date(Date.valueOf(source.getDate()))
+                        .date(source.getDate())
                         .deviceStates(source.getDeviceStates())
                         .id(source.getId())
                         .mediaUsages(source.getMediaUsages().stream().map(this::convertMediaUsage).collect(Collectors.toSet()))

@@ -2,7 +2,6 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence;
 
 import static java.util.stream.Collectors.toList;
 
-import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +21,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.config.BasicSe
  */
 public class ImportMemGradeData {
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) {
         importData();
     }
 

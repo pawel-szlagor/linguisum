@@ -1,4 +1,4 @@
-package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.reader;
+package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.reader;
 
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.tasklet.HolonCache;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.tasklet.HolonCache;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.Holon;
 
 /**

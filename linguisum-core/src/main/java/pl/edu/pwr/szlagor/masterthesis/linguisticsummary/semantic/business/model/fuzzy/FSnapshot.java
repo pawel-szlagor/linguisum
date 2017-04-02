@@ -1,7 +1,7 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Date;
 import java.util.Set;
 
 import javax.persistence.ElementCollection;
@@ -45,7 +45,7 @@ public class FSnapshot {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private ObjectId id;
     @Indexed
-    private Date date;
+    private LocalDate date;
     @Indexed
     private LocalTime time;
     @Singular
@@ -62,7 +62,7 @@ public class FSnapshot {
     @ElementCollection
     private Set<DeviceState> deviceStates;
     @Singular
-    @IndexedEmbedded
+    @IndexedEmbedded(includeEmbeddedObjectId = true, prefix = "_")
     @Cascade(CascadeType.ALL)
     @ElementCollection
     private Set<FRoomState> roomStates;

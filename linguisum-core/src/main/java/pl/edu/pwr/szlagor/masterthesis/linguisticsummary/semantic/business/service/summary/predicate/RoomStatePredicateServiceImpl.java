@@ -45,9 +45,9 @@ public class RoomStatePredicateServiceImpl implements CategoryPredicateService {
                                                                                              new FRoomState(r, p, Sets.newHashSet(t),
                                                                                                             null)))));
 		final Stream<BooleanExpression> expressionStream = roomRepository.findAll().stream()
-				.map(r -> fSnapshot.roomStates.any().room.in(r).not());
-		// final Stream<BooleanExpression> concat =
-		// Stream.concat(booleanExpressionStream, expressionStream);
-		return expressionStream.collect(toList());
+                                                                         .map(r -> fSnapshot.roomStates.contains(
+                                                                                 new FRoomState(r, null, Sets.newHashSet(), null)));
+        final Stream<BooleanExpression> concat = Stream.concat(booleanExpressionStream, expressionStream);
+        return concat.collect(toList());
     }
 }

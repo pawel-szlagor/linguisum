@@ -1,4 +1,4 @@
-package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job;
+package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job;
 
 import java.util.List;
 

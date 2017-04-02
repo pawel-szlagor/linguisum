@@ -1,4 +1,4 @@
-package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.writer;
+package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.writer;
 
 import static org.apache.commons.math3.util.Precision.round;
 
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.tasklet.HolonCache;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.tasklet.HolonCache;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.Holon;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.repository.HolonRepository;
 

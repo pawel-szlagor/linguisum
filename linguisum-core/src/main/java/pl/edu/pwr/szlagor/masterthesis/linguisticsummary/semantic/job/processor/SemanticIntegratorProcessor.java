@@ -1,4 +1,4 @@
-package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.processor;
+package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.processor;
 
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
@@ -30,7 +30,7 @@ public class SemanticIntegratorProcessor implements ItemProcessor<Holon, Holon> 
         } else {
             item.setCardinality(fsnapshotRepository.count(item.getCumulatedPredicate()));
         }
-        if (counter % 10000 == 0) {
+        if (counter % 100 == 0) {
             System.out.println("przetworzono: " + counter);
         }
         counter++;

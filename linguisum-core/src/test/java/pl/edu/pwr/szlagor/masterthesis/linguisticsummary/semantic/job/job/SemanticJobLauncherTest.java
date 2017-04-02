@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.config.SemanticBatchConfiguration;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.config.SemanticBatchConfiguration;
 
 /**
  * Created by Pawel on 2017-02-09.

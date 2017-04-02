@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.mongodb.morphia.annotations.Entity;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Room;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.MediaType;
@@ -19,6 +20,7 @@ public class FMediaUsage {
     private MediaType mediaType;
     private Set<TrapezoidalMemGrade> fUsagePerMinute;
     private Map<TrapezoidalMemGrade, Double> fMembershipProb;
+    @Indexed
     private Room location;
 
     @java.beans.ConstructorProperties({ "mediaType", "fUsagePerMinute", "fMembershipProb", "location" })
@@ -129,7 +131,7 @@ public class FMediaUsage {
         }
 
         public String toString() {
-            return "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FMediaUsage.FMediaUsageBuilder(mediaType="
+            return "FMediaUsage.FMediaUsageBuilder(mediaType="
                     + this.mediaType + ", fUsagePerMinute=" + this.fUsagePerMinute + ", fMembershipProb=" + this.fMembershipProb
                     + ", location=" + this.location + ")";
         }

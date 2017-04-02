@@ -1,4 +1,4 @@
-package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.tasklet;
+package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.tasklet;
 
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.CategoryPredicateTypes.DEVICE_STATE;
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.CategoryPredicateTypes.HUMIDITY;
@@ -12,7 +12,6 @@ import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.busines
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.CategoryPredicateTypes.TEMP_OUT;
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.CategoryPredicateTypes.WIND_SPEED;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +24,6 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -70,7 +67,7 @@ public class HolonCreatorTasklet implements Tasklet {
     private final CategoryPredicateService windspeedPredicateService;
     private final CategoryPredicateService roomStatePredicateService;
     private Map<CategoryPredicateTypes, List<BooleanExpression>> mapOfPredicates = new HashMap<>();
-    private Integer maxItemsCount;
+    private final ProfilesCombinationsCache profilesCombinationsCache;
     private Random random = new Random();
 
     @Autowired
@@ -88,7 +85,8 @@ public class HolonCreatorTasklet implements Tasklet {
             @Qualifier(value = "roomStatePredicateService") CategoryPredicateService roomStatePredicateService,
             HolonCache holonCache,
             SnapshotRepository snapshotRepository,
-            MongoTemplate template) {
+            MongoTemplate template,
+            ProfilesCombinationsCache profilesCombinationsCache) {
         this.windspeedPredicateService = windspeedPredicateService;
         this.userPositionPredicateService = userPositionPredicateService;
         this.tempOutPredicateService = tempOutPredicateService;
@@ -104,32 +102,39 @@ public class HolonCreatorTasklet implements Tasklet {
         this.holonCache = holonCache;
         this.snapshotRepository = snapshotRepository;
         this.template = template;
+        this.profilesCombinationsCache = profilesCombinationsCache;
     }
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         initializePredicates();
-        Collections.shuffle(factors);
-		final List<CategoryPredicateTypes> subList = factors.subList(0, random.nextInt(2) + 1);
+        // Collections.shuffle(factors);
+        final List<List<CategoryPredicateTypes>> profilesCombinations = profilesCombinationsCache.getProfilesCombinations();
+        if (profilesCombinations.isEmpty()) {
+            System.out.println("Zakończono generacje kombinacji dla profilów.");
+            return RepeatStatus.FINISHED;
+        }
+        final List<CategoryPredicateTypes> combination = profilesCombinationsCache.getProfilesCombinations().remove(0);
         Holon root = Holon.builder().cardinality(snapshotRepository.count()).build();
-        generateHolonsWithPredicatesForLevel(subList, result, root, 0);
+        generateHolonsWithPredicatesForLevel(combination, root, 0);
         List<Holon> holonToSave = convertToEntites(root);
         while (holonToSave.size() > MAX_HOLONS) {
             root = Holon.builder().cardinality(root.getCardinality()).build();
-            generateHolonsWithPredicatesForLevel(subList.subList(0, subList.size() - 1), result, root, 0);
+            generateHolonsWithPredicatesForLevel(combination.subList(0, combination.size() - 1), root, 0);
             holonToSave = convertToEntites(root);
         }
         System.out.println("Stworzono: " + holonToSave.size() + " holonów");
         template.insert(holonToSave, Holon.class);
-        Query query = Query.query(Criteria.where("cardinality").lt(0.01d));
-        template.remove(query, Holon.class);
+        // Query query = Query.query(Criteria.where("cardinality").lt(0.01d));
+        // template.remove(query, Holon.class);
         holonCache.getRootHolons().clear();
         holonCache.getRootHolons().add(root);
         return RepeatStatus.FINISHED;
     }
 
     private void initializePredicates() {
-        // mapOfPredicates.put(DAY_PHASE, dayPhasePredicateService.createPossiblePredicates());
+        // mapOfPredicates.put(DAY_PHASE,
+        // dayPhasePredicateService.createPossiblePredicates());
         mapOfPredicates.put(DEVICE_STATE, deviceStatePredicateService.createPossiblePredicates());
         mapOfPredicates.put(HUMIDITY, humidityPredicateService.createPossiblePredicates());
         mapOfPredicates.put(MEDIA_USAGE, mediaUsagePredicateService.createPossiblePredicates());
@@ -143,16 +148,10 @@ public class HolonCreatorTasklet implements Tasklet {
         mapOfPredicates.put(ROOM_STATE, roomStatePredicateService.createPossiblePredicates());
     }
 
-    private void generateHolonsWithPredicatesForLevel(List<CategoryPredicateTypes> factors,
-            CategoryPredicateTypes result,
-            Holon root,
-            int level) {
+    private void generateHolonsWithPredicatesForLevel(List<CategoryPredicateTypes> factors, Holon root, int level) {
         if (level < factors.size()) {
             root.addChildren(mapOfPredicates.get(factors.get(level)), factors.get(level));
-            root.getChildren().forEach(c -> generateHolonsWithPredicatesForLevel(factors, result, c, level + 1));
-            // root.addChildren(mapOfPredicates.get(result), result);
-        } else if (level == factors.size()) {
-            root.addChildren(mapOfPredicates.get(result), result);
+            root.getChildren().forEach(c -> generateHolonsWithPredicatesForLevel(factors, c, level + 1));
         }
     }
 
@@ -169,7 +168,4 @@ public class HolonCreatorTasklet implements Tasklet {
         }
     }
 
-    public void setMaxItemsCount(Integer maxItemsCount) {
-        this.maxItemsCount = maxItemsCount;
-    }
 }

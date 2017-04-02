@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.reader;
+package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.reader;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;

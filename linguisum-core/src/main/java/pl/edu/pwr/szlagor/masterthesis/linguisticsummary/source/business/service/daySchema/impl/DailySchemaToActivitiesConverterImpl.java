@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
+
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.MediaType;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.RoomType;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.ActivityLabelSourceDto;
@@ -32,6 +33,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.P
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.RoomSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.activity.SampleActivities;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.daySchema.DailySchemaToActivitiesConverter;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.desiredtemp.DesiredTempSourceService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.service.weatherconditions.WeatherConditionsService;
 
 /**
@@ -48,10 +50,13 @@ public class DailySchemaToActivitiesConverterImpl implements DailySchemaToActivi
     private static final double GAS_EFF = 0.1;
 
     private final WeatherConditionsService weatherConditionsService;
+    private final DesiredTempSourceService desiredTempSourceService;
 
     @Autowired
-    public DailySchemaToActivitiesConverterImpl(WeatherConditionsService weatherConditionsService) {
+    public DailySchemaToActivitiesConverterImpl(WeatherConditionsService weatherConditionsService,
+            DesiredTempSourceService desiredTempSourceService) {
         this.weatherConditionsService = weatherConditionsService;
+        this.desiredTempSourceService = desiredTempSourceService;
     }
 
     @Override

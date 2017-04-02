@@ -1,4 +1,4 @@
-package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.config;
+package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.config;
 
 import java.sql.Date;
 import java.time.LocalDateTime;
@@ -50,12 +50,14 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.config.BasicMo
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.config.BasicSemanticConfig;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.processor.SemanticIntegratorProcessor;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.reader.SemanticIntegratorReader;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.reader.SemanticRepositoryItemReader;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.tasklet.HolonCache;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.tasklet.HolonCreatorTasklet;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.integrator.integrator.job.writer.SemanticIntegratorWriter;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.processor.SemanticIntegratorProcessor;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.reader.SemanticIntegratorReader;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.reader.SemanticRepositoryItemReader;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.tasklet.HolonCache;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.tasklet.HolonCreatorTasklet;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.tasklet.ProfileToPredicatesTransformerTasklet;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.tasklet.ProfilesCombinationsCache;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.writer.SemanticIntegratorWriter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.Holon;
 
 /**
@@ -142,14 +144,15 @@ public class SemanticBatchConfiguration {
 
     // tag::jobstep[]
     @Bean
-    public Job semanticExpressionJob(Step semanticExpressionCreator, Step semanticExpression) {
+    public Job semanticExpressionJob(Step semanticExpressionCreator, Step semanticExpression, Step profilesPredicatesCreator) {
         return jobBuilderFactory.get("semanticExpressionJob")
                                 .incrementer(new RunIdIncrementer())
-                                .start(semanticExpressionCreator)
+                                .start(profilesPredicatesCreator)
+                                .next(semanticExpressionCreator)
                                 .next(semanticExpression)
                                 .on("REPEAT")
                                 .to(semanticExpressionCreator)
-                                .on("FINISHED")
+                                .on("COMPLETED")
                                 .end()
                                 .build()
                                 .build();
@@ -174,20 +177,29 @@ public class SemanticBatchConfiguration {
                                  .processor(processor)
                                  .writer(writer)
                                  .taskExecutor(semanticTaskExecutor())
-                                 .throttleLimit(1)
+                                 .throttleLimit(2)
                                  .build();
     }
 
     @Bean
     public Step semanticExpressionCreator(HolonCreatorTasklet holonCreatorTasklet) {
-        holonCreatorTasklet.setMaxItemsCount(MAX_ITEM_COUNT);
         return stepBuilderFactory.get("semanticExpressionCreator").tasklet(holonCreatorTasklet).build();
+    }
+
+    @Bean
+    public Step profilesPredicatesCreator(ProfileToPredicatesTransformerTasklet profileToPredicatesTransformerTasklet) {
+        return stepBuilderFactory.get("profileToPredicatesTransformerTasklet").tasklet(profileToPredicatesTransformerTasklet).build();
     }
 
     // end::jobstep[]
     @Bean
     public HolonCache holonCache() {
         return new HolonCache();
+    }
+
+    @Bean
+    public ProfilesCombinationsCache profilesCombinationsCache() {
+        return new ProfilesCombinationsCache();
     }
 
     @Bean
