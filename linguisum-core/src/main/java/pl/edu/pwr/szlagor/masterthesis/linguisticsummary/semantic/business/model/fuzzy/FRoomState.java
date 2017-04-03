@@ -19,7 +19,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.Tr
 public class FRoomState {
     @Indexed
     private Room room;
-    @Indexed(name = "persons2")
+    @Indexed
     private Person person;
     private Set<TrapezoidalMemGrade> fDesiredTemp;
     private Map<TrapezoidalMemGrade, Double> fMembershipProb;

@@ -54,7 +54,7 @@ public class SemanticIntegratorWriter implements ItemWriter<Holon>, StepExecutio
             Update updateRelevance = Update.update("relevance", h.getRelevance());
             template.upsert(query, update, Holon.class);
             template.upsert(query, updateRelevance, Holon.class);
-            if (counter % 10000 == 0) {
+            if (counter % 100 == 0) {
                 System.out.println("Update: " + counter);
             }
             counter++;

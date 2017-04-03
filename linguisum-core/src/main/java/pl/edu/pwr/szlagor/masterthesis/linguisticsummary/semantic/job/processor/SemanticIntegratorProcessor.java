@@ -25,8 +25,13 @@ public class SemanticIntegratorProcessor implements ItemProcessor<Holon, Holon> 
 
     @Override
     public Holon process(Holon item) throws Exception {
+        if (item.getCardinality() != null && item.getCardinality() == 0) {
+            return null;
+        }
         if (item.getParent() != null && item.getParent().getCardinality() != null && item.getParent().getCardinality() == 0) {
             propagateCardToChildren(item);
+        } else if (item.getCardinality() == null && item.getParent().getCardinality() == null) {
+            countCardParent(item);
         } else {
             item.setCardinality(fsnapshotRepository.count(item.getCumulatedPredicate()));
         }
@@ -35,6 +40,13 @@ public class SemanticIntegratorProcessor implements ItemProcessor<Holon, Holon> 
         }
         counter++;
         return item;
+    }
+
+    private void countCardParent(Holon item) {
+        if (item.getCardinality() == null && item.getParent().getCardinality() == null) {
+            countCardParent(item.getParent());
+        }
+        item.setCardinality(fsnapshotRepository.count(item.getCumulatedPredicate()));
     }
 
     private void propagateCardToChildren(Holon item) {

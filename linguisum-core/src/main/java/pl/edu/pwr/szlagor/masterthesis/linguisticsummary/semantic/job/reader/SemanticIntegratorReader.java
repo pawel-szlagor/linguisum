@@ -25,7 +25,8 @@ public class SemanticIntegratorReader implements ItemReader<Holon>, Initializing
 
     private final HolonCache holonCache;
     private Integer holonPosition;
-    private final List<Holon> holonList;
+    private List<Holon> holonList;
+    private long counter = 0L;
 
     @Autowired
     public SemanticIntegratorReader(HolonCache holonCache) {
@@ -34,12 +35,8 @@ public class SemanticIntegratorReader implements ItemReader<Holon>, Initializing
             holonList = convertToEntites(holonCache.getRootHolons().get(holonPosition)).stream().sorted(comparing(Holon::getLevel)).collect(
                     toList());
         } else {
-            holonList = holonCache.getRootHolons()
-                                  .stream()
-                                  .map(this::convertToEntites)
-                                  .flatMap(List::stream)
-                                  .sorted(comparing(Holon::getLevel))
-                                  .collect(toList());
+            holonList = convertToEntites(holonCache.getRootHolons().remove(0));
+            holonList.sort(comparing(Holon::getLevel));
         }
     }
 
@@ -47,8 +44,14 @@ public class SemanticIntegratorReader implements ItemReader<Holon>, Initializing
     public Holon read() throws Exception {
         if (!holonList.isEmpty()) {
             return holonList.remove(0);
+        } else if (!holonCache.getRootHolons().isEmpty()) {
+            holonList = convertToEntites(holonCache.getRootHolons().remove(0));
+            holonList.sort(comparing(Holon::getLevel));
+            System.out.println("czytam kombinację: " + counter++);
+            return holonList.remove(0);
+        } else {
+            return null;
         }
-        return null;
     }
 
     private List<Holon> convertToEntites(Holon root) {

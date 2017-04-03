@@ -1,5 +1,6 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.tasklet;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,6 +45,7 @@ public class ProfileToPredicatesTransformerTasklet implements Tasklet {
         final List<List<CategoryPredicateTypes>> collect = factorsComb.stream().filter(s -> !s.isEmpty()).map(Lists::newArrayList).collect(
                 Collectors.toList());
         collect.forEach(f -> f.add(p.getResultFactor()));
+        Collections.shuffle(collect);
         return collect;
     }
 }

@@ -24,6 +24,8 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -42,14 +44,14 @@ public class HolonCreatorTasklet implements Tasklet {
     private static final int MAX_HOLONS = 500000;
     private final HolonCache holonCache;
     private final List<CategoryPredicateTypes> factors = Lists.newArrayList(PERSON_STATE,
-			// TEMP_OUT,
-			// DEVICE_STATE,
-			// SUNLIGHT,
-			// WIND_SPEED,
-			// PRECIPITATION_TYPE,
-			// PRESSURE,
-			// PRECIPITATION,
-			// PRESSURE,
+            // TEMP_OUT,
+            // DEVICE_STATE,
+            // SUNLIGHT,
+            // WIND_SPEED,
+            // PRECIPITATION_TYPE,
+            // PRESSURE,
+            // PRECIPITATION,
+            // PRESSURE,
             HUMIDITY);
     private final CategoryPredicateTypes result = ROOM_STATE;
     private final SnapshotRepository snapshotRepository;
@@ -125,8 +127,8 @@ public class HolonCreatorTasklet implements Tasklet {
         }
         System.out.println("Stworzono: " + holonToSave.size() + " holonów");
         template.insert(holonToSave, Holon.class);
-        // Query query = Query.query(Criteria.where("cardinality").lt(0.01d));
-        // template.remove(query, Holon.class);
+        Query query = Query.query(Criteria.where("cardinality").lt(0.01d));
+        template.remove(query, Holon.class);
         holonCache.getRootHolons().clear();
         holonCache.getRootHolons().add(root);
         return RepeatStatus.FINISHED;

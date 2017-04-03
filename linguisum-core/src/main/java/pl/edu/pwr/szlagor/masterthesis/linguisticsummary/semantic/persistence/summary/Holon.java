@@ -16,7 +16,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import org.bson.types.ObjectId;
-import org.hibernate.search.annotations.IndexedEmbedded;
 import org.mongodb.morphia.annotations.Entity;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -55,9 +54,7 @@ public class Holon {
     private List<CategoryPredicateTypes> cumulatedPredicatesTypes;
     private Long cardinality;
     private double relevance;
-    // @Transient
     @Embedded
-    @IndexedEmbedded
     private Holon parent;
     @Transient
     private List<Holon> children;

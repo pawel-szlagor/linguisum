@@ -1,8 +1,5 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.config;
 
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.tasklet.HolonCache;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.tasklet.ProfilesCombinationsCache;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.Holon;
 
 /**
@@ -23,29 +20,23 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.su
 public class RangePartition implements Partitioner {
     private final SnapshotRepository repository;
     private Integer gridSize;
-    private HolonCache holonCache;
+    private ProfilesCombinationsCache profilesCombinationsCache;
 
     @Autowired
-    public RangePartition(SnapshotRepository repository, HolonCache holonCache) {
+    public RangePartition(SnapshotRepository repository, ProfilesCombinationsCache profilesCombinationsCache) {
         this.repository = repository;
-        this.holonCache = holonCache;
+        this.profilesCombinationsCache = profilesCombinationsCache;
     }
 
     @Override
     public Map<String, ExecutionContext> partition(int gridSize) {
 
         Map<String, ExecutionContext> result = new HashMap<>();
-        final int totalSize = holonCache.getRootHolons()
-                                        .stream()
-                                        .map(this::convertToEntites)
-                                        .flatMap(List::stream)
-                                        .sorted(comparing(Holon::getLevel).reversed())
-                                        .collect(toList())
-                                        .size();
+        final int totalSize = profilesCombinationsCache.getProfilesCombinations().size();
 
-        long range = totalSize / gridSize;
-        long startIndex = 0;
-        long endIndex = range;
+        int range = totalSize / gridSize;
+        int startIndex = 0;
+        int endIndex = range;
 
         for (int i = 1; i <= gridSize; i++) {
             ExecutionContext value = new ExecutionContext();
@@ -54,8 +45,8 @@ public class RangePartition implements Partitioner {
             System.out.println("startIndex : " + startIndex);
             System.out.println("endIndex : " + endIndex);
 
-            value.putLong("startIndex", startIndex);
-            value.putLong("endIndex", endIndex);
+            value.putInt("startIndex", startIndex);
+            value.putInt("endIndex", endIndex);
 
             // give each thread a name, thread 1,2,3
             value.putString("name", "Thread" + i);

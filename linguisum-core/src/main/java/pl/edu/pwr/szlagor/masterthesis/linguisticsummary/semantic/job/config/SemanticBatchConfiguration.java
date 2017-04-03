@@ -72,8 +72,8 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.su
 public class SemanticBatchConfiguration {
     private static final Integer MAX_ITEM_COUNT = 1000000;
     private static final int PAGE_SIZE = 10000;
-    private static final int GRID_SIZE = 1;
-    private static final int CHUNK_SIZE = 1000;
+    private static final int GRID_SIZE = 20;
+    private static final int CHUNK_SIZE = 100;
     @Autowired
     public JobBuilderFactory jobBuilderFactory;
 
@@ -247,7 +247,7 @@ public class SemanticBatchConfiguration {
 
     @Bean
     public RangePartition partitioner(SnapshotRepository repository) {
-        final RangePartition rangePartition = new RangePartition(repository, holonCache());
+        final RangePartition rangePartition = new RangePartition(repository, profilesCombinationsCache());
         // rangePartition.setMaxItemCount(MAX_ITEM_COUNT);
         rangePartition.setGridSize(GRID_SIZE);
         return rangePartition;

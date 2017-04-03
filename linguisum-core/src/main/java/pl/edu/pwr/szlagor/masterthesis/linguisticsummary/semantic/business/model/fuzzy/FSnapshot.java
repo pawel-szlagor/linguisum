@@ -62,7 +62,7 @@ public class FSnapshot {
     @ElementCollection
     private Set<DeviceState> deviceStates;
     @Singular
-    @IndexedEmbedded(includeEmbeddedObjectId = true, prefix = "_")
+    @IndexedEmbedded
     @Cascade(CascadeType.ALL)
     @ElementCollection
     private Set<FRoomState> roomStates;
