@@ -3,7 +3,6 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model;
 import javax.persistence.Embeddable;
 
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 
 /**
  * Created by Pawel on 2017-01-16.
@@ -12,7 +11,6 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 public class DeviceState {
 
     @Indexed
-    @DBRef
     private Device device;
     private boolean isOn;
 

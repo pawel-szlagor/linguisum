@@ -45,6 +45,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job.reader.I
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.integrator.job.writer.IntegratorWriter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.config.BasicSemanticConfig;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.tasklet.HolonCache;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.tasklet.ProfilesCombinationsCache;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.business.model.SnapshotSourceDto;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.source.config.BasicMySQLConfig;
 
@@ -151,5 +152,10 @@ public class BatchConfiguration {
     @Bean
     public HolonCache holonCache() {
         return new HolonCache();
+    }
+
+    @Bean
+    public ProfilesCombinationsCache profilesCombinationsCache() {
+        return new ProfilesCombinationsCache();
     }
 }

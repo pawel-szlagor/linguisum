@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.mongodb.morphia.annotations.Entity;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Person;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Room;
@@ -18,9 +19,13 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.Tr
 @Entity
 public class FRoomState {
     @Indexed
+    @DBRef
     private Room room;
     @Indexed
+    @DBRef
     private Person person;
+    @Indexed
+    @DBRef
     private Set<TrapezoidalMemGrade> fDesiredTemp;
     private Map<TrapezoidalMemGrade, Double> fMembershipProb;
 
