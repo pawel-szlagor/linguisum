@@ -26,7 +26,7 @@ public class SemanticIntegratorProcessor implements ItemProcessor<Holon, Holon> 
     @Override
     public Holon process(Holon item) throws Exception {
         if (item.getCardinality() != null && item.getCardinality() == 0) {
-            return null;
+            return item;
         }
         if (item.getParent() != null && item.getParent().getCardinality() != null && item.getParent().getCardinality() == 0) {
             propagateCardToChildren(item);

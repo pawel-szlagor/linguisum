@@ -2,8 +2,6 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.tasklet;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -13,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.CategoryPredicateTypes;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.SummaryProfile;
@@ -41,11 +38,16 @@ public class ProfileToPredicatesTransformerTasklet implements Tasklet {
     }
 
     private List<List<CategoryPredicateTypes>> createCombination(SummaryProfile p) {
-        final Set<Set<CategoryPredicateTypes>> factorsComb = Sets.powerSet(p.getSummaryfactors());
-        final List<List<CategoryPredicateTypes>> collect = factorsComb.stream().filter(s -> !s.isEmpty()).map(Lists::newArrayList).collect(
-                Collectors.toList());
-        collect.forEach(f -> f.add(p.getResultFactor()));
-        Collections.shuffle(collect);
-        return collect;
+        /*
+         * final Set<Set<CategoryPredicateTypes>> factorsComb = Sets.powerSet(p.getSummaryfactors());
+         * final List<List<CategoryPredicateTypes>> collect = factorsComb.stream().filter(s ->
+         * !s.isEmpty()).map(Lists::newArrayList).collect(
+         * Collectors.toList());
+         * collect.forEach(f -> f.add(p.getResultFactor()));
+         * Collections.shuffle(collect);
+         */
+        List<CategoryPredicateTypes> collect = Lists.newArrayList(p.getSummaryfactors());
+        collect.add(p.getResultFactor());
+        return Collections.singletonList(collect);
     }
 }
