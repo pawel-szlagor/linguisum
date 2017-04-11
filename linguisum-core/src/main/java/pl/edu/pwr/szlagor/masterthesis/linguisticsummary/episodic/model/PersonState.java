@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 @Embeddable
 public class PersonState {
 
-    @Indexed
     @DBRef
     private Person user;
 

@@ -1,6 +1,6 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate;
 
-import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.QFSnapshot.fSnapshot;
+import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QSnapshot.snapshot;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,10 +35,10 @@ public class UserPositionPredicateServiceImpl implements CategoryPredicateServic
         final List<BooleanExpression> booleanExpressions = personRepository.findAll()
                                                                            .stream()
                                                                            .flatMap(p -> roomRepository.findAll().stream().map(
-                                                                                   r -> fSnapshot.personStates.contains(
+                                                                                   r -> snapshot.personStates.contains(
                                                                                            new PersonState(p, r))))
                                                                            .collect(Collectors.toList());
-        booleanExpressions.add(fSnapshot.roomStates.isEmpty());
+        booleanExpressions.add(snapshot.roomStates.isEmpty());
         return booleanExpressions;
     }
 }

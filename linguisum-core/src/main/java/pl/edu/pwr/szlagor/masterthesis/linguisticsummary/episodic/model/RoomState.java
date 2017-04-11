@@ -12,14 +12,12 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 @Entity
 @Embeddable
 public class RoomState {
-    @Indexed
     @DBRef
     private Room room;
-    @Indexed
     @DBRef
     private Person person;
     @Indexed
-    private double desiredTemp;
+    private Double desiredTemp;
 
     @java.beans.ConstructorProperties({ "room", "person", "desiredTemp" })
     public RoomState(Room room, Person person, double desiredTemp) {

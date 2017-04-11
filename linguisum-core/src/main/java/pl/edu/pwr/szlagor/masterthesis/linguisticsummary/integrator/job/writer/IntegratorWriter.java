@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.converter.PSnapshotConverter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FSnapshotConverter;
 
 /**
  * Created by Paweł on 2017-02-11.
@@ -20,10 +20,10 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model
 @Component
 public class IntegratorWriter implements ItemWriter<Snapshot> {
     private final MongoTemplate template;
-    private final FSnapshotConverter converter;
+    private final PSnapshotConverter converter;
 
     @Autowired
-    public IntegratorWriter(MongoTemplate template, FSnapshotConverter converter) {
+    public IntegratorWriter(MongoTemplate template, PSnapshotConverter converter) {
         this.template = template;
         this.converter = converter;
     }
@@ -31,6 +31,6 @@ public class IntegratorWriter implements ItemWriter<Snapshot> {
     @Override
     public void write(List<? extends Snapshot> items) throws Exception {
         template.insert(items, "snapshot");
-        template.insert(items.stream().map(converter::convert).collect(toList()), "fSnapshot");
+        template.insert(items.stream().map(converter::convert).collect(toList()), "pSnapshot");
     }
 }

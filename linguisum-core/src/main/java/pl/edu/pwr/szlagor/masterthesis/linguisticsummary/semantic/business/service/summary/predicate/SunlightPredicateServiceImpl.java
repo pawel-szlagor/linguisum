@@ -1,8 +1,8 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate;
 
 import static java.util.stream.Collectors.toList;
+import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QPSnapshot.pSnapshot;
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.TrapezoidalMemGradeTypes.SUNLIGHT;
-import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.QFSnapshot.fSnapshot;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class SunlightPredicateServiceImpl implements CategoryPredicateService {
     public List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates() {
         return memGradeService.findByProperty(SUNLIGHT.name())
                               .stream()
-                              .map(fSnapshot.weatherConditions.fSunlightEmission::contains)
+                              .map(l -> pSnapshot.weatherConditions.sunlightEmission.between(l.getLowerBoundary(), l.getUpperBoundary()))
                               .collect(toList());
     }
 }

@@ -30,6 +30,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.RoomStat
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.MediaType;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.DeviceRepository;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.FSnapshotRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.PersonRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.RoomRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FSnapshot;
@@ -56,6 +57,8 @@ public class SemanticIntegratorProcessorTest {
     private MemGradeService memGradeService;
     @Autowired
     private HolonRepository holonRepository;
+    @Autowired
+    private FSnapshotRepository fSnapshotRepository;
 
     @Test
     public void shouldFilterRoomStatesCorrectly() {

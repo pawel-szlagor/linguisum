@@ -4,7 +4,7 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.serv
  * Created by Pawel on 2017-03-18.
  */
 public enum CategoryPredicateTypes {
-    // DAY_PHASE("day phase"),
+    DAY_PHASE("day phase"),
     HUMIDITY("humidity"),
     PRECIPITATION("precipitation"),
     PRECIPITATION_TYPE("precipitation_type"),

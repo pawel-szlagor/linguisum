@@ -7,6 +7,7 @@ import java.util.List;
 import javax.persistence.Embeddable;
 
 import org.mongodb.morphia.annotations.Entity;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.WeatherEvent;
 
@@ -17,13 +18,18 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.We
 @Embeddable
 public class EnvironmentConditions {
 
+    @Indexed
     private double tempOut;
     private double windchill;
+    @Indexed
     private double humidity;
+    @Indexed
     private int pressure;
+    @Indexed
     private double windSpeed;
     private double precipitation;
     private List<WeatherEvent> weatherEvents;
+    @Indexed
     private double sunlightEmission;
 
     @java.beans.ConstructorProperties({ "tempOut", "windchill", "humidity", "pressure", "windSpeed", "precipitation", "weatherEvents",

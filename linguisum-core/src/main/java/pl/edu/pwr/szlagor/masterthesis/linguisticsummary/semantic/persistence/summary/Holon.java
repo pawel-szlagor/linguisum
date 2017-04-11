@@ -8,7 +8,6 @@ import java.util.stream.Stream;
 
 import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
@@ -54,7 +53,6 @@ public class Holon {
     private List<CategoryPredicateTypes> cumulatedPredicatesTypes;
     private Long cardinality;
     private double relevance;
-    @Embedded
     private Holon parent;
     @Transient
     private List<Holon> children;

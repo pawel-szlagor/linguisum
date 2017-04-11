@@ -2,8 +2,8 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.serv
 
 import static java.time.LocalTime.ofSecondOfDay;
 import static java.util.stream.Collectors.toList;
+import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QPSnapshot.pSnapshot;
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.TrapezoidalMemGradeTypes.DAY_PHASE;
-import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.QFSnapshot.fSnapshot;
 
 import java.util.List;
 
@@ -30,8 +30,14 @@ public class DayPhasePredicateServiceImpl implements CategoryPredicateService {
     public List<BooleanExpression> createPossiblePredicates() {
         return memGradeService.findByProperty(DAY_PHASE.name())
                               .stream()
-                              .map(p -> fSnapshot.time.between(ofSecondOfDay((long) p.getLowerBoundary()),
-                                      ofSecondOfDay((long) p.getUpperBoundary())))
+                              .map(p -> (pSnapshot.time.hour().gt(ofSecondOfDay((long) p.getLowerBoundary()).getHour()).or(
+                                      pSnapshot.time.hour().goe(ofSecondOfDay((long) p.getLowerBoundary()).getHour()).and(
+                                              pSnapshot.time.minute().goe(ofSecondOfDay((long) p.getLowerBoundary()).getMinute())))).and(
+                                                      (pSnapshot.time.hour().lt(ofSecondOfDay((long) p.getLowerBoundary()).getHour())).or(
+                                                              pSnapshot.time.hour()
+                                                                            .loe(ofSecondOfDay((long) p.getLowerBoundary()).getHour())
+                                                                            .and(pSnapshot.time.minute().loe(ofSecondOfDay(
+                                                                                    (long) p.getLowerBoundary()).getMinute())))))
                               .collect(toList());
     }
 }

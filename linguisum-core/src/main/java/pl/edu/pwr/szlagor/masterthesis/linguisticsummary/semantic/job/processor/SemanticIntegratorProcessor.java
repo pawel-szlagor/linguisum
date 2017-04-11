@@ -5,7 +5,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.FSnapshotRepository;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.PSnapshotRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.Holon;
 
 /**
@@ -15,12 +15,12 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.su
 @Component
 public class SemanticIntegratorProcessor implements ItemProcessor<Holon, Holon> {
 
-    private final FSnapshotRepository fsnapshotRepository;
+    private final PSnapshotRepository fsnapshotRepository;
     private long counter = 0L;
 
     @Autowired
-    public SemanticIntegratorProcessor(FSnapshotRepository fsnapshotRepository) {
-        this.fsnapshotRepository = fsnapshotRepository;
+    public SemanticIntegratorProcessor(PSnapshotRepository pSnapshotRepository) {
+        this.fsnapshotRepository = pSnapshotRepository;
     }
 
     @Override
@@ -32,7 +32,7 @@ public class SemanticIntegratorProcessor implements ItemProcessor<Holon, Holon> 
             propagateCardToChildren(item);
         } else if (item.getCardinality() == null && item.getParent().getCardinality() == null) {
             countCardParent(item);
-        } else {
+        } else if (item.getCardinality() == null) {
             item.setCardinality(fsnapshotRepository.count(item.getCumulatedPredicate()));
         }
         if (counter % 100 == 0) {

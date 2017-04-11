@@ -1,8 +1,8 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate;
 
 import static java.util.stream.Collectors.toList;
+import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QPSnapshot.pSnapshot;
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.TrapezoidalMemGradeTypes.PRESSURE;
-import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.QFSnapshot.fSnapshot;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class PressurePredicateServiceImpl implements CategoryPredicateService {
     public List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates() {
         return memGradeService.findByProperty(PRESSURE.name())
                               .stream()
-                              .map(fSnapshot.weatherConditions.fPressure::contains)
+                              .map(l -> pSnapshot.weatherConditions.pressure.between(l.getLowerBoundary(), l.getUpperBoundary()))
                               .collect(toList());
     }
 }

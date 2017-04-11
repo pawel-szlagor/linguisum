@@ -22,6 +22,7 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.MongoItemReader;
@@ -47,9 +48,12 @@ import com.google.common.collect.ImmutableMap;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.common.job.StepExecutionListener;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.config.BasicMongoConfig;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.converter.PSnapshotConverter;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.PSnapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Snapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.config.BasicSemanticConfig;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.processor.PSnapshotIntegratorProcessor;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.processor.SemanticIntegratorProcessor;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.reader.SemanticIntegratorReader;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.reader.SemanticRepositoryItemReader;
@@ -120,6 +124,12 @@ public class SemanticBatchConfiguration {
 
     @Bean
     @StepScope
+    public ItemProcessor<Snapshot, PSnapshot> pSnapshotItemProcessor(PSnapshotConverter pSnapshotConverter) {
+        return new PSnapshotIntegratorProcessor(pSnapshotConverter);
+    }
+
+    @Bean
+    @StepScope
     public ItemReader<Snapshot> partitionedItemReader(@Value("#{stepExecutionContext[startPage]}") int startPage,
             @Value("#{stepExecutionContext[endPage]}") int endPage) {
         SemanticRepositoryItemReader<Snapshot> itemReader = new SemanticRepositoryItemReader<>();
@@ -137,6 +147,14 @@ public class SemanticBatchConfiguration {
         MongoItemWriter<Holon> writer = new MongoItemWriter<>();
         writer.setTemplate(mongoTemplate);
         writer.setCollection("holon");
+        return writer;
+    }
+
+    @Bean
+    public ItemWriter<PSnapshot> pSnapshotWriter() {
+        MongoItemWriter<PSnapshot> writer = new MongoItemWriter<>();
+        writer.setTemplate(mongoTemplate);
+        writer.setCollection("psnapshot");
         return writer;
     }
 
@@ -158,6 +176,14 @@ public class SemanticBatchConfiguration {
                                 .build();
     }
 
+    /*
+     * @Bean
+     * public Job semanticExpressionJob(Step pSnapshotImport) {
+     * return jobBuilderFactory.get("pSnapshotImportJob").incrementer(new
+     * RunIdIncrementer()).start(pSnapshotImport).build();
+     * }
+     */
+
     @Bean
     public Step masterPartionerStep(StepExecutionListener stepExecutionListener, SnapshotRepository repository) {
         return stepBuilderFactory.get("masterPartionerStep")
@@ -178,6 +204,18 @@ public class SemanticBatchConfiguration {
                                  .writer(writer)
                                  .taskExecutor(semanticTaskExecutor())
                                  .throttleLimit(2)
+                                 .build();
+    }
+
+    @Bean
+    public Step pSnapshotImport(ItemReader<? extends Snapshot> pageableReader,
+            ItemWriter<? super PSnapshot> pSnapshotWriter,
+            ItemProcessor<? super Snapshot, ? extends PSnapshot> pSnapshotItemProcessor) {
+        return stepBuilderFactory.get("pSnapshotImport")
+                                 .<Snapshot, PSnapshot> chunk(1000)
+                                 .reader(pageableReader)
+                                 .processor(pSnapshotItemProcessor)
+                                 .writer(pSnapshotWriter)
                                  .build();
     }
 

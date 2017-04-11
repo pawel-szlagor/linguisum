@@ -2,7 +2,7 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.serv
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
-import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.QFSnapshot.fSnapshot;
+import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QSnapshot.snapshot;
 
 import java.util.List;
 
@@ -21,8 +21,9 @@ public class PrecipitationTypePredicateServiceImpl implements CategoryPredicateS
     @Override
     public List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates() {
 		final List<BooleanExpression> expressions = stream(WeatherEvent.values())
-				.map(fSnapshot.weatherConditions.weatherEvents::contains).collect(toList());
-		expressions.add(fSnapshot.weatherConditions.weatherEvents.isEmpty());
+                                                                                 .map(snapshot.weatherConditions.weatherEvents::contains)
+                                                                                 .collect(toList());
+        expressions.add(snapshot.weatherConditions.weatherEvents.isEmpty());
 		return expressions;
     }
 }

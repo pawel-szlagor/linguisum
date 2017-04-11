@@ -1,8 +1,8 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate;
 
 import static java.util.stream.Collectors.toList;
+import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QSnapshot.snapshot;
 import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.TrapezoidalMemGradeTypes.HUMIDITY;
-import static pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.QFSnapshot.fSnapshot;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class HumidityPredicateServiceImpl implements CategoryPredicateService {
     public List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates() {
         return memGradeService.findByProperty(HUMIDITY.name())
                               .stream()
-                              .map(fSnapshot.weatherConditions.fHumidity::contains)
+                              .map(l -> snapshot.weatherConditions.humidity.between(l.getLowerBoundary(), l.getUpperBoundary()))
                               .collect(toList());
     }
 }

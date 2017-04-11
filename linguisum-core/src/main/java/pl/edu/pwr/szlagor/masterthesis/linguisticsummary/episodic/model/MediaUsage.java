@@ -3,6 +3,7 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model;
 import javax.persistence.Embeddable;
 
 import org.mongodb.morphia.annotations.Entity;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.MediaType;
@@ -14,6 +15,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums.Me
 @Entity
 public class MediaUsage {
     private MediaType mediaType;
+    @Indexed
     private double usagePerMinute;
     @DBRef(db = "room")
     private Room location;
