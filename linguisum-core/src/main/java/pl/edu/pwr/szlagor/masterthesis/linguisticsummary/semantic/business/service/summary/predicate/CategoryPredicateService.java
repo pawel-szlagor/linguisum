@@ -6,5 +6,5 @@ import java.util.List;
  * Created by Pawel on 2017-03-17.
  */
 public interface CategoryPredicateService {
-    List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates();
+    List<Predicate> createPossiblePredicates();
 }

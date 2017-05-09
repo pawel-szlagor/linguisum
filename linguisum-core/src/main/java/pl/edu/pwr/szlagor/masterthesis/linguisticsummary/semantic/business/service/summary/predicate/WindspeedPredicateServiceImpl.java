@@ -24,10 +24,16 @@ public class WindspeedPredicateServiceImpl implements CategoryPredicateService {
     }
 
     @Override
-    public List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates() {
+    public List<Predicate> createPossiblePredicates() {
         return memGradeService.findByProperty(WIND_SPEED.name())
                               .stream()
-                              .map(l -> pSnapshot.weatherConditions.windSpeed.between(l.getLowerBoundary(), l.getUpperBoundary()))
+                              .map(l -> Predicate.builder()
+                                                 .booleanExpression(pSnapshot.weatherConditions.windSpeed.between(l.getLowerBoundary(),
+                                                         l.getUpperBoundary()))
+                                                 .verb("jest")
+                                                 .linguisticVariable("na zewnątrz")
+                                                 .label(l.getDescription())
+                                                 .build())
                               .collect(toList());
     }
 }

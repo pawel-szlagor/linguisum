@@ -13,5 +13,11 @@
             eternal="false"
             timeToIdleSeconds="0"
             timeToLiveSeconds="0"/>
+    <cache
+            name="label"
+            maxElementsInMemory="20"
+            eternal="false"
+            timeToIdleSeconds="0"
+            timeToLiveSeconds="0"/>
 
 </ehcache>

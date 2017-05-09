@@ -36,6 +36,7 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.rep
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.FSnapshot;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.MemGradeService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.QFSnapshot;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.Predicate;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.config.SemanticBatchConfiguration;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.Holon;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.repository.HolonRepository;
@@ -75,7 +76,7 @@ public class SemanticIntegratorProcessorTest {
         final BooleanExpression expression = snapshot.roomStates.contains(
                 new RoomState(roomRepository.findOne(1L), personRepository.findOne(1L), 20.0));
         final List<Snapshot> filtered = roomStates.stream().filter(GuavaHelpers.wrap(expression)::apply).collect(toList());
-        final Holon holon = Holon.builder().cardinality(123L).predicate(expression).build();
+        final Holon holon = Holon.builder().cardinality(123L).predicate(Predicate.builder().booleanExpression(expression).build()).build();
         holonRepository.save(holon);
         final Holon one = holonRepository.findOne(holon.get_id());
         // then

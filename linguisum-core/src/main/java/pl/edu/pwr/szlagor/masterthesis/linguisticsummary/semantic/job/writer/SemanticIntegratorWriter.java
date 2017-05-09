@@ -19,7 +19,9 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.quantificator.QuantificatorLinguisticService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.tasklet.HolonCache;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.ConjuctionsSuperior;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.Holon;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.repository.HolonRepository;
 
@@ -35,13 +37,18 @@ public class SemanticIntegratorWriter implements ItemWriter<Holon>, StepExecutio
     private HolonCache holonCache;
     private StepExecution stepExecution;
     private final HolonRepository repository;
+    private final QuantificatorLinguisticService quantificatorLinguisticService;
     private long counter = 0L;
 
     @Autowired
-    public SemanticIntegratorWriter(MongoTemplate template, HolonCache holonCache, HolonRepository repository) {
+    public SemanticIntegratorWriter(MongoTemplate template,
+            HolonCache holonCache,
+            HolonRepository repository,
+            QuantificatorLinguisticService quantificatorLinguisticService) {
         this.template = template;
         this.holonCache = holonCache;
         this.repository = repository;
+        this.quantificatorLinguisticService = quantificatorLinguisticService;
     }
 
     @Override
@@ -49,11 +56,20 @@ public class SemanticIntegratorWriter implements ItemWriter<Holon>, StepExecutio
         items.forEach(h -> {
             h.setRelevance(h.getParent() != null && h.getParent().getCardinality() > 0
                     ? round(h.getCardinality().doubleValue() / h.getParent().getCardinality().doubleValue(), 2) : 0.00);
+            if (h.getPredicate() != null) {
+                h.setLinguisticSummary(String.join(" ",
+                        h.getCumulatedPredicateLinguistic(),
+                        h.getCumulatedPredicateLinguistic() != null ? ConjuctionsSuperior.getRandomConjuction() : "",
+                        quantificatorLinguisticService.findLabelByValue(h.getRelevance()),
+                        h.getAssumption()));
+            }
             Query query = Query.query(Criteria.where("_id").is(h.get_id()));
             Update update = Update.update("cardinality", h.getCardinality());
             Update updateRelevance = Update.update("relevance", h.getRelevance());
+            Update updateLinguistic = Update.update("linguisticSummary", h.getLinguisticSummary());
             template.upsert(query, update, Holon.class);
             template.upsert(query, updateRelevance, Holon.class);
+            template.upsert(query, updateLinguistic, Holon.class);
             if (counter % 100 == 0) {
                 System.out.println("Update: " + counter);
             }

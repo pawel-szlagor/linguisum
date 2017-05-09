@@ -3,6 +3,7 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.job.reader;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -34,9 +35,11 @@ public class SemanticIntegratorReader implements ItemReader<Holon>, Initializing
         if (holonPosition != null) {
             holonList = convertToEntites(holonCache.getRootHolons().get(holonPosition)).stream().sorted(comparing(Holon::getLevel)).collect(
                     toList());
-        } else {
+        } else if (!holonCache.getRootHolons().isEmpty()) {
             holonList = convertToEntites(holonCache.getRootHolons().remove(0));
             holonList.sort(comparing(Holon::getLevel));
+        } else {
+            holonList = Collections.EMPTY_LIST;
         }
     }
 

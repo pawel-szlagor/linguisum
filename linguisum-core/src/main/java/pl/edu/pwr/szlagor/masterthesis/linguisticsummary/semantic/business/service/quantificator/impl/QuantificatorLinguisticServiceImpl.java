@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,9 +50,10 @@ public class QuantificatorLinguisticServiceImpl implements QuantificatorLinguist
     }
 
     @Override
+    @Cacheable("label")
     @Transactional(readOnly = true, value = "semanticTransactionManager")
     public String findLabelByValue(Double value) {
-        return repository.findByLowerBoundaryGreaterThanAndUpperBoundaryLessThan(value).getLabel();
+        return repository.findByLowerBoundaryLessThanAndUpperBoundaryGreaterThanEqual(value, value).getLabel();
     }
 
     @Override

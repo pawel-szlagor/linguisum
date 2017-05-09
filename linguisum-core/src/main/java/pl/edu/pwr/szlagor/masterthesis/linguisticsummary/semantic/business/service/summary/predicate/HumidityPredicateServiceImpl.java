@@ -24,10 +24,16 @@ public class HumidityPredicateServiceImpl implements CategoryPredicateService {
     }
 
     @Override
-    public List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates() {
+    public List<Predicate> createPossiblePredicates() {
         return memGradeService.findByProperty(HUMIDITY.name())
                               .stream()
-                              .map(l -> snapshot.weatherConditions.humidity.between(l.getLowerBoundary(), l.getUpperBoundary()))
+                              .map(l -> Predicate.builder()
+                                                 .booleanExpression(snapshot.weatherConditions.humidity.between(l.getLowerBoundary(),
+                                                         l.getUpperBoundary()))
+                                                 .label(l.getDescription())
+                                                 .verb("jest")
+                                                 .linguisticVariable("wilgotność")
+                                                 .build())
                               .collect(toList());
     }
 }

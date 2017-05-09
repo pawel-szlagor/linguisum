@@ -24,10 +24,16 @@ public class PressurePredicateServiceImpl implements CategoryPredicateService {
     }
 
     @Override
-    public List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates() {
+    public List<Predicate> createPossiblePredicates() {
         return memGradeService.findByProperty(PRESSURE.name())
                               .stream()
-                              .map(l -> pSnapshot.weatherConditions.pressure.between(l.getLowerBoundary(), l.getUpperBoundary()))
+                              .map(l -> Predicate.builder()
+                                                 .booleanExpression(pSnapshot.weatherConditions.pressure.between(l.getLowerBoundary(),
+                                                         l.getUpperBoundary()))
+                                                 .linguisticVariable("ciśnienie")
+                                                 .verb("jest")
+                                                 .label(l.getDescription())
+                                                 .build())
                               .collect(toList());
     }
 }

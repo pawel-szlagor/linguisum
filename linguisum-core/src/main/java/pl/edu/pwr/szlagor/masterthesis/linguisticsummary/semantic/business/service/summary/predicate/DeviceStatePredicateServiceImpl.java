@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
-import com.mysema.query.types.expr.BooleanExpression;
 import com.mysema.query.types.path.SimplePath;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Device;
@@ -31,7 +30,7 @@ public class DeviceStatePredicateServiceImpl implements CategoryPredicateService
     }
 
     @Override
-    public List<BooleanExpression> createPossiblePredicates() {
+    public List<Predicate> createPossiblePredicates() {
         final List<Device> deviceList = deviceRepository.findAll();
         deviceList.sort(Comparator.comparingLong(Device::getId));
         final List<SimplePath<DeviceState>> simplePaths = Lists.newArrayList(pSnapshot.deviceStates.deviceState1,
@@ -46,7 +45,13 @@ public class DeviceStatePredicateServiceImpl implements CategoryPredicateService
                 pSnapshot.deviceStates.deviceState10);
         simplePaths.subList(0, deviceList.size());
         return IntStream.range(0, deviceList.size())
-                        .mapToObj(i -> simplePaths.get(i).eq(DeviceState.builder().device(deviceList.get(i)).isOn(true).build()))
+                        .mapToObj(i -> Predicate.builder()
+                                                .booleanExpression(simplePaths.get(i).eq(
+                                                        DeviceState.builder().device(deviceList.get(i)).isOn(true).build()))
+                                                .linguisticVariable(deviceList.get(i).getName())
+                                                .verb("jest w stanie")
+                                                .label("włączonym")
+                                                .build())
                         .collect(toList());
     }
 }

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 import com.mysema.query.types.Expression;
-import com.mysema.query.types.expr.BooleanExpression;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QRoomState;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Room;
@@ -41,7 +40,7 @@ public class RoomStatePredicateServiceImpl implements CategoryPredicateService {
     }
 
     @Override
-    public List<BooleanExpression> createPossiblePredicates() {
+    public List<Predicate> createPossiblePredicates() {
         final List<Room> roomList = roomRepository.findAll();
         roomList.sort(Comparator.comparingLong(Room::getId));
         final ArrayList<QRoomState> roomStates = Lists.newArrayList(pSnapshot.roomStates.roomState1,
@@ -53,29 +52,35 @@ public class RoomStatePredicateServiceImpl implements CategoryPredicateService {
                 pSnapshot.roomStates.roomState7,
                 pSnapshot.roomStates.roomState8,
                 pSnapshot.roomStates.roomState9);
-        List<BooleanExpression> expressions = Lists.newArrayList();
+        List<Predicate> expressions = Lists.newArrayList();
 
-        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState1);
-        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState2);
-        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState3);
-        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState4);
-        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState5);
-        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState6);
-        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState7);
-        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState8);
-        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState9);
-        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState10);
+        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState1, 0);
+        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState2, 1);
+        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState3, 2);
+        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState4, 3);
+        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState5, 4);
+        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState6, 5);
+        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState7, 6);
+        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState8, 7);
+        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState9, 8);
+        addExpressionForRoomState(roomList, expressions, pSnapshot.roomStates.roomState10, 9);
         return expressions;
     }
 
-    private void addExpressionForRoomState(List<Room> roomList, List<BooleanExpression> expressions, QRoomState roomState1) {
-
-        final Stream<BooleanExpression> booleanExpressionStream = personRepository.findAll().stream().flatMap(
-                p -> memGradeService.findByProperty(DES_TEMP.name()).stream().map(t -> {
-                    final Expression expression = QRoomState.roomState.desiredTemp.between(t.getLowerBoundary(), t.getUpperBoundary())
-                                                                                  .and(QRoomState.roomState.room.eq(roomList.get(0)));
-                    return roomState1.eq(expression);
-                }));
-        expressions.addAll(booleanExpressionStream.collect(Collectors.toList()));
+    private void addExpressionForRoomState(List<Room> roomList, List<Predicate> expressions, QRoomState roomState1, int index) {
+        if (roomList.size() > index) {
+            final Stream<Predicate> booleanExpressionStream = personRepository.findAll().stream().flatMap(
+                    p -> memGradeService.findByProperty(DES_TEMP.name()).stream().map(t -> {
+                        final Expression expression = QRoomState.roomState.desiredTemp.between(t.getLowerBoundary(), t.getUpperBoundary())
+                                                                                      .and(QRoomState.roomState.room.eq(roomList.get(0)));
+                        return Predicate.builder()
+                                        .booleanExpression(roomState1.eq(expression))
+                                        .verb("jest ustawiona")
+                                        .label(t.getDescription())
+                                        .linguisticVariable("temperatura w " + roomList.get(index).getName())
+                                        .build();
+                    }));
+            expressions.addAll(booleanExpressionStream.collect(Collectors.toList()));
+        }
     }
 }

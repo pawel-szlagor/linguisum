@@ -10,8 +10,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.mysema.query.types.expr.BooleanExpression;
-
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.model.fuzzy.MemGradeService;
 
 /**
@@ -27,17 +25,28 @@ public class DayPhasePredicateServiceImpl implements CategoryPredicateService {
     }
 
     @Override
-    public List<BooleanExpression> createPossiblePredicates() {
+    public List<Predicate> createPossiblePredicates() {
         return memGradeService.findByProperty(DAY_PHASE.name())
                               .stream()
-                              .map(p -> (pSnapshot.time.hour().gt(ofSecondOfDay((long) p.getLowerBoundary()).getHour()).or(
-                                      pSnapshot.time.hour().goe(ofSecondOfDay((long) p.getLowerBoundary()).getHour()).and(
-                                              pSnapshot.time.minute().goe(ofSecondOfDay((long) p.getLowerBoundary()).getMinute())))).and(
-                                                      (pSnapshot.time.hour().lt(ofSecondOfDay((long) p.getLowerBoundary()).getHour())).or(
-                                                              pSnapshot.time.hour()
-                                                                            .loe(ofSecondOfDay((long) p.getLowerBoundary()).getHour())
-                                                                            .and(pSnapshot.time.minute().loe(ofSecondOfDay(
-                                                                                    (long) p.getLowerBoundary()).getMinute())))))
+                              .map(p -> Predicate.builder()
+                                                 .booleanExpression(
+                                                         (pSnapshot.time.hour().gt(ofSecondOfDay((long) p.getLowerBoundary()).getHour()).or(
+                                                                 pSnapshot.time.hour()
+                                                                               .goe(ofSecondOfDay((long) p.getLowerBoundary()).getHour())
+                                                                               .and(pSnapshot.time.minute().goe(ofSecondOfDay(
+                                                                                       (long) p.getLowerBoundary()).getMinute())))).and(
+                                                                                               (pSnapshot.time.hour().lt(ofSecondOfDay(
+                                                                                                       (long) p.getLowerBoundary()).getHour())).or(
+                                                                                                               pSnapshot.time.hour()
+                                                                                                                             .loe(ofSecondOfDay(
+                                                                                                                                     (long) p.getLowerBoundary()).getHour())
+                                                                                                                             .and(pSnapshot.time.minute()
+                                                                                                                                                .loe(ofSecondOfDay(
+                                                                                                                                                        (long) p.getLowerBoundary()).getMinute())))))
+                                                 .label(p.getDescription())
+                                                 .linguisticVariable("")
+                                                 .verb("jest")
+                                                 .build())
                               .collect(toList());
     }
 }

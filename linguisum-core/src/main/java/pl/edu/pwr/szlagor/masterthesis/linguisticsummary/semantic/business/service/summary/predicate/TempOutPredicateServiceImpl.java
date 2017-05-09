@@ -24,10 +24,16 @@ public class TempOutPredicateServiceImpl implements CategoryPredicateService {
     }
 
     @Override
-    public List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates() {
+    public List<Predicate> createPossiblePredicates() {
         return memGradeService.findByProperty(TEMP_OUT.name())
                               .stream()
-                              .map(l -> pSnapshot.weatherConditions.tempOut.between(l.getLowerBoundary(), l.getUpperBoundary()))
+                              .map(l -> Predicate.builder()
+                                                 .booleanExpression(pSnapshot.weatherConditions.tempOut.between(l.getLowerBoundary(),
+                                                         l.getUpperBoundary()))
+                                                 .linguisticVariable("temepratura zewnętrzna")
+                                                 .verb("jest")
+                                                 .label(l.getDescription())
+                                                 .build())
                               .collect(toList());
     }
 }

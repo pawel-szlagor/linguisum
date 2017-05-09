@@ -27,11 +27,11 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
-import com.mysema.query.types.expr.BooleanExpression;
 
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.SnapshotRepository;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.PSnapshotRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.CategoryPredicateService;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.CategoryPredicateTypes;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.Predicate;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.summary.Holon;
 
 /**
@@ -52,7 +52,7 @@ public class HolonCreatorTasklet implements Tasklet {
             // PRESSURE,
             HUMIDITY);
     private final CategoryPredicateTypes result = ROOM_STATE;
-    private final SnapshotRepository snapshotRepository;
+    private final PSnapshotRepository psnapshotRepository;
     private final MongoTemplate template;
     private final CategoryPredicateService dayPhasePredicateService;
     private final CategoryPredicateService deviceStatePredicateService;
@@ -66,7 +66,7 @@ public class HolonCreatorTasklet implements Tasklet {
     private final CategoryPredicateService userPositionPredicateService;
     private final CategoryPredicateService windspeedPredicateService;
     private final CategoryPredicateService roomStatePredicateService;
-    private Map<CategoryPredicateTypes, List<BooleanExpression>> mapOfPredicates = new HashMap<>();
+    private Map<CategoryPredicateTypes, List<Predicate>> mapOfPredicates = new HashMap<>();
     private final ProfilesCombinationsCache profilesCombinationsCache;
     private Random random = new Random();
 
@@ -84,7 +84,7 @@ public class HolonCreatorTasklet implements Tasklet {
             @Qualifier(value = "mediaUsagePredicateService") CategoryPredicateService mediaUsagePredicateService,
             @Qualifier(value = "roomStatePredicateService") CategoryPredicateService roomStatePredicateService,
             HolonCache holonCache,
-            SnapshotRepository snapshotRepository,
+            PSnapshotRepository psnapshotRepository,
             MongoTemplate template,
             ProfilesCombinationsCache profilesCombinationsCache) {
         this.windspeedPredicateService = windspeedPredicateService;
@@ -100,7 +100,7 @@ public class HolonCreatorTasklet implements Tasklet {
         this.mediaUsagePredicateService = mediaUsagePredicateService;
         this.roomStatePredicateService = roomStatePredicateService;
         this.holonCache = holonCache;
-        this.snapshotRepository = snapshotRepository;
+        this.psnapshotRepository = psnapshotRepository;
         this.template = template;
         this.profilesCombinationsCache = profilesCombinationsCache;
     }
@@ -115,7 +115,7 @@ public class HolonCreatorTasklet implements Tasklet {
             return RepeatStatus.FINISHED;
         }
         final List<CategoryPredicateTypes> combination = profilesCombinationsCache.getProfilesCombinations().remove(0);
-        Holon root = Holon.builder().cardinality(snapshotRepository.count()).build();
+        Holon root = Holon.builder().cardinality(psnapshotRepository.count()).build();
         generateHolonsWithPredicatesForLevel(combination, root, 0);
         List<Holon> holonToSave = convertToEntites(root);
         while (holonToSave.size() > MAX_HOLONS) {

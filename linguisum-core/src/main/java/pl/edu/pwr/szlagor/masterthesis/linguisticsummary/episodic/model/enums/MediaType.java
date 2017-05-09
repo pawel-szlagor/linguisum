@@ -4,10 +4,10 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums;
  * Created by Pawel on 2017-01-16.
  */
 public enum MediaType {
-    HOT_WATER("hot water", "dm3"),
-    COLD_WATER("cold water", "dm3"),
-    ELECTRICITY("electricity", "kWh"),
-    GAS("gas", "m3)");
+    HOT_WATER("gorąca woda", "dm3"),
+    COLD_WATER("zimna woda", "dm3"),
+    ELECTRICITY("elektryczność", "kWh"),
+    GAS("gaz", "m3)");
 
     private String name;
     private String unit;

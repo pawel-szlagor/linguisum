@@ -2,11 +2,9 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.s
 
 import static java.util.stream.Collectors.toList;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
-import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -15,10 +13,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import org.bson.types.ObjectId;
+import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Entity;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.google.common.collect.Lists;
 import com.mysema.query.types.expr.BooleanExpression;
 
 import lombok.AllArgsConstructor;
@@ -26,8 +26,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.common.converter.BooleanExpressionConverter;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.CategoryPredicateTypes;
+import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.business.service.summary.predicate.Predicate;
 
 /**
  * Created by Pawel on 2017-03-17.
@@ -46,9 +46,10 @@ public class Holon {
     private ObjectId _id;
     @Enumerated(EnumType.STRING)
     private CategoryPredicateTypes predicateType;
-    @Convert(converter = BooleanExpressionConverter.class)
-    private BooleanExpression predicate;
+    @Embedded
+    private Predicate predicate;
     private String cumulatedPredicate;
+    private String linguisticSummary;
     @ElementCollection
     private List<CategoryPredicateTypes> cumulatedPredicatesTypes;
     private Long cardinality;
@@ -58,22 +59,31 @@ public class Holon {
     private List<Holon> children;
 
     @Transient
+    public String getCumulatedPredicateLinguistic() {
+        return parent != null && parent.getPredicate() != null
+                ? getCumulatedPredicatesFromParents().stream()
+                                                     .map(Predicate::toString)
+                                                     .reduce(ConjuctionsHipotactic.getRandomConjuction(),
+                                                             (a, b) -> String.join(" ",
+                                                                     a,
+                                                                     Arrays.stream(ConjuctionsHipotactic.values())
+                                                                           .map(ConjuctionsHipotactic::getValue)
+                                                                           .anyMatch(e -> e.equals(a)) ? ""
+                                                                                   : Conjuctions.getRandomConjuction(),
+                                                                     b))
+                : "";
+    }
+
+    @Transient
+    public String getAssumption() {
+        return predicate != null ? predicate.toString() : "";
+    }
+
+    @Transient
     public BooleanExpression getCumulatedPredicate() {
-        return parent != null && parent.getCumulatedPredicate() != null ? parent.getCumulatedPredicate().and(predicate) : predicate;
-    }
-
-    @Transient
-    public Stream<CategoryPredicateTypes> getCumulatedPredicatesTypes() {
-        return parent != null && parent.getCumulatedPredicatesTypes() != null
-                ? Stream.concat(parent.getCumulatedPredicatesTypes(), Stream.of(predicateType)) : Stream.of(predicateType);
-    }
-
-    @Transient
-    public void addChild(BooleanExpression predicate, CategoryPredicateTypes predicateType) {
-        if (children == null) {
-            children = new ArrayList<>();
-        }
-        children.add(Holon.builder().parent(this).predicate(predicate).predicateType(predicateType).build());
+        final List<Predicate> cumulatedPredicates = getCumulatedPredicatesFromParents();
+        cumulatedPredicates.add(predicate);
+        return cumulatedPredicates.stream().map(Predicate::getBooleanExpression).reduce(BooleanExpression::and).orElse(null);
     }
 
     @Transient
@@ -86,18 +96,25 @@ public class Holon {
     }
 
     @Transient
+    public List<Predicate> getCumulatedPredicatesFromParents() {
+        if (parent != null && parent.getPredicate() != null) {
+            final List<Predicate> cumulatedPredicatesFromParents = parent.getCumulatedPredicatesFromParents();
+            cumulatedPredicatesFromParents.add(parent.getPredicate());
+            return cumulatedPredicatesFromParents;
+        } else {
+            return Lists.newArrayList();
+        }
+    }
+
+    @Transient
     public Holon getRoot() {
         return parent == null ? this : parent;
     }
 
     @Transient
-    public void addChildren(List<BooleanExpression> predicates, CategoryPredicateTypes predicateType) {
+    public void addChildren(List<Predicate> predicates, CategoryPredicateTypes predicateType) {
         final List<Holon> holons = predicates.stream()
-                                             .map(p -> Holon.builder()
-                                                            .parent(this)
-                                                            .predicate(p)
-                                                            .predicateType(predicateType)
-                                                            .build())
+                                             .map(p -> Holon.builder().parent(this).predicate(p).predicateType(predicateType).build())
                                              .collect(toList());
         if (children == null) {
             children = holons;

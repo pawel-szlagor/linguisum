@@ -9,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.mysema.query.types.expr.BooleanExpression;
-
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.PersonState;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.PersonRepository;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.repository.repository.RoomRepository;
@@ -31,14 +29,28 @@ public class UserPositionPredicateServiceImpl implements CategoryPredicateServic
 
     @Transactional(readOnly = true, value = "semanticTransactionManager")
     @Override
-    public List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates() {
-        final List<BooleanExpression> booleanExpressions = personRepository.findAll()
-                                                                           .stream()
-                                                                           .flatMap(p -> roomRepository.findAll().stream().map(
-                                                                                   r -> snapshot.personStates.contains(
-                                                                                           new PersonState(p, r))))
-                                                                           .collect(Collectors.toList());
-        booleanExpressions.add(snapshot.roomStates.isEmpty());
+    public List<Predicate> createPossiblePredicates() {
+        final List<Predicate> booleanExpressions = personRepository.findAll()
+                                                                   .stream()
+                                                                   .flatMap(p -> roomRepository.findAll()
+                                                                                               .stream()
+                                                                                               .map(r -> Predicate.builder()
+                                                                                                                  .booleanExpression(
+                                                                                                                          snapshot.personStates.contains(
+                                                                                                                                  new PersonState(p,
+                                                                                                                                                  r)))
+                                                                                                                  .verb("znajduje się w")
+                                                                                                                  .label(r.getName())
+                                                                                                                  .linguisticVariable(
+                                                                                                                          p.getName())
+                                                                                                                  .build()))
+                                                                   .collect(Collectors.toList());
+        booleanExpressions.add(Predicate.builder()
+                                        .booleanExpression(snapshot.roomStates.isEmpty())
+                                        .verb("nie znajduje się w")
+                                        .linguisticVariable("nikt")
+                                        .label("żadnym pokoju")
+                                        .build());
         return booleanExpressions;
     }
 }

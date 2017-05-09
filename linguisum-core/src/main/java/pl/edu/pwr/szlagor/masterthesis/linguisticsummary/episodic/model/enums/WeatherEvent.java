@@ -2,15 +2,18 @@ package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.enums;
 
 import java.util.Arrays;
 
+import lombok.Getter;
+
 /**
  * Created by Pawel on 2017-01-17.
  */
+@Getter
 public enum WeatherEvent {
-    FOG("Fog"),
-    RAIN("Rain"),
-    SNOW("Snow"),
-    HAIL("Hail"),
-    THUNDERSTORM("Thunderstorm");
+    FOG("mgła"),
+    RAIN("opady deszczu"),
+    SNOW("opady śniegu"),
+    HAIL("grad"),
+    THUNDERSTORM("burza");
 
     private String key;
 

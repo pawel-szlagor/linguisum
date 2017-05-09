@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
-import com.mysema.query.types.expr.BooleanExpression;
 
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.QMediaUsage;
 import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.Room;
@@ -34,7 +33,7 @@ public class MediaUsagePredicateServiceImpl implements CategoryPredicateService 
     }
 
     @Override
-    public List<BooleanExpression> createPossiblePredicates() {
+    public List<Predicate> createPossiblePredicates() {
         final List<Room> roomList = roomRepository.findAll();
         final MediaType[] mediaTypes = values();
         final List<QMediaUsage> qMediaUsageStream = Lists.newArrayList(pSnapshot.mediaUsages.mediaUsage1,
@@ -42,16 +41,20 @@ public class MediaUsagePredicateServiceImpl implements CategoryPredicateService 
                 pSnapshot.mediaUsages.mediaUsage3,
                 pSnapshot.mediaUsages.mediaUsage4);
         IntStream.range(0, mediaTypes.length).forEach(i -> qMediaUsageStream.get(i).mediaType.eq(mediaTypes[i]));
-        List<BooleanExpression> expressions = Lists.newArrayList();
-        expressions.addAll(
-                qMediaUsageStream.stream()
-                                 .flatMap(qm -> memGradeService.findByProperty(mediaTypes[qMediaUsageStream.indexOf(qm)].name())
-                                                               .stream()
-                                                               .map(p -> qm.mediaType.eq(mediaTypes[qMediaUsageStream.indexOf(qm)]).and(
+        return qMediaUsageStream.stream()
+                                .flatMap(
+                                        qm -> memGradeService.findByProperty(mediaTypes[qMediaUsageStream.indexOf(qm)].name()).stream().map(
+                                                p -> Predicate.builder()
+                                                              .booleanExpression(qm.mediaType.eq(mediaTypes[qMediaUsageStream.indexOf(qm)])
+                                                                                             .and(
 
-                                                                       qm.usagePerMinute.between(p.getLowerBoundary(),
-                                                                               p.getUpperBoundary()))))
-                                 .collect(Collectors.toList()));
-        return expressions;
+                                                                                                     qm.usagePerMinute.between(
+                                                                                                             p.getLowerBoundary(),
+                                                                                                             p.getUpperBoundary())))
+                                                              .verb("występuje")
+                                                              .linguisticVariable("zużycie " + mediaTypes[qMediaUsageStream.indexOf(qm)])
+                                                              .label(p.getDescription())
+                                                              .build()))
+                                .collect(Collectors.toList());
     }
 }

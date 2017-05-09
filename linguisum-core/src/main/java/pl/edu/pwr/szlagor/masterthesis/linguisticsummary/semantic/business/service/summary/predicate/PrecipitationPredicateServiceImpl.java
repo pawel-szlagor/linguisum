@@ -24,10 +24,16 @@ public class PrecipitationPredicateServiceImpl implements CategoryPredicateServi
     }
 
     @Override
-    public List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates() {
+    public List<Predicate> createPossiblePredicates() {
         return memGradeService.findByProperty(PRECIPITATION.name())
                               .stream()
-                              .map(l -> pSnapshot.weatherConditions.precipitation.between(l.getLowerBoundary(), l.getUpperBoundary()))
+                              .map(l -> Predicate.builder()
+                                                 .booleanExpression(pSnapshot.weatherConditions.precipitation.between(l.getLowerBoundary(),
+                                                         l.getUpperBoundary()))
+                                                 .linguisticVariable("")
+                                                 .verb("występuje")
+                                                 .label(l.getDescription())
+                                                 .build())
                               .collect(toList());
     }
 }

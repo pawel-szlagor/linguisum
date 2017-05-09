@@ -24,10 +24,16 @@ public class SunlightPredicateServiceImpl implements CategoryPredicateService {
     }
 
     @Override
-    public List<com.mysema.query.types.expr.BooleanExpression> createPossiblePredicates() {
+    public List<Predicate> createPossiblePredicates() {
         return memGradeService.findByProperty(SUNLIGHT.name())
                               .stream()
-                              .map(l -> pSnapshot.weatherConditions.sunlightEmission.between(l.getLowerBoundary(), l.getUpperBoundary()))
+                              .map(l -> Predicate.builder()
+                                                 .booleanExpression(pSnapshot.weatherConditions.sunlightEmission.between(
+                                                         l.getLowerBoundary(), l.getUpperBoundary()))
+                                                 .verb("występuje")
+                                                 .linguisticVariable("")
+                                                 .label(l.getDescription())
+                                                 .build())
                               .collect(toList());
     }
 }

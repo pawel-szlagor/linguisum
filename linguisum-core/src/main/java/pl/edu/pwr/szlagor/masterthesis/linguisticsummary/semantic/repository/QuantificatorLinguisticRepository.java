@@ -8,5 +8,5 @@ import pl.edu.pwr.szlagor.masterthesis.linguisticsummary.semantic.persistence.Qu
  * Created by Pawel on 2017-03-12.
  */
 public interface QuantificatorLinguisticRepository extends JpaRepository<QuantificatorLinguistic, Long> {
-    QuantificatorLinguistic findByLowerBoundaryGreaterThanAndUpperBoundaryLessThan(Double value);
+    QuantificatorLinguistic findByLowerBoundaryLessThanAndUpperBoundaryGreaterThanEqual(double lower, double upper);
 }
