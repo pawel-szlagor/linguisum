@@ -1,8 +1,5 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.converter;
 
-import java.sql.Date;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.List;
 
@@ -39,8 +36,9 @@ public class PSnapshotConverter implements Converter<Snapshot, PSnapshot> {
     @Override
     public PSnapshot convert(Snapshot source) {
         return PSnapshot.builder()
-                        .time(Date.from(source.getTime().atDate(LocalDate.now()).toInstant(ZoneOffset.UTC)))
-                        .date(Date.valueOf(source.getDate()))
+                        .time(source.getTime().getHour() * 10000 + source.getTime().getMinute() * 100 + source.getTime().getSecond())
+                        .date(source.getDate().getMonthValue() * 100 + source.getDate().getDayOfMonth())
+                        .dayOfWeek(source.getDate().getDayOfWeek().getValue())
                         .person(person)
                         .deviceStates(transformDeviceStates(source))
                         .id(source.getId())

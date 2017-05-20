@@ -178,7 +178,7 @@ public class EnvironmentConditions {
     }
 
     public String toString() {
-        return "pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model.EnvironmentConditions(tempOut=" + this.getTempOut()
+        return "EnvironmentConditions(tempOut=" + this.getTempOut()
                 + ", windchill=" + this.getWindchill() + ", humidity=" + this.getHumidity() + ", pressure=" + this.getPressure()
                 + ", windSpeed=" + this.getWindSpeed() + ", precipitation=" + this.getPrecipitation() + ", weatherEvents="
                 + this.getWeatherEvents() + ", sunlightEmission=" + this.getSunlightEmission() + ")";

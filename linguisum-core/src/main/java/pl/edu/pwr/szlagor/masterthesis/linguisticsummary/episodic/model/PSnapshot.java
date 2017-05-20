@@ -1,7 +1,5 @@
 package pl.edu.pwr.szlagor.masterthesis.linguisticsummary.episodic.model;
 
-import java.util.Date;
-
 import javax.persistence.Embedded;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -40,9 +38,13 @@ public class PSnapshot {
     private ObjectId id;
 
     @Indexed
-    private Date date;
+    private int date;
 
-    private Date time;
+    @Indexed
+    private int dayOfWeek;
+
+    @Indexed
+    private int time;
 
     private Person person;
 
